@@ -29,4 +29,22 @@ spring:
                     - Path=/user/**
                   filters:
                     - name: AuthenticationFilter
+                - id: account-service
+                  uri: lb://account-service
+                  predicates:
+                    - Path=/account/**
+                #   filters:
+                #     - name: AuthenticationFilter
+                - id: card-service
+                  uri: lb://card-service
+                  predicates:
+                    - Path=/card/**
+                #   filters:
+                #     - name: AuthenticationFilter
+                - id: transaction-service
+                  uri: lb://transaction-service
+                  predicates:
+                    - Path=/transaction/**
+                #   filters:
+                #     - name: AuthenticationFilter
         

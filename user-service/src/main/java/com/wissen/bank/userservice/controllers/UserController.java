@@ -75,8 +75,8 @@ public class UserController {
         .is_locked(false)
         .is_deleted(false)
         .build();
-        LOGGER.info("Creating user id: {}",_user.getId());
         userRepository.save(_user);
+        LOGGER.info("Creating user id: {}",_user.getId());
         return jwtService.generateToken(_user);
     }
 

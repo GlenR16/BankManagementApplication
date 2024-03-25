@@ -39,9 +39,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     token = token.substring(7);
                     Map<String, String> body = Map.of("token", token);
                     try {
+                        // Change to Feign
                         RestTemplate restTemplate = new RestTemplate();
                         User user = restTemplate.postForObject("http://localhost:8081/user/verify", body, User.class);
-                        System.out.println("User: " + user);
+                        // System.out.println("User: " + user);
                         if (user == null) {
                             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                             return exchange.getResponse().setComplete();
