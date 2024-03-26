@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.wissen.bank.apigateway.exceptions.UnauthorizedException;
 import com.wissen.bank.apigateway.models.User;
 
 @Component
@@ -26,13 +26,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         return ((exchange, chain) -> {
             if (routeValidator.isSecured.test(exchange.getRequest())) {
                 if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return exchange.getResponse().setComplete();
+                    throw new UnauthorizedException("Authorization header is missing");
                 }
                 List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
                 if (authHeader == null || authHeader.isEmpty()) {
-                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return exchange.getResponse().setComplete();
+                    throw new UnauthorizedException("Authorization header is missing");
                 }
                 String token = authHeader.get(0);
                 if (authHeader != null && token.startsWith("Bearer ")) {
@@ -43,20 +41,18 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         RestTemplate restTemplate = new RestTemplate();
                         User user = restTemplate.postForObject("http://localhost:8081/user/verify", body, User.class);
                         // System.out.println("User: " + user);
-                        if (user == null) {
-                            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                            return exchange.getResponse().setComplete();
+                        if (user == null || user.customerId() == null || user.role() == null){
+                            throw new UnauthorizedException("Authorization header is missing");
                         }
                         exchange.getRequest().mutate().header("Customer", user.customerId());
+                        exchange.getRequest().mutate().header("Role", user.role());
                     } catch (Exception e) {
                         System.out.println("Error: " + e.getMessage());
-                        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                        return exchange.getResponse().setComplete();
+                        throw new UnauthorizedException("Authorization header is missing");
                     }
                 }
                 else {
-                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return exchange.getResponse().setComplete();
+                    throw new UnauthorizedException("Authorization header is missing");
                 }
             }
             return chain.filter(exchange);

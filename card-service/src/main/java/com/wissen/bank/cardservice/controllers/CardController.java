@@ -85,8 +85,8 @@ public class CardController{
         .is_locked(false)
         .is_deleted(false)
         .build();
-        cardRepository.save(_card);
         LOGGER.info("Creating card id: {}",_card.getId());
+        cardRepository.save(_card);
         return _card;
     }
 
