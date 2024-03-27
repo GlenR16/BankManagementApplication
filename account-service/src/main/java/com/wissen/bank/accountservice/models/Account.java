@@ -30,7 +30,7 @@ public class Account {
     private long user_id;
     @Column(unique = true)
     private long account_number;
-    private String ifsc_code;
+    private long branch_id;
     private int type_id;
     private int balance;
     private int withdrawal_limit;

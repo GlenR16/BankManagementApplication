@@ -3,7 +3,6 @@ package com.wissen.bank.accountservice.controllers;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +28,12 @@ public class AccountController {
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @GetMapping("")
-    public String home(){
-        return "Welcome to Accounts Service";
-    }
+    // @GetMapping("")
+    // public String home(){
+    //     return "Welcome to Accounts Service";
+    // }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public List<Account> getAllAccounts(){
         LOGGER.info("Getting all Accounts");
         return accountRepository.findAll();
@@ -47,22 +46,17 @@ public class AccountController {
     }
 
     
-    @PostMapping("/register")
-    public String createUser(@RequestBody Account account){
+    @PostMapping("")
+    public Account createAccount(@RequestBody Account account){
 
         Random rand = new Random();
-        long randomNumber = rand.nextInt(1000000000);
-        long randomNumber1 = rand.nextInt(1000000000);
-        long accountNo = randomNumber;
-        long idNo = randomNumber1;
-
-        String ifsc1 = UUID.randomUUID().toString().replace("-", "").toUpperCase();
+        long accountNo = rand.nextLong(100000000,999999999);
 
         Account _account = Account
         .builder()
-        .user_id(idNo)                                   
+        .user_id(account.getUser_id())                                   
         .account_number(accountNo)
-        .ifsc_code(ifsc1)        
+        .branch_id(account.getBranch_id())        
         .type_id(account.getType_id())
         .balance(0)
         .withdrawal_limit(account.getWithdrawal_limit())
@@ -73,18 +67,19 @@ public class AccountController {
         .build();
 
         LOGGER.info("Creating account id: {}",_account.getId());
-        accountRepository.save(_account);
-        return "Account Created";
+        
+        return accountRepository.save(_account);
     }
 
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public Account updateAccount(@PathVariable long id, @RequestBody Account account){
         Optional<Account> _account = accountRepository.findById(id);
         if (_account.isEmpty()){
             return null;
         }
         Account __account = _account.get();
+        __account.setBranch_id(account.getBranch_id());
         __account.setType_id(account.getType_id());
         __account.setBalance(account.getBalance());
         __account.setWithdrawal_limit(account.getWithdrawal_limit());
@@ -94,7 +89,20 @@ public class AccountController {
     }
 
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
+    public Account isDeletedAccount(@PathVariable long id, @RequestBody Account account){
+        Optional<Account> _account = accountRepository.findById(id);
+        if (_account.isEmpty()){
+            return null;
+        }
+        Account __account = _account.get();
+        __account.set_deleted(true);
+        LOGGER.info("Is_Deleted account id: {}",__account.getId());
+        return accountRepository.save(__account);
+    }
+
+
+    @DeleteMapping("/del/{id}")
     public String deleteAccount(@PathVariable long id){
         LOGGER.info("Deleting account id: {}",id);
         accountRepository.deleteById(id);
