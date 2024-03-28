@@ -1,0 +1,13 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    background-image: url("background.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+#root{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
