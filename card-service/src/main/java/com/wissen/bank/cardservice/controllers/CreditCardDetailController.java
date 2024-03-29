@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wissen.bank.cardservice.models.CreditCardDetail;
 import com.wissen.bank.cardservice.repositories.CreditCardDetailRepository;
 
+import jakarta.ws.rs.NotFoundException;
+
 @RestController
 @RequestMapping("/card/creditCardDetails")
 public class CreditCardDetailController {
@@ -44,6 +46,10 @@ public class CreditCardDetailController {
         .credit_used(ccd.getCredit_used())
         .credit_transactions(ccd.getCredit_transactions())
         .build();
+
+        if (_CreditCardDetail == null){
+            throw new NotFoundException("Credit Card Details Object Null");
+        }
 
         LOGGER.info("Created new CreditCardDetail");
         

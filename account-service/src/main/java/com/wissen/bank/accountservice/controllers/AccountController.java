@@ -1,30 +1,36 @@
 package com.wissen.bank.accountservice.controllers;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.wissen.bank.accountservice.models.Role;
+import com.wissen.bank.accountservice.exceptions.exceptions.DatabaseIntegrityException;
+import com.wissen.bank.accountservice.exceptions.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.Account;
-import com.wissen.bank.accountservice.repositories.AccountRepository;
+import com.wissen.bank.accountservice.services.AccountService;
+import com.wissen.bank.accountservice.responses.Response;
 
 @RestController
 @RequestMapping("/account")
 public class AccountController {
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -34,78 +40,71 @@ public class AccountController {
     // }
 
     @GetMapping("")
-    public List<Account> getAllAccounts(){
-        LOGGER.info("Getting all Accounts");
-        return accountRepository.findAll();
+    public List<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE){
+        LOGGER.info("Admin {} Getting all accounts",customerId);
+            return accountService.getAllAccounts();
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
     
     @GetMapping("/{id}")
-    public Optional<Account> getAccountById(@PathVariable long id){
-        LOGGER.info("Getting Account by id: {}",id);
-        return accountRepository.findById(id);
+    public Account getAccountById(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE){
+            LOGGER.info("Admin "+customer+" Getting Account id: {}",id);
+            return accountService.getAccountById(id);
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
     
     @PostMapping("")
-    public Account createAccount(@RequestBody Account account){
-        // service.createAccount(account);
-        Random rand = new Random();
-        long accountNo = rand.nextLong(100000000,999999999);
+    public ResponseEntity<Response> createAccount(@RequestBody Account account){
+            Account _account = accountService.createAccount(account);
+            LOGGER.info("Creating account id: {}",_account.getId());
 
-        Account _account = Account
-        .builder()
-        .user_id(account.getUser_id())                                   
-        .account_number(accountNo)
-        .branch_id(account.getBranch_id())        
-        .type_id(account.getType_id())
-        .balance(0)
-        .withdrawal_limit(account.getWithdrawal_limit())
-        .is_verified(true)
-        .is_active(true)
-        .is_locked(false)
-        .is_deleted(false)
-        .build();
-
-        LOGGER.info("Creating account id: {}",_account.getId());
-        
-        return accountRepository.save(_account);
+            return ResponseEntity.ok().body(new Response(new Date(),200,"Account created successfully","/Account/"));
     }
 
 
-    @PutMapping("/{id}")
-    public Account updateAccount(@PathVariable long id, @RequestBody Account account){
-        Optional<Account> _account = accountRepository.findById(id);
-        if (_account.isEmpty()){
-            return null;
-        }
-        Account __account = _account.get();
-        __account.setBranch_id(account.getBranch_id());
-        __account.setType_id(account.getType_id());
-        __account.setBalance(account.getBalance());
-        __account.setWithdrawal_limit(account.getWithdrawal_limit());
 
-        LOGGER.info("Updating account id: {}",__account.getId());
-        return accountRepository.save(__account);
+    @PutMapping("/{id}")
+    public ResponseEntity<Response> updateAccount(@PathVariable long id, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+
+        if (role == Role.ADMIN || role == Role.EMPLOYEE ){
+            LOGGER.info("Updating Account id: {}",id);
+            accountService.updateAccount(account, id);
+            return ResponseEntity.ok().body(new Response(new Date(),200,"account updated successfully","/account/"+id));
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
 
     @DeleteMapping("/{id}")
-    public Account isDeletedAccount(@PathVariable long id, @RequestBody Account account){
-        Optional<Account> _account = accountRepository.findById(id);
-        if (_account.isEmpty()){
-            return null;
+    public ResponseEntity<Response> isDeletedAccount(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+        LOGGER.info("Deleting Account id: {}",id);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE){
+            accountService.deleteAccountById(id);
+            return ResponseEntity.ok().body(new Response(new Date(),200,"Admin "+customer+" deleted the account successfully","/Account/"+id));
         }
-        Account __account = _account.get();
-        __account.set_deleted(true);
-        LOGGER.info("Is_Deleted account id: {}",__account.getId());
-        return accountRepository.save(__account);
+        else{
+            throw new UnauthorizedException("Unauthorized");
+        }
     }
 
 
-    @DeleteMapping("/del/{id}")
-    public String deleteAccount(@PathVariable long id){
-        LOGGER.info("Deleting account id: {}",id);
-        accountRepository.deleteById(id);
-        return "Account Deleted";
+    // @DeleteMapping("/del/{id}")
+    // public String deleteAccount(@PathVariable long id){
+    //     LOGGER.info("Deleting account id: {}",id);
+    //     accountRepository.deleteById(id);
+    //     return "Account Deleted";
+    // }
+
+
+    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
+    public ResponseEntity<Response> handleSQLException(Exception e){
+        LOGGER.error("Error: {}",e.getMessage());
+        throw new DatabaseIntegrityException("Database Integrity Violation");
     }
+
 }
