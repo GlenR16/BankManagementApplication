@@ -51,9 +51,6 @@ public class TransactionTypeController {
                 }
 
         LOGGER.info("Created a transaction type record");
-
-        if(_transactionType == null)
-            throw new NotFoundException("transactionType is NUlL");
         return transactionTypeRepository.save(_transactionType);
     }
 
