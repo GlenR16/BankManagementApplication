@@ -4,14 +4,3 @@ spring:
     config:
         import: "optional:configserver:http://localhost:8088"
 
-management:
-    endpoints:
-        web:
-            exposure:
-                include: "*"
-    endpoint:
-        health:
-            show-details: always
-    info:
-        env:
-            enabled: true

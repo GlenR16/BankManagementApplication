@@ -1,3 +1,6 @@
+server:
+    port: 8083
+
 spring:
     sql.init.mode: always
     datasource:
@@ -11,15 +14,22 @@ spring:
             ddl-auto: create-drop
         show-sql: true
 
-server:
-    port: 8083
-
 eureka:
     client:
         serviceUrl:
             defaultZone: http://localhost:8761/eureka/
 
 management:
-  tracing:
-    sampling:
-      probability: 1.0
+    tracing:
+        sampling:
+            probability: 1.0
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    endpoint:
+        health:
+            show-details: always
+    info:
+        env:
+            enabled: true

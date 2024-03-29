@@ -44,3 +44,14 @@ This is a simple bank management system made as part of our training at Wissen T
 - ~~Authentication and Authorization should be implemented~~
 - ~~Service registration and discovery~~
 - ~~Load balancer setup~~
+
+## Ports
+- api-gateway:8080
+- user-service:8081
+- account-service:8082
+- card-service:8083
+- transaction-service:8084
+- config-server:8088
+- service-registry:8761
+- postgres:5432
+- zipkin:9411

@@ -9,6 +9,10 @@ management:
     tracing:
         sampling:
             probability: 1.0
+    endpoints:
+        web:
+            exposure:
+                include: "*"
     endpoint:
         health:
             show-details: always
@@ -19,28 +23,28 @@ management:
 spring:
     cloud:
         gateway:
-                default-filters:
+            default-filters:
                 - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-                globalcors:
-                    corsConfigurations:
-                      '[/**]':
+            globalcors:
+                corsConfigurations:
+                    "[/**]":
                         allowedOrigins: "*"
                         allowedMethods: "*"
                         allowedHeaders: "*"
-                routes:
+            routes:
                 - id: user-service
                   uri: lb://user-service
                   predicates:
-                    - Path=/user/**
+                      - Path=/user/**
                 - id: account-service
                   uri: lb://account-service
                   predicates:
-                    - Path=/account/**
+                      - Path=/account/**
                 - id: card-service
                   uri: lb://card-service
                   predicates:
-                    - Path=/card/**
+                      - Path=/card/**
                 - id: transaction-service
                   uri: lb://transaction-service
                   predicates:
-                    - Path=/transaction/**
+                      - Path=/transaction/**
