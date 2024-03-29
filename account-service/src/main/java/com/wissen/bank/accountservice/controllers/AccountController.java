@@ -50,7 +50,7 @@ public class AccountController {
     
     @GetMapping("/{id}")
     public Account getAccountById(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-        if (role == Role.ADMIN || role == Role.EMPLOYEE){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER){
             LOGGER.info("Admin "+customer+" Getting Account id: {}",id);
             return accountService.getAccountById(id);
         }
@@ -59,11 +59,14 @@ public class AccountController {
 
     
     @PostMapping("")
-    public ResponseEntity<Response> createAccount(@RequestBody Account account){
+    public ResponseEntity<Response> createAccount(@RequestBody Account account, @RequestHeader("Role") Role role){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER){
             Account _account = accountService.createAccount(account);
             LOGGER.info("Creating account id: {}",_account.getId());
 
             return ResponseEntity.ok().body(new Response(new Date(),200,"Account created successfully","/Account/"));
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
 
@@ -71,7 +74,7 @@ public class AccountController {
     @PutMapping("/{id}")
     public ResponseEntity<Response> updateAccount(@PathVariable long id, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
 
-        if (role == Role.ADMIN || role == Role.EMPLOYEE ){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER ){
             LOGGER.info("Updating Account id: {}",id);
             accountService.updateAccount(account, id);
             return ResponseEntity.ok().body(new Response(new Date(),200,"account updated successfully","/account/"+id));
