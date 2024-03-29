@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wissen.bank.transactionservice.models.TransactionType;
 import com.wissen.bank.transactionservice.repositories.TransactionTypeRepository;
 
+import jakarta.ws.rs.NotFoundException;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +47,9 @@ public class TransactionTypeController {
                 .build();
 
         LOGGER.info("Created a transaction type record");
+
+        if(_transactionType == null)
+            throw new NotFoundException("transactionType is NUlL");
         return transactionTypeRepository.save(_transactionType);
     }
 
