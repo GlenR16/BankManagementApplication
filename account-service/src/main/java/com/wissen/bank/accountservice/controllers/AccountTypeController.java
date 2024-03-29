@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
 import com.wissen.bank.accountservice.models.AccountType;
 import com.wissen.bank.accountservice.repositories.AccountTypeRepository;
 
@@ -34,12 +35,16 @@ public class AccountTypeController {
 
     @PostMapping("")
     public AccountType postAccountType(@RequestBody AccountType br) {
-        
+
         AccountType _accType = AccountType
         .builder()
         .id(br.getId())
         .name(br.getName())
         .build();
+
+        if (_accType == null){
+            throw new NotFoundException("Account Null");
+        }
 
         LOGGER.info("Created new AccountType");
         

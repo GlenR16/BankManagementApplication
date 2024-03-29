@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wissen.bank.cardservice.models.CardType;
 import com.wissen.bank.cardservice.repositories.CardTypeRepository;
 
+import jakarta.ws.rs.NotFoundException;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -42,6 +44,10 @@ public class CardTypeController {
         .name(ct.getName())
         .intrest(ct.getIntrest())
         .build();
+
+        if (_cardType == null){
+            throw new NotFoundException("card Type Object Null");
+        }
 
         LOGGER.info("Created new Card Type");
         

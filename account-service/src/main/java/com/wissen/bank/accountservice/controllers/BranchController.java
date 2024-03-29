@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
 import com.wissen.bank.accountservice.models.Branch;
 import com.wissen.bank.accountservice.repositories.BranchRepository;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +45,10 @@ public class BranchController {
         .address(br.getAddress())
         .ifsc_code(br.getIfsc_code())
         .build();
+
+        if (_branch == null){
+            throw new NotFoundException("Branch Object Null");
+        }
 
         LOGGER.info("Created new Branch");
         

@@ -46,6 +46,10 @@ public class TransactionTypeController {
                 .type(tr.getType())
                 .build();
 
+                if (_transactionType == null){
+                    throw new NotFoundException("Transaction Type Object Null");
+                }
+
         LOGGER.info("Created a transaction type record");
 
         if(_transactionType == null)
