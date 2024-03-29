@@ -44,15 +44,26 @@ public class User{
     private String city;
     private String address;
     private int pincode;
-    private Date date_of_birth;
+    private Date dateOfBirth;
 
-    private boolean is_locked;
-    private boolean is_deleted;
+    private boolean isLocked;
+    private boolean isDeleted;
 
     @CreationTimestamp
-    private Date created_at;
+    private Date createdAt;
     @UpdateTimestamp
-    private Date updated_at;
+    private Date updatedAt;
 
-    
+    public boolean changePassword(String oldPassword, String newPassword1, String newPassword2){
+        if (!oldPassword.equals(this.password) || !newPassword1.equals(newPassword2)){
+            return false;
+        }
+        this.setPassword(newPassword1);
+        return true;
+    }
+
+    public void setPassword(String password){
+        this.password = password;
+    }
+
 }

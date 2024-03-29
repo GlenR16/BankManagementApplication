@@ -18,16 +18,10 @@
 		<spring-cloud.version>2023.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
-
 	    <dependency>
 	        <groupId>org.projectlombok</groupId>
 	        <artifactId>lombok</artifactId>
 	        <version>1.18.32</version>
-	    </dependency>
-
-	    <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-webflux</artifactId>
 	    </dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -59,6 +53,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -80,5 +75,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>

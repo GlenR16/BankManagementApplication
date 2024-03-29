@@ -56,7 +56,8 @@ export default function Signup() {
 				navigate("/dashboard");
 			})
 			.catch((err) => {
-				setError(err.response.data.message);
+				if (err.response) setError(err.response.data.error);
+                else setError("Something went wrong");
 				setLoading(false);
 			});
 	}

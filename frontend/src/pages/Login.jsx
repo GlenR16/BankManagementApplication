@@ -34,10 +34,9 @@ export default function Login() {
             navigate("/dashboard");
         })
         .catch((err) => {
-            console.log(err);
-            setError(err.response.data.message);
+            if (err.response) setError(err.response.data.error);
+            else setError("Something went wrong");
             setLoading(false);
-
         });
 	}
 	return (

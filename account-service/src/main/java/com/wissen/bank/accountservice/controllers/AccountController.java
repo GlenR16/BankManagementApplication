@@ -48,7 +48,7 @@ public class AccountController {
     
     @PostMapping("")
     public Account createAccount(@RequestBody Account account){
-
+        // service.createAccount(account);
         Random rand = new Random();
         long accountNo = rand.nextLong(100000000,999999999);
 

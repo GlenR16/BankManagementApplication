@@ -1,0 +1,50 @@
+version: '3'
+
+networks:
+  springboot:
+
+services:
+  config-server:
+    build: ./config-server
+    networks:
+      - springboot
+  service-registry:
+    build: ./service-registry
+    networks:
+      - springboot
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - springboot
+  user-service:
+    build: ./user-service
+    networks:
+      - springboot
+  account-service:
+    build: ./account-service
+    networks:
+      - springboot
+  transaction-service:
+    build: ./transaction-service
+    networks:
+      - springboot
+  card-service:
+    build: ./card-service
+    networks:
+      - springboot
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: pgadmin5
+    networks:
+      - springboot
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
+    networks:
+      - springboot
