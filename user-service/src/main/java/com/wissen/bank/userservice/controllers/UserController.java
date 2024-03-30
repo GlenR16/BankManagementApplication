@@ -118,8 +118,6 @@ public class UserController {
         throw new UnauthorizedException("Unauthorized");
     }
 
-
-
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })
     public ResponseEntity<Response> handleSQLException(Exception e){
         LOGGER.error("Error: {}",e.getMessage());

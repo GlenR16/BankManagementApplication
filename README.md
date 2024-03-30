@@ -20,20 +20,17 @@ Using Docker:
 - Better to run individual services as needed.
 
 ## Tasks remaining
-- Add Services Layer.
 - User service is to fine tuned for better code practices.
 - Account service is to fine tuned for better code practices.
 - Card service is to fine tuned for better code practices.
 - Transaction service is to fine tuned for better code practices.
 - Webclient should be used instead of RestTemplate.
-- Check for edge cases before saving data.
-- All exceptions are to be handled properly.
 - Add remaining pages to frontend.
+- Role authentication must be added.
 ------------------------------------------------
 - Enabling SSL
 - Asynchronous communication
 - Real time updates to UI in case of multi user environment
-- Role authentication must be added.
 - Use at least 3 design patterns while implementing solution
 - Transaction management within service
 - Transaction management across services
@@ -53,6 +50,9 @@ Using Docker:
 - ~~All configuration must be added to Config server instead of the service itself.~~
 - ~~All services must be dockerized.~~
 - ~~Health check and metric collection and monitoring~~
+- ~~Add Services Layer.~~
+- ~~Check for edge cases before saving data.~~
+- ~~All exceptions are to be handled properly.~~
 
 
 ## Ports

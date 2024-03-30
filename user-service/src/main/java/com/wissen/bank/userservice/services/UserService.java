@@ -8,6 +8,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wissen.bank.userservice.exceptions.InvalidDataException;
 import com.wissen.bank.userservice.exceptions.NotFoundException;
 import com.wissen.bank.userservice.models.Role;
 import com.wissen.bank.userservice.models.User;
@@ -21,7 +22,7 @@ public class UserService {
 
     public User createUser(User user){
         if (user == null || !validateUser(user)){
-            throw new IllegalArgumentException("Invalid User");
+            throw new InvalidDataException("Invalid User");
         }
         String customerId = UUID.randomUUID().toString().replace("-", "").toUpperCase();
         User _user = User
