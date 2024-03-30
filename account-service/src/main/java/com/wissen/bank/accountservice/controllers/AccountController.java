@@ -51,7 +51,7 @@ public class AccountController {
     @GetMapping("/{id}")
     public Account getAccountById(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER){
-            LOGGER.info("Admin "+customer+" Getting Account id: {}",id);
+            LOGGER.info("User "+customer+" Getting Account id: {}",id);
             return accountService.getAccountById(id);
         }
         throw new UnauthorizedException("Unauthorized");
