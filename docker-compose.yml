@@ -4,47 +4,123 @@ networks:
   springboot:
 
 services:
-  config-server:
-    build: ./config-server
-    networks:
-      - springboot
-  service-registry:
-    build: ./service-registry
-    networks:
-      - springboot
-  api-gateway:
-    build: ./api-gateway
-    ports:
-      - "8080:8080"
-    networks:
-      - springboot
-  user-service:
-    build: ./user-service
-    networks:
-      - springboot
-  account-service:
-    build: ./account-service
-    networks:
-      - springboot
-  transaction-service:
-    build: ./transaction-service
-    networks:
-      - springboot
-  card-service:
-    build: ./card-service
-    networks:
-      - springboot
   postgres:
     image: postgres:latest
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres", "-h", "localhost"]
+      interval: 10s 
+      timeout: 5s  
+      retries: 5 
     environment:
       POSTGRES_PASSWORD: pgadmin5
     networks:
       - springboot
   zipkin:
     image: openzipkin/zipkin:latest
+    healthcheck:
+      test: ["CMD", "pgrep", "java"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "9411:9411"
+    networks:
+      - springboot
+  config-server:
+    build: ./config-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "config-server:8088/actuator/health"] 
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - springboot
+  service-registry:
+    build: ./service-registry
+    healthcheck:
+      test: ["CMD", "curl", "-f", "service-registry:8761/actuator/health"] 
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - springboot
+  api-gateway:
+    build: ./api-gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "api-gateway:8080/actuator/health"] 
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - springboot
+  user-service:
+    build: ./user-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+      postgres :
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
+    networks:
+      - springboot
+  account-service:
+    build: ./account-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+      postgres :
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
+    networks:
+      - springboot
+  transaction-service:
+    build: ./transaction-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+      postgres :
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
+    networks:
+      - springboot
+  card-service:
+    build: ./card-service
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+      postgres :
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
     networks:
       - springboot

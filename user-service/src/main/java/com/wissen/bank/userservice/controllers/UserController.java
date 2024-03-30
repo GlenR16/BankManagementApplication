@@ -120,7 +120,7 @@ public class UserController {
 
 
 
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
+    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })
     public ResponseEntity<Response> handleSQLException(Exception e){
         LOGGER.error("Error: {}",e.getMessage());
         throw new DatabaseIntegrityException("Database Integrity Violation");
@@ -130,5 +130,11 @@ public class UserController {
     public ResponseEntity<Response> handleSignatureException(Exception e){
         LOGGER.error("Error: {}",e.getMessage());
         throw new TokenInvalidException("Token Invalid");
+    }
+
+    @ExceptionHandler({ NullPointerException.class })
+    public ResponseEntity<Response> handleNullPointerException(Exception e){
+        LOGGER.error("Error: {}",e.getMessage());
+        throw new DatabaseIntegrityException("Some fields are empty");
     }
 }

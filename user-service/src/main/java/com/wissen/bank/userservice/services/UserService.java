@@ -73,43 +73,43 @@ public class UserService {
         if (user == null){
             throw new NotFoundException("User Not Found");
         }
-        if (newUser.getName().isBlank()){
+        if (newUser.getName() != null && !newUser.getName().isBlank()){
             user.setName(newUser.getName());
         }
-        if (newUser.getEmail().isBlank()){
+        if (newUser.getEmail() != null && !newUser.getEmail().isBlank()){
             user.setEmail(newUser.getEmail());
         }
-        if (newUser.getPassword().isBlank()){
+        if (newUser.getPassword() != null && !newUser.getPassword().isBlank()){
             user.setPassword(newUser.getPassword());
         }
-        if (newUser.getPhone().isBlank()){
+        if (newUser.getPhone() != null && !newUser.getPhone().isBlank()){
             user.setPhone(newUser.getPhone());
         }
-        if (newUser.getGender().isBlank()){
+        if (newUser.getGender() != null && !newUser.getGender().isBlank()){
             user.setGender(newUser.getGender());
         }
-        if (newUser.getPan().isBlank()){
+        if (newUser.getPan() != null && !newUser.getPan().isBlank()){
             user.setPan(newUser.getPan());
         }
-        if (newUser.getAadhaar().isBlank()){
+        if (newUser.getAadhaar() != null && !newUser.getAadhaar().isBlank()){
             user.setAadhaar(newUser.getAadhaar());
         }
-        if (newUser.getState().isBlank()){
+        if (newUser.getState() != null && !newUser.getState().isBlank()){
             user.setState(newUser.getState());
         }
-        if (newUser.getCity().isBlank()){
+        if (newUser.getCity() != null && !newUser.getCity().isBlank()){
             user.setCity(newUser.getCity());
         }
-        if (newUser.getAddress().isBlank()){
+        if (newUser.getAddress() != null && !newUser.getAddress().isBlank()){
             user.setAddress(newUser.getAddress());
         }
-        if (newUser.getPincode() != 0){
+        if (newUser.getPincode() > 100000 && newUser.getPincode() < 999999){
             user.setPincode(newUser.getPincode());
         }
         if (newUser.getDateOfBirth() != null){
             user.setDateOfBirth(newUser.getDateOfBirth());
         }
-        if (!newUser.isLocked() && newUser.getUpdatedAt() != null && newUser.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
+        if (!newUser.isLocked() && newUser.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
             user.setLocked(newUser.isLocked());
         }
         if (newUser.isLocked()){

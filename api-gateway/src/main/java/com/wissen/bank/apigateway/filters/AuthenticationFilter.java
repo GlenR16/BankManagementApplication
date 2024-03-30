@@ -17,7 +17,8 @@ import com.wissen.bank.apigateway.models.User;
 import reactor.core.publisher.Mono;
 
 @Component
-public class AuthenticationFilter implements GlobalFilter  {
+public class AuthenticationFilter implements GlobalFilter {
+    
     @Autowired
     private RouteValidator routeValidator;
 
@@ -36,8 +37,10 @@ public class AuthenticationFilter implements GlobalFilter  {
                 token = token.substring(7);
                 Map<String, String> body = Map.of("token", token);
                 try {
+
                     RestTemplate restTemplate = new RestTemplate();
                     User user = restTemplate.postForObject("http://localhost:8081/user/verify", body, User.class);
+
                     if (user == null){
                         throw new UnauthorizedException("Authorization header is missing");
                     }
