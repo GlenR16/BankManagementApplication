@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.wissen.bank.cardservice.exceptions.InvalidDataException;
 import com.wissen.bank.cardservice.exceptions.NotFoundException;
 import com.wissen.bank.cardservice.models.Card;
 import com.wissen.bank.cardservice.repositories.CardRepository;
@@ -23,18 +25,13 @@ public class CardService {
 
     public Card getCardById(Long id){
         if (id == null){
-            throw new IllegalArgumentException("Invalid card");
+            throw new InvalidDataException("Invalid card");
         }
         return cardRepository.findById(id).orElseThrow(()-> new NotFoundException("card Not Found"));
     }
 
     
-    public boolean validateCard(Card card){
-        if (card.getType_id() == 0){
-            return false;
-        }
-        return true;
-    }
+    
 
     public long makeIdNo(){
         Random rand = new Random();
@@ -71,7 +68,7 @@ public class CardService {
     public Card createCard(Card card) {
 
         if (card == null || !validateCard(card)){
-            throw new IllegalArgumentException("Invalid card");
+            throw new InvalidDataException("Invalid card");
         }
 
         Card _card = Card
@@ -96,14 +93,14 @@ public class CardService {
 
     public Card updateCard(Card newCard, Long id) {
         if (id == null){
-            throw new IllegalArgumentException("Invalid card");
+            throw new InvalidDataException("Invalid card");
         }
         Card card = cardRepository.findById(id).orElseThrow(()-> new NotFoundException("card Not Found"));
         if (card == null){
             throw new NotFoundException("card Not Found");
         }
         if (newCard.getPin()>9999 || newCard.getPin()<1000 ){
-            throw new IllegalArgumentException("New Pin should be 4 digit number");
+            throw new InvalidDataException("New Pin should be 4 digit number");
         }
         if (newCard.getPin() > 0){
             card.setPin(newCard.getPin());
@@ -122,6 +119,11 @@ public class CardService {
         return cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card Not Found"));
     }
 
-
+    public boolean validateCard(Card card){
+        if (card.getType_id() == 0){
+            return false;
+        }
+        return true;
+    }
 
 }

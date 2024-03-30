@@ -6,6 +6,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wissen.bank.transactionservice.exceptions.InvalidDataException;
 import com.wissen.bank.transactionservice.models.Transaction;
 import com.wissen.bank.transactionservice.repositories.TransactionRepository;
 
@@ -64,7 +65,7 @@ public class TransactionService {
     public Transaction createTransferTransaction(Transaction transaction)
     {
         if(transaction == null || !validateTransaction(transaction, "transfer")){
-            throw new IllegalArgumentException("Invalid Transaction");
+            throw new InvalidDataException("Invalid Transaction");
         }
 
         Random random = new Random();
@@ -87,7 +88,7 @@ public class TransactionService {
     public Transaction createWithdrawTransaction(Transaction transaction)
     {
         if(transaction == null || !validateTransaction(transaction, "withdraw")){
-            throw new IllegalArgumentException("Invalid Transaction");
+            throw new InvalidDataException("Invalid Transaction");
         }
 
         Random random = new Random();
@@ -109,7 +110,7 @@ public class TransactionService {
     public Transaction createDepositTransaction(Transaction transaction)
     {
         if(transaction == null || !validateTransaction(transaction, "deposit")){
-            throw new IllegalArgumentException("Invalid Transaction");
+            throw new InvalidDataException("Invalid Transaction");
         }
 
         Random random = new Random();
@@ -131,7 +132,7 @@ public class TransactionService {
     public Transaction createCardTransaction(Transaction transaction)
     {
         if(transaction == null || !validateTransaction(transaction, "card")){
-            throw new IllegalArgumentException("Invalid Transaction");
+            throw new InvalidDataException("Invalid Transaction");
         }
 
         

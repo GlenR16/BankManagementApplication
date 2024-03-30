@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
+import com.wissen.bank.accountservice.exceptions.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.Beneficiary;
+import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.repositories.BeneficiaryRepository;
 
 @RestController
@@ -26,68 +29,89 @@ public class BeneficiaryController {
     private BeneficiaryRepository beneficiaryRepo;
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
+    
     @GetMapping("")
-    public List<Beneficiary> getAllBeneficiaries(){
-        LOGGER.info("Displaying all Beneficiaries");
-        return beneficiaryRepo.findAll();
+    public List<Beneficiary> getAllBeneficiaries(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+
+        if (role == Role.ADMIN || role == Role.EMPLOYEE)
+        {
+            LOGGER.info("Admin {} Displaying all Beneficiaries" ,customerId);
+            return beneficiaryRepo.findAll();
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @PostMapping("")
-    public Beneficiary postBeneficiary(@RequestBody Beneficiary br) {
+    public Beneficiary postBeneficiary(@RequestBody Beneficiary br, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         
-        Beneficiary ben = Beneficiary
-        .builder()
-        .id(br.getId())
-        .name(br.getName())
-        .account_id(br.getAccount_id())
-        .reciever_id(br.getReciever_id())
-        .ifsc_code(br.getIfsc_code())
-        .build();
+        if (role == Role.ADMIN || role == Role.EMPLOYEE)
+        {
 
-        if (ben == null){
-            throw new NotFoundException("Object Null");
+            Beneficiary ben = Beneficiary
+            .builder()
+            .id(br.getId())
+            .name(br.getName())
+            .account_id(br.getAccount_id())
+            .reciever_id(br.getReciever_id())
+            .ifsc_code(br.getIfsc_code())
+            .build();
+
+            if (ben == null){
+                throw new NotFoundException("Object Null");
+            }
+
+            LOGGER.info("Admin {} Created new Beneficiary",customerId);
+            
+            return beneficiaryRepo.save(ben);
         }
 
-        LOGGER.info("Created new Beneficiary");
-        
-        return beneficiaryRepo.save(ben);
+        throw new UnauthorizedException("Unauthorized");
     }
 
 
     @PutMapping("/{id}")    
-    public Beneficiary updateBeneficiary(@PathVariable long id, @RequestBody Beneficiary br) {
+    public Beneficiary updateBeneficiary(@PathVariable long id, @RequestBody Beneficiary br, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         
-        if(beneficiaryRepo.existsById(id)){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE)
+        {
+            if(beneficiaryRepo.existsById(id)){
 
-            Beneficiary _ben = beneficiaryRepo.findById(id).orElseThrow();
-            
-            _ben.setName(br.getName());
-            _ben.setAccount_id(br.getAccount_id());
-            _ben.setReciever_id(br.getReciever_id());
-            _ben.setIfsc_code(br.getIfsc_code());
+                Beneficiary _ben = beneficiaryRepo.findById(id).orElseThrow();
+                
+                _ben.setName(br.getName());
+                _ben.setAccount_id(br.getAccount_id());
+                _ben.setReciever_id(br.getReciever_id());
+                _ben.setIfsc_code(br.getIfsc_code());
 
-            return beneficiaryRepo.save(_ben);
+                return beneficiaryRepo.save(_ben);
 
+            }
+            else{
+                LOGGER.info("Admin {} No Beneficiary with given ID Found",customerId);
+            }
+            return null;
         }
-        else{
-            LOGGER.info("No Beneficiary with given ID Found");
-        }
-        return null;
+
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @DeleteMapping("/{id}")
-    public String deleteBeneficiary(@PathVariable long id){
+    public String deleteBeneficiary(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
 
-        if(beneficiaryRepo.existsById(id)){
-            LOGGER.info("Deleted Beneficiary");
-            beneficiaryRepo.deleteById(id);
-            return "Beneficiary Deleted Successfully";
+        if (role == Role.ADMIN || role == Role.EMPLOYEE)
+        {
+            if(beneficiaryRepo.existsById(id)){
+                LOGGER.info("Admin {} Deleted Beneficiary",customerId);
+                beneficiaryRepo.deleteById(id);
+                return "Beneficiary Deleted Successfully";
+            }
+            else{
+                LOGGER.info("No Beneficiary Found with Given ID");
+                return "Beneficiary not Found";
+            }
         }
-        else{
-            LOGGER.info("No Beneficiary Found with Given ID");
-            return "Beneficiary not Found";
-        }
+
+        throw new UnauthorizedException("Unauthorized");
     }
     
 }

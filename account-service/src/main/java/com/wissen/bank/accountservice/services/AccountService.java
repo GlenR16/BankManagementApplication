@@ -4,6 +4,7 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.wissen.bank.accountservice.exceptions.exceptions.InvalidDataException;
 import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
 import com.wissen.bank.accountservice.models.Account;
 import com.wissen.bank.accountservice.repositories.AccountRepository;
@@ -26,14 +27,14 @@ public class AccountService {
 
     public Account getAccountById(Long id){
         if (id == null){
-            throw new IllegalArgumentException("Invalid account");
+            throw new InvalidDataException("Invalid account");
         }
         return accountRepository.findById(id).orElseThrow(()-> new NotFoundException("Account Not Found"));
     }
 
     public Account createAccount(Account account){
         if (account == null || !validateAccount(account)){
-            throw new IllegalArgumentException("Invalid account");
+            throw new InvalidDataException("Invalid account");
         }
         Account _account = Account
         .builder()
@@ -57,7 +58,7 @@ public class AccountService {
     public Account updateAccount(Account newAccount, Long id){
 
         if (id == null){
-            throw new IllegalArgumentException("Invalid account");
+            throw new InvalidDataException("Invalid account");
         }
 
         Account account = accountRepository.findById(id).orElseThrow(()-> new NotFoundException("Account Not Found"));

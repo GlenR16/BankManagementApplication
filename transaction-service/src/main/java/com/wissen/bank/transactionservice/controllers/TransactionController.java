@@ -40,18 +40,18 @@ public class TransactionController {
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("")
-    public List<Transaction> getAllTransactions(@RequestHeader("Role") Role role) {
+    public List<Transaction> getAllTransactions(@RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("ADmin {} Getting all Transactions");
+            LOGGER.info("ADmin {} Getting all Transactions",customerId);
             return transactionservice.getAllTransaction();
         }
         throw new UnauthorizedException("Unauthorized");
     }
 
     @GetMapping("/{id}")
-    public Transaction getTransactionById(@PathVariable long id, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Admin {} Getting transaction id : ", id);
+    public Transaction getTransactionById(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) {
+            LOGGER.info("Admin {} Getting transaction id : ", id, "Customer : ",customerId);
             return transactionservice.getTransactionByTransactionId(id);
         }
 
@@ -59,38 +59,59 @@ public class TransactionController {
     }
 
     @PostMapping("/transfer")
-    public ResponseEntity<Response> createTransfer(@RequestBody Transaction transaction) {
-        Transaction _transaction = transactionservice.createTransferTransaction(transaction);
-        LOGGER.info("Creating Transfer Transaction with id : ", _transaction.getId());
-        return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", transaction));
+    public ResponseEntity<Response> createTransfer(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
+        {
+            Transaction _transaction = transactionservice.createTransferTransaction(transaction);
+            LOGGER.info("Creating Transfer Transaction with id : ", _transaction.getId(),"Cusotmer : ",customerId);
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", transaction));
+        }
+
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<Response> createWithdraw(@RequestBody Transaction transaction) {
-        Transaction _transaction = transactionservice.createWithdrawTransaction(transaction);
-        LOGGER.info("Creating Withdraw Transaction with id : ", _transaction.getId());
-        return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", transaction));
+    public ResponseEntity<Response> createWithdraw(@RequestBody Transaction transaction,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
+        {
+            Transaction _transaction = transactionservice.createWithdrawTransaction(transaction);
+            LOGGER.info("Creating Withdraw Transaction with id : ", _transaction.getId(), "Customr : ",customerId);
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", transaction));
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<Response> createDeposit(@RequestBody Transaction transaction) {
-        Transaction _transaction = transactionservice.createDepositTransaction(transaction);
-        LOGGER.info("Creating Deposit Transaction with id : ", _transaction.getId());
-        return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", transaction));
+    public ResponseEntity<Response> createDeposit(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
+        {
+            Transaction _transaction = transactionservice.createDepositTransaction(transaction);
+            LOGGER.info("Creating Deposit Transaction with id : ", _transaction.getId(), "Customer : ",customerId);
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", transaction));
+        }
+
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @PostMapping("/cardTransfer")
-    public ResponseEntity<Response> createCardTransfer(@RequestBody Transaction transaction) {
-        Transaction _transaction = transactionservice.createCardTransaction(transaction);
-        LOGGER.info("Creating Card Transaction with id : ", _transaction.getId());
-        return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", transaction));
+    public ResponseEntity<Response> createCardTransfer(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
+        {
+            Transaction _transaction = transactionservice.createCardTransaction(transaction);
+            LOGGER.info("Creating Card Transaction with id : ", _transaction.getId(),"Customer Id : ",customerId);
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", transaction));
+        }
+
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> updateTransaction(@PathVariable long id, @RequestBody Transaction transaction,
-            @RequestHeader("Role") Role role) {
+    public ResponseEntity<Response> updateTransaction(@PathVariable long id, @RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Updating Transaction ID : ", transaction.getId());
+            LOGGER.info("Updating Transaction ID : ", transaction.getId(),"Cusotmer Id : ",customerId);
 
             transactionservice.updateTransaction(transaction, id);
             return ResponseEntity.ok().body(new Response(new Date(), 200, "Transaction Updated success", transaction));
@@ -100,11 +121,11 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteTransaction(@PathVariable long id, @RequestHeader("Role") Role role)
+    public ResponseEntity<Response> deleteTransaction(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role)
     {
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
-            LOGGER.info("Deleting Transaction with id : ",id);
+            LOGGER.info("Deleting Transaction with id : ",id, "Cusotmer : ",customerId);
             transactionservice.deleTransactionById(id);
             return ResponseEntity.ok().body(new Response(new Date(), 200, "Deleted Transaction Success with id : "+id, new Transaction()));
         }
@@ -113,86 +134,10 @@ public class TransactionController {
             
     }
 
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, IllegalArgumentException.class})
+    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<Response> handleSQLException(Exception e) {
         LOGGER.error("Error: {}", e.getMessage());
         throw new DatabaseIntegrityException("Database Integrity Violation");
     }
-    
-
-
-    /*
-    @PostMapping("/transfer")
-    public Transaction tranferAmt(@RequestBody Transaction transaction)
-    {
-    Random random = new Random();
-    Transaction _transaction = Transaction
-    .builder()
-    .senderAcc(transaction.getSenderAcc())
-    .senderCardId(random.nextLong(100000000000L, 999999999999L))
-    .receiverAcc(transaction.getReceiverAcc())
-    .amount(transaction.getAmount())
-    .type(transaction.getType())
-    .status(true)
-    .build();
-
-    LOGGER.info("Created transaction with ID : ",_transaction.getId());
-    transactionRepository.save(_transaction);
-    return _transaction;
-    }
-
-    @PostMapping("/withdraw")
-    public Transaction doWithdrawTransaction(@RequestBody Transaction transaction) {
-        Random random = new Random();
-
-        Transaction _transaction = Transaction
-                .builder()
-                .senderAcc(transaction.getSenderAcc())
-                .senderCardId(random.nextLong(100000000000L, 999999999999L))
-                .amount(transaction.getAmount())
-                .type("WITHDRAW")
-                .status(true)
-                .build();
-
-        LOGGER.info("Successfully withdraw amount : ", _transaction.getAmount());
-        transactionRepository.save(_transaction);
-        return _transaction;
-    }
-
-    @PostMapping("/deposit")
-    public Transaction doDepositTransaction(@RequestBody Transaction transaction) {
-        Random random = new Random();
-
-        Transaction _transaction = Transaction
-                .builder()
-                .senderAcc(transaction.getSenderAcc())
-                .senderCardId(random.nextLong(100000000000L, 999999999999L))
-                .amount(transaction.getAmount())
-                .type("DEPOSIT")
-                .status(true)
-                .build();
-
-        LOGGER.info("Successfully Deposit amount : ", _transaction.getAmount());
-        transactionRepository.save(_transaction);
-        return _transaction;
-    }
-
-    @PostMapping("/cardTransfer")
-    public Transaction cardTransfer(@RequestBody Transaction transaction) {
-        Transaction _transaction = Transaction
-                .builder()
-                .senderCardId(transaction.getSenderCardId())
-                .receiverAcc(transaction.getReceiverAcc())
-                .amount(transaction.getAmount())
-                // Also Taking PIN for CARD
-                .type("CARD")
-                .status(true)
-                .build();
-
-        LOGGER.info("Card Transaction Success : ", _transaction.getAmount());
-        transactionRepository.save(_transaction);
-        return _transaction;
-    }
-    */
 }
  
