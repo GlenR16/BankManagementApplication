@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
 import com.wissen.bank.accountservice.models.Beneficiary;
 import com.wissen.bank.accountservice.repositories.BeneficiaryRepository;
 
@@ -43,6 +44,10 @@ public class BeneficiaryController {
         .reciever_id(br.getReciever_id())
         .ifsc_code(br.getIfsc_code())
         .build();
+
+        if (ben == null){
+            throw new NotFoundException("Object Null");
+        }
 
         LOGGER.info("Created new Beneficiary");
         
