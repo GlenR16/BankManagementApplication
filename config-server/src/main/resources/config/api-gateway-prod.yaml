@@ -1,0 +1,53 @@
+server:
+    port: 8080
+
+eureka:
+    client:
+        service-url:
+            defaultZone: http://service-registry:8761/eureka/
+management:
+    zipkin:
+        tracing:
+            endpoint: http://zipkin:9411/api/v2/spans
+    tracing:
+        sampling:
+            probability: 1.0
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+    endpoint:
+        health:
+            show-details: always
+    info:
+        env:
+            enabled: true
+
+spring:
+    cloud:
+        gateway:
+            default-filters:
+                - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+            globalcors:
+                corsConfigurations:
+                    "[/**]":
+                        allowedOrigins: "*"
+                        allowedMethods: "*"
+                        allowedHeaders: "*"
+            routes:
+                - id: user-service
+                  uri: lb://user-service
+                  predicates:
+                      - Path=/user/**
+                - id: account-service
+                  uri: lb://account-service
+                  predicates:
+                      - Path=/account/**
+                - id: card-service
+                  uri: lb://card-service
+                  predicates:
+                      - Path=/card/**
+                - id: transaction-service
+                  uri: lb://transaction-service
+                  predicates:
+                      - Path=/transaction/**

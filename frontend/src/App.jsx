@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Administration = lazy(() => import("./pages/Administration"));
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -31,6 +32,10 @@ const router = createBrowserRouter([{
         {
             path: "/dashboard",
             element: <Suspense fallback={<Loading />}><Dashboard /></Suspense>
+        },
+        {
+            path: "/administration",
+            element: <Suspense fallback={<Loading />}><Administration /></Suspense>
         }
 	]
 }]);
