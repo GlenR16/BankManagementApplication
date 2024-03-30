@@ -13,6 +13,35 @@ export default function Dashboard() {
         navigate("/login");
     });
 
+	function withdraw()
+	{
+		console.log("GOING TO WITHDRAW PAGE");
+		navigate("/withdraw");
+	}
+
+	function deposit()
+	{
+		console.log("GOING TO DEPOST PAGE");
+		navigate("/deposit");
+	}
+
+	function transfer()
+	{
+		console.log("GOING TO TRANSFER PAGE");
+		navigate("/transfer");
+	}
+	
+	function account()
+	{
+		console.log("GOING TO ACCOUNT PAGE");
+		navigate("/account");
+	}
+	
+	function transactions()
+	{
+		console.log("GOING TO TRANSACTIONS PAGE");
+		navigate("/transactions");
+	}
 	return (
 		<div className="m-5 p-5">
 			<div className="m-5">
@@ -22,9 +51,9 @@ export default function Dashboard() {
 							<div className="card-body">
 								<p className="card-title">Withdraw</p>
 								<p className="card-text">Withdraw money: Transfer funds from your account to access cash.</p>
-								<a href="./withdraw.html" className="btn btn-primary">
+								<button className="btn btn-primary" type="button" onClick={withdraw}>
 									Withdraw
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -33,9 +62,9 @@ export default function Dashboard() {
 							<div className="card-body">
 								<p className="card-title">Deposit</p>
 								<p className="card-text">Deposit money: Transfer funds to your account to make payments.</p>
-								<a href="./deposit.html" className="btn btn-primary">
+								<button className="btn btn-primary" type="button" onClick={deposit}>
 									Deposit
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -44,9 +73,9 @@ export default function Dashboard() {
 							<div className="card-body">
 								<p className="card-title">Transfer</p>
 								<p className="card-text">Transfer money: Transfer funds to another account directly.</p>
-								<a href="./transfer.html" className="btn btn-primary">
+								<button className="btn btn-primary" type="button" onClick={transfer}>
 									Transfer
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -55,9 +84,9 @@ export default function Dashboard() {
 							<div className="card-body">
 								<p className="card-title">Account</p>
 								<p className="card-text">Account Details: View your account details and statements.</p>
-								<a href="./account.html" className="btn btn-primary">
+								<button className="btn btn-primary" type="button" onClick={account}>
 									Account
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -66,9 +95,9 @@ export default function Dashboard() {
 							<div className="card-body">
 								<p className="card-title">Account Balance</p>
 								<p className="card-text">Account Balance: View your account balance amount here.</p>
-								<a href="#" className="btn btn-primary">
+								<button className="btn btn-primary" type="button">
 									Balance
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -77,9 +106,9 @@ export default function Dashboard() {
 							<div className="card-body">
 								<p className="card-title">Transaction History</p>
 								<p className="card-text">View your transaction history of previous transactions.</p>
-								<a href="./transactions.html" className="btn btn-primary">
+								<button className="btn btn-primary" type="button" onClick={transactions}>
 									Transactions
-								</a>
+								</button>
 							</div>
 						</div>
 					</div>

@@ -29,9 +29,25 @@ export default function Login() {
         }
 		api.post("/user/login", form)
         .then((res) => {
-            sessionStorage.setItem("token", res.message);
-            setLoading(false);
-            navigate("/dashboard");
+            sessionStorage.setItem("token", res.data.message);
+			console.log("Message : "+ res.data.message)
+			
+			api.get("/user/details", res.data.message)
+			.then((res)=>{
+				console.log("HELLo");
+				setLoading(false);
+				if(res.data.role === "ADMIN")
+					navigate("/administration");
+
+				if(res.data.role === "USER")
+					navigate("/dashboard");
+
+			})
+			.catch((err)=>{
+				if (err.response) setError(err.response.data.error);
+				else setError("Something went wrong");
+				setLoading(false);
+			})
         })
         .catch((err) => {
             if (err.response) setError(err.response.data.error);
