@@ -89,10 +89,11 @@ public class TransactionService {
         Random random = new Random();
         Transaction _transaction = Transaction
         .builder()
-        .senderAccount(transaction.getSenderAccount())
+        .senderAccount(0)
+        .receiverAccount(transaction.getReceiverAccount())
         .senderCardId(random.nextLong(100000000000L, 999999999999L))
         .amount(transaction.getAmount())
-        .typeId(transaction.getTypeId())
+        .typeId(2)
         .status("SUCCESS")
         .build();
 
@@ -112,6 +113,7 @@ public class TransactionService {
         Transaction _transaction = Transaction
         .builder()
         .senderAccount(transaction.getSenderAccount())
+        .receiverAccount(0)
         .senderCardId(random.nextLong(100000000000L, 999999999999L))
         .amount(transaction.getAmount())
         .typeId(transaction.getTypeId())

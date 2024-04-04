@@ -3,19 +3,49 @@ import useAxiosAuth from "../contexts/Axios";
 
 export default function Withdraw() {
     const [accounts, setAccounts] = useState([]);
+	const [error, setError] = useState("");
+	const [loading, setLoading] = useState(false);
     const api = useAxiosAuth();
 
     const [form, setForm] = useState({
         accountNumber: "",
         amount: "",
+		senderAccount:"",
+		receiverAccount:"",
     });
 
     function handleChange(e) {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value,
-        });
+    if (e.target.name === "accountNumber") {
+      setForm({
+        ...form,
+        [e.target.name]: e.target.value,
+        senderAccount: e.target.value,
+		receiverAccount: e.target.value,
+      });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
     }
+  }
+
+	function withdraw() {
+        setLoading(true);
+        if (!form.accountNumber || !form.amount) {
+            setError("Please fill all the fields");
+            setLoading(false);
+            return;
+        }
+		console.log(form)
+		api.post("/transaction/withdraw", form)
+        .then((res) => {
+            sessionStorage.setItem("token", res.data.message);
+            setLoading(false);
+        })
+        .catch((err) => {
+            if (err.response) setError(err.response.data.error);
+            else setError("Something went wrong");
+            setLoading(false);
+        });
+	}
 
     useEffect(() => {
         api.get("/account/list")
@@ -40,6 +70,7 @@ export default function Withdraw() {
                                         <option value="">Select an Account</option>
 										{
                                             accounts.length > 0 ? accounts.map((account) => {
+
                                                 return <option key={account.accountNumber} value={account.accountNumber}>{account.accountNumber}</option>
                                             }) : <option>No Accounts</option>
                                         }
@@ -58,9 +89,9 @@ export default function Withdraw() {
 									<input type="text" className="form-control  rounded-end" id="amount" placeholder="Amount" name="amount" value={form.amount} onChange={handleChange} />
 								</div>
 							</div>
-
+							<p className="invalid-feedback d-block">{error}</p>
 							<div className="d-grid  d-md-block text-center">
-								<button type="button" onClick={() => console.log(form)} className="btn btn-primary">
+								<button type="button" onClick={withdraw} className="btn btn-primary">
 									Withdraw
 								</button>
 							</div>
@@ -71,3 +102,5 @@ export default function Withdraw() {
 		</div>
 	);
 }
+
+//onClick={() => console.log(form)}
