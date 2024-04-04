@@ -9,6 +9,7 @@ import com.wissen.bank.transactionservice.models.Role;
 import com.wissen.bank.transactionservice.responses.Response;
 import com.wissen.bank.transactionservice.services.TransactionService;
 
+import jakarta.annotation.PostConstruct;
 
 import java.util.Date;
 import java.util.List;
@@ -132,6 +133,18 @@ public class TransactionController {
 
         throw new UnauthorizedException("Unauthorized");
             
+    }
+
+    @PostConstruct
+    public void init(){
+        Transaction txn = Transaction.builder()
+            .senderAccount(99999)
+            .senderCardId(452343)
+            .receiverAccount(888888)
+            .amount(300000)
+            .typeId(2)
+            .build();
+        transactionservice.createTransferTransaction(txn);
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})

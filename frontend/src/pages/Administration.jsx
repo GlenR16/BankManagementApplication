@@ -1,47 +1,88 @@
+import { useEffect, useState } from "react";
+import useAxiosAuth from "../contexts/Axios";
+import { NavLink, useNavigate } from "react-router-dom";
+import AdminCustomers from "./AdminCustomers";
+import AdminAccount from "./AdminAccounts";
+
+
+
 export default function Administration() {
-    // check user logged in and role
+  const [accounts, setAccounts] = useState([]);
+  const [accountTypes, setAccountTypes] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [user, setUser] = useState({});
 
-	return (
-		<div className="m-5 p-5">
-			<div className="m-5">
-				<h1 className="text-center">Admin Dashboard</h1>
-			</div>
+  const api = useAxiosAuth();
+  const navigate = useNavigate();
 
-			<div className="row row-cols-1 row-cols-md-3 g-5">
-				<div className="col">
-					<div className="card">
-						<div className="card-body">
-							<p className="card-title">Customers</p>
-							<p className="card-text">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Architecto consectetur accusamus a at iste impedit dolorum modi quisquam cupiditate magni corrupti esse dolores, placeat atque illum. Accusamus, consectetur. Minus, sapiente.</p>
-							<a href="#" className="btn btn-primary">
-								Customers
-							</a>
-						</div>
-					</div>
-				</div>
-				<div className="col">
-					<div className="card">
-						<div className="card-body">
-							<p className="card-title">Accounts</p>
-							<p className="card-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores commodi et a consectetur tempora veritatis placeat, blanditiis repudiandae magnam unde delectus itaque perspiciatis est alias molestias voluptates deserunt inventore enim!</p>
-							<a href="#" className="btn btn-primary">
-								Accounts
-							</a>
-						</div>
-					</div>
-				</div>
-				<div className="col">
-					<div className="card">
-						<div className="card-body">
-							<p className="card-title">Transactions</p>
-							<p className="card-text">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque, deserunt blanditiis reiciendis animi quo ut totam inventore voluptatibus nulla asperiores sunt quisquam tempora at fugiat! Fugit explicabo vitae obcaecati numquam!</p>
-							<a href="#" className="btn btn-primary">
-								Transactions
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+  useEffect(() => {
+    api
+      .get("/user/details")
+      .then((response) => {
+        setUser(response.data);
+      })
+      .catch((error) => {
+        return navigate("/login");
+      });
+  }, []);
+
+  function customers() {
+    console.log("GOING TO ADMIN CUSTOMERS PAGE");
+    navigate("/AdminCustomers");
+  }
+
+  function account() {
+    console.log("GOING TO ADMIN ACCOUNTS PAGE");
+    navigate("/AdminAccounts");
+  }
+
+  function transactions() {
+    console.log("GOING TO ADMIN TRANSACTIONS PAGE");
+    navigate("/AdminTransactions");
+  }
+
+  return (
+    <div className="container col-sm-12 col-md-8 p-5">
+      <div className="row flex-lg-row-reverse align-items-center justify-content-center g-5 py-5 text-center">
+        <div className="row row-cols-1 row-cols-md-3 g-4">
+          <div className="col">
+            <div className="card">
+              <div className="card-body">
+                <p className="card-title">Customers</p>
+				<img src="/customers.png" alt="Index Image" width={100}/>
+                <p className="card-text">
+                  Customers: View the list of all Customers.
+                </p>
+                <button className="btn btn-success" type="button" onClick={customers}>Customers</button>
+              </div>
+            </div>
+          </div>
+          <div className="col">
+            <div className="card">
+              <div className="card-body">
+                <p className="card-title">Accounts</p>
+				<img src="/accounts.png" alt="Index Image" width={100}/>
+                <p className="card-text">
+                  Accounts: View the list of all Accounts.
+                </p>
+                <button className="btn btn-success" type="button" onClick={account}>Accounts</button>
+              </div>
+            </div>
+          </div>
+          <div className="col">
+            <div className="card">
+              <div className="card-body">
+                <p className="card-title">Transactions</p>
+				<img src="/transactions.png" alt="Index Image" width={100}/>
+                <p className="card-text">
+					Transactions: View the list of all Transactions.
+                </p>
+                <button className="btn btn-success" type="button" onClick={transactions}> Transactions</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
