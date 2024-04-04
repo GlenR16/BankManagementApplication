@@ -19,10 +19,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.wissen.bank.accountservice.models.Role;
-import com.wissen.bank.accountservice.exceptions.exceptions.DatabaseIntegrityException;
-import com.wissen.bank.accountservice.exceptions.exceptions.UnauthorizedException;
+import com.wissen.bank.accountservice.exceptions.DatabaseIntegrityException;
+import com.wissen.bank.accountservice.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.Account;
 import com.wissen.bank.accountservice.services.AccountService;
+
+import jakarta.annotation.PostConstruct;
+
 import com.wissen.bank.accountservice.responses.Response;
 
 @RestController
@@ -34,79 +37,84 @@ public class AccountController {
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    // @GetMapping("")
-    // public String home(){
-    //     return "Welcome to Accounts Service";
-    // }
-
     @GetMapping("")
-    public List<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
-        if (role == Role.ADMIN || role == Role.EMPLOYEE){
-        LOGGER.info("Admin {} Getting all accounts",customerId);
+    public List<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+            LOGGER.info("Admin {} Getting all accounts", customerId);
             return accountService.getAllAccounts();
         }
         throw new UnauthorizedException("Unauthorized");
     }
-    
+
+    @GetMapping("/list")
+    public List<Account> getAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        return accountService.getAccountsByCustomerId(customerId);
+    }
+
     @GetMapping("/{id}")
-    public Account getAccountById(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER){
-            LOGGER.info("User "+customer+" Getting Account id: {}",id);
+    public Account getAccountById(@PathVariable long id, @RequestHeader("Customer") String customer,
+            @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+            LOGGER.info("User " + customer + " Getting Account id: {}", id);
             return accountService.getAccountById(id);
         }
         throw new UnauthorizedException("Unauthorized");
     }
 
-    
     @PostMapping("")
-    public ResponseEntity<Response> createAccount(@RequestBody Account account, @RequestHeader("Role") Role role){
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER){
-            Account _account = accountService.createAccount(account);
-            LOGGER.info("Creating account id: {}",_account.getId());
-
-            return ResponseEntity.ok().body(new Response(new Date(),200,"Account created successfully","/Account/"));
-        }
-        throw new UnauthorizedException("Unauthorized");
+    public ResponseEntity<Response> createAccount(@RequestBody Account account, @RequestHeader("Role") Role role) {
+        Account _account = accountService.createAccount(account);
+        LOGGER.info("Creating account id: {}", _account.getId());
+        return ResponseEntity.ok().body(new Response(new Date(), 200, "Account created successfully", "/account/"));
     }
-
-
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response> updateAccount(@PathVariable long id, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER ){
-            LOGGER.info("Updating Account id: {}",id);
+    public ResponseEntity<Response> updateAccount(@PathVariable long id, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        Account _account = accountService.getAccountById(id);
+        if (_account == null) {
+            return ResponseEntity.badRequest().body(new Response(new Date(), 404, "Account not found", "/account/" + id));
+        }
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
+            LOGGER.info("Updating Account id: {}", id);
             accountService.updateAccount(account, id);
-            return ResponseEntity.ok().body(new Response(new Date(),200,"account updated successfully","/account/"+id));
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Account updated successfully", "/account/" + id));
         }
         throw new UnauthorizedException("Unauthorized");
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> isDeletedAccount(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-        LOGGER.info("Deleting Account id: {}",id);
-        if (role == Role.ADMIN || role == Role.EMPLOYEE){
+    public ResponseEntity<Response> isDeletedAccount(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        LOGGER.info("Deleting Account id: {}", id);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             accountService.deleteAccountById(id);
-            return ResponseEntity.ok().body(new Response(new Date(),200,"Admin "+customer+" deleted the account successfully","/Account/"+id));
+            return ResponseEntity.ok().body(new Response(new Date(), 200,"Deleted account successfully", "/account/" + id));
         }
-        else{
-            throw new UnauthorizedException("Unauthorized");
-        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
+    @PostConstruct
+    public void init() {
+        Account acc1 = Account.builder()
+                .customerId("9999999999")
+                .branchId(1)
+                .typeId(1)
+                .balance(100000)
+                .withdrawalLimit(10000)
+                .build();
+        accountService.createAccount(acc1);
+        Account acc2 = Account.builder()
+                .customerId("9999999999")
+                .branchId(2)
+                .typeId(2)
+                .balance(200000)
+                .withdrawalLimit(20000)
+                .build();
+        accountService.createAccount(acc2);
+    }
 
-    // @DeleteMapping("/del/{id}")
-    // public String deleteAccount(@PathVariable long id){
-    //     LOGGER.info("Deleting account id: {}",id);
-    //     accountRepository.deleteById(id);
-    //     return "Account Deleted";
-    // }
-
-
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
-    public ResponseEntity<Response> handleSQLException(Exception e){
-        LOGGER.error("Error: {}",e.getMessage());
+    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })
+    public ResponseEntity<Response> handleSQLException(Exception e) {
+        LOGGER.error("Error: {}", e.getMessage());
         throw new DatabaseIntegrityException("Database Integrity Violation");
     }
 

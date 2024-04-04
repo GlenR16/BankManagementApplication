@@ -1,4 +1,4 @@
-package com.wissen.bank.accountservice.exceptions.exceptions;
+package com.wissen.bank.accountservice.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

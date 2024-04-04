@@ -73,16 +73,16 @@ public class CardService {
 
         Card _card = Card
         .builder()
-        .account_id(makeIdNo())
+        .customerId(card.getCustomerId())
         .number(makecardNo())
         .cvv(makeCvv())
         .pin(makePin())
-        .expiry_date(makeExpiry())
-        .type_id(card.getType_id())
-        .is_verified(true)
-        .is_active(true)
-        .is_locked(false)
-        .is_deleted(false)
+        .expiryDate(makeExpiry())
+        .typeId(card.getTypeId())
+        .isVerified(false)
+        .isActive(true)
+        .isLocked(false)
+        .isDeleted(false)
         .build();
 
         if (_card == null){
@@ -111,7 +111,7 @@ public class CardService {
 
     public Card deleteCardById(long id) {
         Card card = cardRepository.findById(id).orElseThrow(()-> new NotFoundException("card Not Found"));
-        card.set_deleted(true);
+        card.setDeleted(true);
         return cardRepository.save(card);
     }
 
@@ -120,7 +120,7 @@ public class CardService {
     }
 
     public boolean validateCard(Card card){
-        if (card.getType_id() == 0){
+        if (card.getTypeId() == 0){
             return false;
         }
         return true;

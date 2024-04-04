@@ -12,7 +12,7 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres", "-h", "localhost"]
       interval: 10s 
       timeout: 5s  
-      retries: 5 
+      retries: 15 
     environment:
       POSTGRES_PASSWORD: pgadmin5
     networks:
@@ -23,7 +23,7 @@ services:
       test: ["CMD", "pgrep", "java"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 15
     ports:
       - "9411:9411"
     networks:
@@ -34,7 +34,7 @@ services:
       test: ["CMD", "curl", "-f", "config-server:8088/actuator/health"] 
       interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 15
     networks:
       - springboot
   service-registry:
@@ -43,7 +43,7 @@ services:
       test: ["CMD", "curl", "-f", "service-registry:8761/actuator/health"] 
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 15
     networks:
       - springboot
   api-gateway:
@@ -52,7 +52,7 @@ services:
       test: ["CMD", "curl", "-f", "api-gateway:8080/actuator/health"] 
       interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 15
     depends_on:
       config-server:
         condition: service_healthy
@@ -122,5 +122,22 @@ services:
         condition: service_healthy
       zipkin:
         condition: service_healthy
+    networks:
+      - springboot
+  frontend:
+    build: ./frontend
+    depends_on:
+      config-server:
+        condition: service_healthy
+      service-registry:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+      postgres :
+        condition: service_healthy
+      zipkin:
+        condition: service_healthy
+    ports:
+      - "80:80"
     networks:
       - springboot

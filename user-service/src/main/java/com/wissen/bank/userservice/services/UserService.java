@@ -50,6 +50,35 @@ public class UserService {
         return userRepository.save(_user);
     }
 
+    public User createAdmin(User user){
+        if (user == null || !validateUser(user)){
+            throw new InvalidDataException("Invalid User");
+        }
+        User _user = User
+        .builder()
+        .customerId(user.getCustomerId())
+        .name(user.getName())
+        .email(user.getEmail())
+        .password(user.getPassword())
+        .phone(user.getPhone())
+        .aadhaar(user.getAadhaar())
+        .pan(user.getPan())
+        .address(user.getAddress())
+        .state(user.getState())
+        .city(user.getCity())
+        .pincode(user.getPincode())
+        .dateOfBirth(user.getDateOfBirth())
+        .gender(user.getGender())
+        .role(Role.ADMIN)
+        .isLocked(false)
+        .isDeleted(false)
+        .build();
+        if (_user == null){
+            throw new NotFoundException("User Not Found");
+        }
+        return userRepository.save(_user);
+    }
+
     public User getUserByCustomerId(String customerId){
         return userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User Not Found"));
     }

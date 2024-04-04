@@ -25,7 +25,6 @@ const useAxiosAuth = () => {
 			(response) => response,
 			(error) => {
 				const config = error.config;
-                sessionStorage.removeItem("token");
 				return Promise.reject(error);
 			}
 		);

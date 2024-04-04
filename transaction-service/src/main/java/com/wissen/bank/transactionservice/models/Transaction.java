@@ -25,15 +25,15 @@ public class Transaction {
     @Id
     @GeneratedValue
     private long id;
-    private long senderAcc;
+    private long senderAccount;
     private long senderCardId;
-    private long receiverAcc;
+    private long receiverAccount;
     private float amount;
-    private String type;
-    private boolean status;
+    private long typeId;
+    private String status;
 
     @CreationTimestamp
-    private Date created_at;
+    private Date createdAt;
     @UpdateTimestamp
-    private Date updated_at;
+    private Date updatedAt;
 }

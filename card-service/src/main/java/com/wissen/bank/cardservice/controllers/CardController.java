@@ -1,6 +1,5 @@
 package com.wissen.bank.cardservice.controllers;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
@@ -27,6 +26,9 @@ import com.wissen.bank.cardservice.models.Card;
 import com.wissen.bank.cardservice.models.Role;
 import com.wissen.bank.cardservice.responses.Response;
 import com.wissen.bank.cardservice.services.CardService;
+
+import jakarta.annotation.PostConstruct;
+
 
 @RestController
 @RequestMapping("/card")
@@ -63,7 +65,7 @@ public class CardController{
     }
 
     @PostMapping("")
-    public ResponseEntity<Response> createCard(@RequestBody Card card, @RequestHeader("Role") Role role) throws ParseException{
+    public ResponseEntity<Response> createCard(@RequestBody Card card, @RequestHeader("Role") Role role){
     
         if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER){
             Card _card = cardService.createCard(card);
@@ -102,7 +104,7 @@ public class CardController{
     public ResponseEntity<Response> verifyCard(@RequestBody Card card){
         Card _card = cardService.getNumber(card.getNumber());
 
-        if(!_card.is_deleted() && !_card.is_locked() && _card.getPin() == card.getPin() 
+        if(!_card.isDeleted() && !_card.isLocked() && _card.getPin() == card.getPin() 
         && _card.getCvv() == card.getCvv() ){
 
             LOGGER.info("Card Verified id: {}",_card.getId());
@@ -120,6 +122,17 @@ public class CardController{
     public ResponseEntity<Response> handleSQLException(Exception e){
         LOGGER.error("Error: {}",e.getMessage());
         throw new DatabaseIntegrityException("Database Integrity Violation");
+    }
+
+    @PostConstruct
+    public void init(){
+        Card card1 = Card.builder()
+        .number(123456781234L)
+        .typeId(1)
+        .pin(1234)
+        .cvv(123)
+        .build();
+        cardService.createCard(card1);
     }
 
 }

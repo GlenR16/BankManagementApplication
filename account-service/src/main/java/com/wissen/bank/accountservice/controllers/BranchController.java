@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
-import com.wissen.bank.accountservice.exceptions.exceptions.UnauthorizedException;
+import com.wissen.bank.accountservice.exceptions.NotFoundException;
+import com.wissen.bank.accountservice.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.Branch;
 import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.repositories.BranchRepository;
+
+import jakarta.annotation.PostConstruct;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -53,7 +56,7 @@ public class BranchController {
             .id(br.getId())
             .name(br.getName())
             .address(br.getAddress())
-            .ifsc_code(br.getIfsc_code())
+            .ifsc(br.getIfsc())
             .build();
 
             if (_branch == null){
@@ -79,7 +82,7 @@ public class BranchController {
                 
                 _branch.setName(br.getName());
                 _branch.setAddress(br.getAddress());
-                _branch.setIfsc_code(br.getIfsc_code());
+                _branch.setIfsc(br.getIfsc());
 
                 LOGGER.info("Admin {} Updating Branch with id : ",id);
                 return branchRepo.save(_branch);
@@ -111,6 +114,27 @@ public class BranchController {
         }
 
         throw new UnauthorizedException("Unauthorized");
+    }
+
+    @PostConstruct
+    public void init(){
+        Branch branch1 = Branch.builder()
+        .name("Colaba")
+        .address("Mumbai")
+        .ifsc("1A2B3C")
+        .build();
+        if (branch1 != null) {
+            branchRepo.save(branch1);
+        }
+
+        Branch branch2 = Branch.builder()
+        .name("Kalyan")
+        .address("Thane")
+        .ifsc("9A9B9C")
+        .build();
+        if (branch2 != null){
+            branchRepo.save(branch2);
+        }
     }
     
 }

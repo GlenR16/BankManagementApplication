@@ -14,6 +14,7 @@ import com.wissen.bank.transactionservice.models.Role;
 import com.wissen.bank.transactionservice.models.TransactionType;
 import com.wissen.bank.transactionservice.repositories.TransactionTypeRepository;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.NotFoundException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -99,6 +100,24 @@ public class TransactionTypeController {
                 return "Unsuccessfull";
         }
         throw new UnauthorizedException("Unauthorized");
+    }
+
+
+    @PostConstruct
+    public void init() {
+        TransactionType transactionType1 = TransactionType.builder()
+                .type("Debit")
+                .build();
+        if (transactionType1 != null) {
+            transactionTypeRepository.save(transactionType1);
+        }
+
+        TransactionType transactionType2 = TransactionType.builder()
+                .type("Credit")
+                .build();
+        if (transactionType2 != null) {
+            transactionTypeRepository.save(transactionType2);
+        }
     }
 
 }

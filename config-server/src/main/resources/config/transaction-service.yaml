@@ -1,12 +1,10 @@
 spring:
-    sql.init.mode: always
     datasource:
         url: jdbc:postgresql://localhost:5432/
         username: postgres
         password: pgadmin5
         driver-class-name: org.postgresql.Driver
     jpa:
-        defer-datasource-initialization: true
         hibernate:
             ddl-auto: create-drop
         show-sql: true

@@ -1,5 +1,6 @@
 package com.wissen.bank.accountservice.models;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -16,10 +17,11 @@ import lombok.NoArgsConstructor;
 public class Beneficiary {
 
     @Id
+    @GeneratedValue
     private long id;
     private String name;
-    private long account_id;
-    private long reciever_id;
-    private String ifsc_code;
+    private long accountId;
+    private long recieverId;
+    private String ifsc;
     
 }

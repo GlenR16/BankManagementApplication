@@ -1,50 +1,58 @@
+import { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+	const [accounts, setAccounts] = useState([]);
+    const [accountTypes, setAccountTypes] = useState([]);
+    const [branches, setBranches] = useState([]);
+    const [user, setUser] = useState({});
+
 	const api = useAxiosAuth();
-    const navigate = useNavigate();
+	const navigate = useNavigate();
+    
+    
+	useEffect(() => {
+        api.get("/user/details")
+        .then((response) => {
+            setUser(response.data);
+        })
+        .catch((error) => {
+            return navigate("/login");
+        });
+		
+	}, []);
 
-    api.get("/user/details")
-    .then((response) => {
-        console.log(response.data);
-    })
-    .catch((error) => {
-        navigate("/login");
-    });
 
-	function withdraw()
-	{
+	function withdraw() {
 		console.log("GOING TO WITHDRAW PAGE");
 		navigate("/withdraw");
 	}
 
-	function deposit()
-	{
+	function deposit() {
 		console.log("GOING TO DEPOST PAGE");
 		navigate("/deposit");
 	}
 
-	function transfer()
-	{
+	function transfer() {
 		console.log("GOING TO TRANSFER PAGE");
 		navigate("/transfer");
 	}
-	
-	function account()
-	{
+
+	function account() {
 		console.log("GOING TO ACCOUNT PAGE");
 		navigate("/account");
 	}
-	
-	function transactions()
-	{
+
+	function transactions() {
 		console.log("GOING TO TRANSACTIONS PAGE");
 		navigate("/transactions");
 	}
 	return (
-		<div className="m-5 p-5">
-			<div className="m-5">
+		<div className="container col-sm-12 col-md-8 p-5">
+			<div className="row flex-lg-row-reverse align-items-center justify-content-center g-5 py-5 text-center">
+				
+				
 				<div className="row row-cols-1 row-cols-md-3 g-4">
 					<div className="col">
 						<div className="card">
@@ -82,10 +90,10 @@ export default function Dashboard() {
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Account</p>
+								<p className="card-title">Accounts</p>
 								<p className="card-text">Account Details: View your account details and statements.</p>
 								<button className="btn btn-primary" type="button" onClick={account}>
-									Account
+									Accounts
 								</button>
 							</div>
 						</div>

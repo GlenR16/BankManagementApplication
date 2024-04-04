@@ -36,16 +36,14 @@ public class TransactionService {
         if(transaction == null)
             throw new NotFoundException("Transaction with "+id+" not Found");
 
-        if(newTransaction.getSenderAcc() != 0)
-            transaction.setSenderAcc(newTransaction.getSenderAcc());
+        if(newTransaction.getSenderAccount() != 0)
+            transaction.setSenderAccount(newTransaction.getSenderAccount());
         if(newTransaction.getSenderCardId() != 0)
             transaction.setSenderCardId(newTransaction.getSenderCardId());
-        if(newTransaction.getReceiverAcc() != 0)
-                transaction.setReceiverAcc(newTransaction.getReceiverAcc());
+        if(newTransaction.getReceiverAccount() != 0)
+                transaction.setReceiverAccount(newTransaction.getReceiverAccount());
         if(newTransaction.getAmount() != 0)
             transaction.setAmount(newTransaction.getAmount());
-        if(!newTransaction.getType().isBlank())
-            transaction.setType(newTransaction.getType());
         return transactionRepository.save(transaction);
     }
 
@@ -67,20 +65,17 @@ public class TransactionService {
         if(transaction == null || !validateTransaction(transaction, "transfer")){
             throw new InvalidDataException("Invalid Transaction");
         }
-
-        Random random = new Random();
         Transaction _transaction = Transaction
         .builder()
-        .senderAcc(transaction.getSenderAcc())
-        .senderCardId(random.nextLong(100000000000L, 999999999999L))
-        .receiverAcc(transaction.getReceiverAcc())
+        .senderAccount(transaction.getSenderAccount())
+        .senderCardId(transaction.getSenderCardId())
+        .receiverAccount(transaction.getReceiverAccount())
         .amount(transaction.getAmount())
-        .type(transaction.getType())
-        .status(true)
+        .typeId(transaction.getTypeId())
+        .status("SUCCESS")
         .build();
         if(_transaction == null)
             throw new NotFoundException("Transaction Not Found");
-
         return transactionRepository.save(_transaction);
     }
 
@@ -94,11 +89,11 @@ public class TransactionService {
         Random random = new Random();
         Transaction _transaction = Transaction
         .builder()
-        .senderAcc(transaction.getSenderAcc())
+        .senderAccount(transaction.getSenderAccount())
         .senderCardId(random.nextLong(100000000000L, 999999999999L))
         .amount(transaction.getAmount())
-        .type("WITHDRAW")
-        .status(true)
+        .typeId(transaction.getTypeId())
+        .status("SUCCESS")
         .build();
 
         if(_transaction == null)
@@ -116,11 +111,11 @@ public class TransactionService {
         Random random = new Random();
         Transaction _transaction = Transaction
         .builder()
-        .senderAcc(transaction.getSenderAcc())
+        .senderAccount(transaction.getSenderAccount())
         .senderCardId(random.nextLong(100000000000L, 999999999999L))
         .amount(transaction.getAmount())
-        .type("DEPOSIT")
-        .status(true)
+        .typeId(transaction.getTypeId())
+        .status("SUCCESS")
         .build();
         
         if(_transaction == null)
@@ -139,10 +134,10 @@ public class TransactionService {
         Transaction _transaction = Transaction
         .builder()
         .senderCardId(transaction.getSenderCardId())
-        .receiverAcc(transaction.getReceiverAcc())
+        .receiverAccount(transaction.getReceiverAccount())
         .amount(transaction.getAmount())
-        .type("CARD")
-        .status(true)
+        .typeId(transaction.getTypeId())
+        .status("SUCCESS")
         .build();
         
         if(_transaction == null)
@@ -156,13 +151,13 @@ public class TransactionService {
     {
         if(transaction.getAmount() <= 0)
             return false;
-        if(!transactionType.equals("card") && transaction.getSenderAcc() == 0)
+        if(!transactionType.equals("card") && transaction.getSenderAccount() == 0)
             return false;
-        if(transactionType.equals("transfer") && transaction.getType().isBlank())
+        if(transactionType.equals("transfer") && transaction.getTypeId() == 0)
             return false;
         if(transactionType.equals("card") && transaction.getSenderCardId() == 0)
             return false;
-        if((transactionType.equals("transfer") || transactionType.equals("card")) && transaction.getReceiverAcc() == 0)
+        if((transactionType.equals("transfer") || transactionType.equals("card")) && transaction.getReceiverAccount() == 0)
             return false;
 
         return true;

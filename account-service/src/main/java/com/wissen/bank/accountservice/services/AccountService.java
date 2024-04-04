@@ -4,13 +4,16 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wissen.bank.accountservice.exceptions.exceptions.InvalidDataException;
-import com.wissen.bank.accountservice.exceptions.exceptions.NotFoundException;
+import com.wissen.bank.accountservice.exceptions.InvalidDataException;
+import com.wissen.bank.accountservice.exceptions.NotFoundException;
 import com.wissen.bank.accountservice.models.Account;
 import com.wissen.bank.accountservice.repositories.AccountRepository;
 
 @Service
 public class AccountService {
+    
+    @Autowired
+    private AccountRepository accountRepository;
 
     public long makeAccountNumeber(){
         Random rand = new Random();
@@ -18,8 +21,6 @@ public class AccountService {
         return accountNo;
     }
 
-    @Autowired
-    private AccountRepository accountRepository;
 
     public List<Account> getAllAccounts(){
         return accountRepository.findAll();
@@ -38,16 +39,16 @@ public class AccountService {
         }
         Account _account = Account
         .builder()
-        .user_id(account.getUser_id())                                   
-        .account_number(makeAccountNumeber())
-        .branch_id(account.getBranch_id())        
-        .type_id(account.getType_id())
+        .customerId(account.getCustomerId())                                  
+        .accountNumber(makeAccountNumeber())
+        .branchId(account.getBranchId())        
+        .typeId(account.getTypeId())
         .balance(account.getBalance())
-        .withdrawal_limit(account.getWithdrawal_limit())
-        .is_verified(true)
-        .is_active(true)
-        .is_locked(false)
-        .is_deleted(false)
+        .withdrawalLimit(account.getWithdrawalLimit())
+        .isVerified(false)
+        .isActive(true)
+        .isLocked(false)
+        .isDeleted(false)
         .build();
         if (_account == null){
             throw new NotFoundException("account Not Found");
@@ -65,28 +66,24 @@ public class AccountService {
         if (account == null){
             throw new NotFoundException("Account Not Found");
         }
-        if (newAccount.getUser_id() > 0){
-            account.setUser_id(newAccount.getUser_id());
+        if (newAccount.getBranchId() > 0){
+            account.setBranchId(newAccount.getBranchId());
         }
-        if (newAccount.getBranch_id() > 0){
-            account.setBranch_id(newAccount.getBranch_id());
-        }
-        if (newAccount.getType_id() > 0){
-            account.setType_id(newAccount.getType_id());
+        if (newAccount.getTypeId() > 0){
+            account.setTypeId(newAccount.getTypeId());
         }
         if (newAccount.getBalance() > 0){
             account.setBalance(newAccount.getBalance());
         }
-        if (newAccount.getWithdrawal_limit() > 0){
-            account.setWithdrawal_limit(newAccount.getWithdrawal_limit());
+        if (newAccount.getWithdrawalLimit() > 0){
+            account.setWithdrawalLimit(newAccount.getWithdrawalLimit());
         }
-        
         return accountRepository.save(account);
     }
 
 
     public boolean validateAccount(Account account){
-        if (account.getUser_id() == 0|| account.getBranch_id() == 0 || account.getBalance() == 0 || account.getWithdrawal_limit() == 0 || account.getType_id() == 0){
+        if (account.getCustomerId().isBlank() || account.getBranchId() == 0 || account.getBalance() == 0 || account.getWithdrawalLimit() == 0 || account.getTypeId() == 0){
             return false;
         }
         return true;
@@ -94,8 +91,15 @@ public class AccountService {
 
     public Account deleteAccountById(long id){
         Account account = accountRepository.findById(id).orElseThrow(()-> new NotFoundException("account Not Found"));
-        account.set_deleted(true);
+        account.setDeleted(true);
         return accountRepository.save(account);
+    }
+
+    public List<Account> getAccountsByCustomerId(String customerId){
+        if (customerId == null){
+            throw new InvalidDataException("Invalid account");
+        }
+        return accountRepository.findByCustomerId(customerId);
     }
 
 }

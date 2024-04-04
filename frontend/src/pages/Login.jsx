@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { useNavigate } from "react-router-dom";
 
@@ -30,24 +30,7 @@ export default function Login() {
 		api.post("/user/login", form)
         .then((res) => {
             sessionStorage.setItem("token", res.data.message);
-			console.log("Message : "+ res.data.message)
-			
-			api.get("/user/details", res.data.message)
-			.then((res)=>{
-				console.log("HELLo");
-				setLoading(false);
-				if(res.data.role === "ADMIN")
-					navigate("/administration");
-
-				if(res.data.role === "USER")
-					navigate("/dashboard");
-
-			})
-			.catch((err)=>{
-				if (err.response) setError(err.response.data.error);
-				else setError("Something went wrong");
-				setLoading(false);
-			})
+            setLoading(false);
         })
         .catch((err) => {
             if (err.response) setError(err.response.data.error);
@@ -55,6 +38,21 @@ export default function Login() {
             setLoading(false);
         });
 	}
+
+    useEffect(() => {
+        if (!sessionStorage.getItem("token")) return;
+        api.get("/user/details")
+        .then((res)=>{
+            if(res.data.role === "ADMIN")
+                navigate("/administration");
+            if(res.data.role === "USER")
+                navigate("/dashboard");
+        })
+        .catch((err)=>{
+            console.log(err);
+        });
+    }, [sessionStorage.getItem("token")]);
+    
 	return (
 		<div className="container">
 			<div className="row flex-lg-row-reverse align-items-center justify-content-center g-5 m-2 text-center">

@@ -14,6 +14,7 @@ import com.wissen.bank.userservice.services.UserService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 
 import java.util.Date;
 import java.util.List;
@@ -116,6 +117,28 @@ public class UserController {
             return ResponseEntity.ok().body(new Response(new Date(),200,"User updated successfully","/user/"+customerId));
         }
         throw new UnauthorizedException("Unauthorized");
+    }
+
+    @PostConstruct
+    public void init(){
+        User user = User.builder()
+            .customerId("9999999999")
+            .password("password")
+            .aadhaar("999999999999")
+            .pan("AAAAA9999A")
+            .email("admin@gmail.com")
+            .address("123 / Kane Lane, Whitehouse")
+            .name("Admin User")
+            .city("DC")
+            .state("Washington")
+            .dateOfBirth(new Date())
+            .gender("Male")
+            .isDeleted(false)
+            .isLocked(false)
+            .phone("9999999999")
+            .pincode(123456)
+            .build();
+        userService.createAdmin(user);
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })

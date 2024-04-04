@@ -25,21 +25,21 @@ public class Card {
     @Id
     @GeneratedValue
     private long id;
-    private long account_id;
+    private String customerId;
     @Column(unique = true)
     private long number;
     private int cvv;
     private int pin;
     
-    private Date expiry_date;
-    private int type_id;
-    private boolean is_verified;
-    private boolean is_active;
-    private boolean is_locked;
-    private boolean is_deleted;
+    private Date expiryDate;
+    private long typeId;
+    private boolean isVerified;
+    private boolean isActive;
+    private boolean isLocked;
+    private boolean isDeleted;
 
     @CreationTimestamp
-    private Date created_at;
+    private Date createdAt;
     @UpdateTimestamp
-    private Date updated_at;
+    private Date updatedAt;
 }

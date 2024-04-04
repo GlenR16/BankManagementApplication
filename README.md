@@ -15,27 +15,25 @@ Using Docker:
 1. Goto root folder with docker-compose file.
 2. Run docker-compose up
 - Logs will appear in the same terminal.
-- Uses large amount of RAM and CPU resources, almost as if a game is running.
-- Authentication is not working as webclient is not implemented in api-gateway.
-- Better to run individual services as needed.
+- Uses large amount of RAM and CPU resources.
 
 ## Tasks remaining
+- Transaction service is to be changed as per frontend.
+- Webclient should be used instead of RestTemplate.
 - User service is to fine tuned for better code practices.
 - Account service is to fine tuned for better code practices.
 - Card service is to fine tuned for better code practices.
-- Transaction service is to fine tuned for better code practices.
-- Webclient should be used instead of RestTemplate.
 - Add remaining pages to frontend.
-- Role authentication must be added.
 ------------------------------------------------
 - Enabling SSL
-- Asynchronous communication
 - Real time updates to UI in case of multi user environment
 - Use at least 3 design patterns while implementing solution
 - Transaction management within service
 - Transaction management across services
 
 ## Tasks Done
+- ~~Role authentication must be added.~~
+- ~~Asynchronous communication~~
 - ~~Define and document clear db design~~
 - ~~Standard coding practice should be followed~~
 - ~~Use SOLID principles while designing and implementing solutions~~
@@ -54,8 +52,8 @@ Using Docker:
 - ~~Check for edge cases before saving data.~~
 - ~~All exceptions are to be handled properly.~~
 
-
 ## Ports
+- frontend:80
 - api-gateway:8080
 - user-service:8081
 - account-service:8082

@@ -15,6 +15,7 @@ import com.wissen.bank.cardservice.models.CardType;
 import com.wissen.bank.cardservice.models.Role;
 import com.wissen.bank.cardservice.repositories.CardTypeRepository;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.NotFoundException;
 
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,7 +54,7 @@ public class CardTypeController {
             .builder()
             .id(ct.getId())
             .name(ct.getName())
-            .intrest(ct.getIntrest())
+            .interest(ct.getInterest())
             .build();
 
             if (_cardType == null){
@@ -78,7 +79,7 @@ public class CardTypeController {
                 CardType _cdt = cardTypeRepo.findById(id).orElseThrow();
                 
                 _cdt.setName(br.getName());
-                _cdt.setIntrest(br.getIntrest());
+                _cdt.setInterest(br.getInterest());
 
                 LOGGER.info("Admin {} Updating card details id : ",id, "Customer : ",customer);
 
@@ -111,6 +112,26 @@ public class CardTypeController {
             }
         }
         throw new UnauthorizedException("Unauthorized");
+    }
+
+    @PostConstruct
+    public void init(){
+        CardType cardType1 = CardType.builder()
+                .name("Debit")
+                .interest(0.0)
+                .build();
+        if (cardType1 != null) {
+            cardTypeRepo.save(cardType1);
+        }
+
+        CardType cardType2 = CardType.builder()
+                .name("Credit")
+                .interest(0.1)
+                .build();
+        if (cardType2 != null) {
+            cardTypeRepo.save(cardType2);
+        }
+
     }
 
     

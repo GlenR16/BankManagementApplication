@@ -52,10 +52,10 @@ public class CreditCardDetailController {
             CreditCardDetail _CreditCardDetail = CreditCardDetail
             .builder()
             .id(ccd.getId())
-            .card_id(ccd.getCard_id())
-            .credit_limit(ccd.getCredit_limit())
-            .credit_used(ccd.getCredit_used())
-            .credit_transactions(ccd.getCredit_transactions())
+            .cardId(ccd.getCardId())
+            .creditLimit(ccd.getCreditLimit())
+            .creditUsed(ccd.getCreditUsed())
+            .creditTransactions(ccd.getCreditTransactions())
             .build();
 
             if (_CreditCardDetail == null){
@@ -76,17 +76,11 @@ public class CreditCardDetailController {
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
             if(creditCardDetailRepo.existsById(id)){
-
                 CreditCardDetail _ccd = creditCardDetailRepo.findById(id).orElseThrow();
-                
-                _ccd.setCredit_limit(ccd.getCredit_limit());
-                _ccd.setCredit_used(ccd.getCredit_used());
-
-
+                _ccd.setCreditLimit(ccd.getCreditLimit());
+                _ccd.setCreditUsed(ccd.getCreditUsed());
                 LOGGER.info("Admin {} Updating card details id : ",id, "Customer : ",customer);
-
                 return creditCardDetailRepo.save(_ccd);
-
             }
             else{
                 LOGGER.info("Admin {} No CreditCardDetail with given ID Found",customer);

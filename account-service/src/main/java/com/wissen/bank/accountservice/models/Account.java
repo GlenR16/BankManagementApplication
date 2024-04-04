@@ -26,22 +26,21 @@ public class Account {
     @Id
     @GeneratedValue
     private long id;
+    private String customerId;
     @Column(unique = true)
-    private long user_id;
-    @Column(unique = true)
-    private long account_number;
-    private long branch_id;
-    private int type_id;
+    private long accountNumber;
+    private long branchId;
+    private int typeId;
     private int balance;
-    private int withdrawal_limit;
+    private int withdrawalLimit;
 
-    private boolean is_verified;
-    private boolean is_active;
-    private boolean is_locked;
-    private boolean is_deleted;     //Extra Field
+    private boolean isVerified;
+    private boolean isActive;
+    private boolean isLocked;
+    private boolean isDeleted;
 
     @CreationTimestamp
-    private Date created_at;
+    private Date createdAt;
     @UpdateTimestamp
-    private Date updated_at;
+    private Date updatedAt;
 }
