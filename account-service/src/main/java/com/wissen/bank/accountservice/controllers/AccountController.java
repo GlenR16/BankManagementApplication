@@ -107,6 +107,14 @@ public class AccountController {
                 .withdrawalLimit(20000)
                 .build();
         accountService.createAccount(acc2);
+        Account acc3 = Account.builder()
+                .customerId("8888888888")
+                .branchId(2)
+                .typeId(2)
+                .balance(200000)
+                .withdrawalLimit(20000)
+                .build();
+        accountService.createAccount(acc3);
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })

@@ -12,10 +12,14 @@ import Transfer from "./pages/Transfer";
 import Account from "./pages/Account";
 import Deposit from "./pages/Deposit";
 
+
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Administration = lazy(() => import("./pages/Administration"));
+const AdminAccounts = lazy(() => import("./pages/AdminAccounts"));
+const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
+const AdminTransactions = lazy(() => import("./pages/AdminTransactions"));
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -61,6 +65,18 @@ const router = createBrowserRouter([{
 		{
 			path: "/transfer",
 			element: <Suspense fallback={<Loading />}><Transfer /></Suspense>
+		},
+		{
+			path:"/AdminAccounts",
+			element: <Suspense fallback={<Loading />}><AdminAccounts /></Suspense>
+		},
+		{
+			path:"/AdminCustomers",
+			element: <Suspense fallback={<Loading />}><AdminCustomers /></Suspense>
+		},
+		{
+			path:"/AdminTransactions",
+			element: <Suspense fallback={<Loading />}><AdminTransactions /></Suspense>
 		},
 	]
 }]);
