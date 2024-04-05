@@ -15,7 +15,7 @@ public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public long makeAccountNumeber(){
+    private long makeAccountNumeber(){
         Random rand = new Random();
         long accountNo = rand.nextLong(100000000,999999999);
         return accountNo;
@@ -26,11 +26,12 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account getAccountById(Long id){
-        if (id == null){
-            throw new InvalidDataException("Invalid account");
-        }
-        return accountRepository.findById(id).orElseThrow(()-> new NotFoundException("Account Not Found"));
+    public Account getAccountById(long id){
+        return accountRepository.findById(id).orElseThrow(()-> new NotFoundException("Account not found"));
+    }
+
+    public Account getAccountByAccountNumber(long accountNumber){
+        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundException("Account not found"));
     }
 
     public Account createAccount(Account account){
@@ -50,22 +51,11 @@ public class AccountService {
         .isLocked(false)
         .isDeleted(false)
         .build();
-        if (_account == null){
-            throw new NotFoundException("account Not Found");
-        }
         return accountRepository.save(_account);
     }
 
-    public Account updateAccount(Account newAccount, Long id){
-
-        if (id == null){
-            throw new InvalidDataException("Invalid account");
-        }
-
-        Account account = accountRepository.findById(id).orElseThrow(()-> new NotFoundException("Account Not Found"));
-        if (account == null){
-            throw new NotFoundException("Account Not Found");
-        }
+    public Account updateAccountByAccountNumber(Account newAccount, long accountNumber){
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
         if (newAccount.getBranchId() > 0){
             account.setBranchId(newAccount.getBranchId());
         }
@@ -81,25 +71,20 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
-
-    public boolean validateAccount(Account account){
+    private boolean validateAccount(Account account){
         if (account.getCustomerId().isBlank() || account.getBranchId() == 0 || account.getBalance() == 0 || account.getWithdrawalLimit() == 0 || account.getTypeId() == 0){
             return false;
         }
         return true;
     }
 
-    public Account deleteAccountById(long id){
-        Account account = accountRepository.findById(id).orElseThrow(()-> new NotFoundException("account Not Found"));
+    public Account deleteAccountByAccountNumber(long accountNumber){
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
         account.setDeleted(true);
         return accountRepository.save(account);
     }
 
     public List<Account> getAccountsByCustomerId(String customerId){
-        if (customerId == null){
-            throw new InvalidDataException("Invalid account");
-        }
         return accountRepository.findByCustomerId(customerId);
     }
-
 }

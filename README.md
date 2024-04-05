@@ -13,7 +13,7 @@ This is a simple bank management system made as part of our training at Wissen T
 ------------------------------------------------
 Using Docker: 
 1. Goto root folder with docker-compose file.
-2. Run docker-compose up
+2. Run "docker-compose up --build"
 - Logs will appear in the same terminal.
 - Uses large amount of RAM and CPU resources.
 

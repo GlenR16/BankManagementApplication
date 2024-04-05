@@ -51,12 +51,12 @@ public class AccountController {
         return accountService.getAccountsByCustomerId(customerId);
     }
 
-    @GetMapping("/{id}")
-    public Account getAccountById(@PathVariable long id, @RequestHeader("Customer") String customer,
-            @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("User " + customer + " Getting Account id: {}", id);
-            return accountService.getAccountById(id);
+    @GetMapping("/{accountNumber}")
+    public Account getAccountByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        Account _account = accountService.getAccountByAccountNumber(accountNumber);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
+            LOGGER.info("User {} getting account number: {}",customer, accountNumber);
+            return _account;
         }
         throw new UnauthorizedException("Unauthorized");
     }
@@ -64,30 +64,27 @@ public class AccountController {
     @PostMapping("")
     public ResponseEntity<Response> createAccount(@RequestBody Account account, @RequestHeader("Role") Role role) {
         Account _account = accountService.createAccount(account);
-        LOGGER.info("Creating account id: {}", _account.getId());
-        return ResponseEntity.ok().body(new Response(new Date(), 200, "Account created successfully", "/account/"));
+        LOGGER.info("Creating account number: {}", _account.getId());
+        return ResponseEntity.ok().body(new Response(new Date(), 200, "Account created successfully", "/account"));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Response> updateAccount(@PathVariable long id, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        Account _account = accountService.getAccountById(id);
-        if (_account == null) {
-            return ResponseEntity.badRequest().body(new Response(new Date(), 404, "Account not found", "/account/" + id));
-        }
+    @PutMapping("/{accountNumber}")
+    public ResponseEntity<Response> updateAccount(@PathVariable long accountNumber, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        Account _account = accountService.getAccountByAccountNumber(accountNumber);
         if (role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
-            LOGGER.info("Updating Account id: {}", id);
-            accountService.updateAccount(account, id);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Account updated successfully", "/account/" + id));
+            LOGGER.info("User {} updating account number: {}",customer, accountNumber);
+            accountService.updateAccountByAccountNumber(account, accountNumber);
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Account updated successfully", "/account/" + accountNumber));
         }
         throw new UnauthorizedException("Unauthorized");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Response> isDeletedAccount(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        LOGGER.info("Deleting Account id: {}", id);
+    @DeleteMapping("/{accountNumber}")
+    public ResponseEntity<Response> isDeletedAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            accountService.deleteAccountById(id);
-            return ResponseEntity.ok().body(new Response(new Date(), 200,"Deleted account successfully", "/account/" + id));
+            LOGGER.info("Deleting account number: {}", accountNumber);
+            accountService.deleteAccountByAccountNumber(accountNumber);
+            return ResponseEntity.ok().body(new Response(new Date(), 200,"Deleted account successfully", "/account/" + accountNumber));
         }
         throw new UnauthorizedException("Unauthorized");
     }

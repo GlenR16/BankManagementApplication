@@ -28,77 +28,49 @@ import jakarta.annotation.PostConstruct;
 public class AccountTypeController {
 
     @Autowired
-    private AccountTypeRepository accTypeRepo;
+    private AccountTypeRepository accountTypeRepository;
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("")
-    public List<AccountType> getAllAccountTypes(@RequestHeader("Customer") String customerId,
-            @RequestHeader("Role") Role role) {
-
-        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Admin {} Displaying all Account Types", customerId);
-            return accTypeRepo.findAll();
-        }
-
-        throw new UnauthorizedException("Unauthorized");
+    public List<AccountType> getAllAccountTypes() {
+        return accountTypeRepository.findAll();
     }
 
     @PostMapping("")
-    public AccountType postAccountType(@RequestBody AccountType br, @RequestHeader("Customer") String customerId,
-            @RequestHeader("Role") Role role) {
+    public AccountType postAccountType(@RequestBody AccountType accountType,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            AccountType _accType = AccountType
-                    .builder()
-                    .id(br.getId())
-                    .name(br.getName())
-                    .build();
-
-            if (_accType == null) {
-                throw new NotFoundException("Account Null");
+            AccountType _accountType = AccountType
+                .builder()
+                .id(accountType.getId())
+                .name(accountType.getName())
+                .build();
+            if (_accountType == null) {
+                throw new NotFoundException("Account not found");
             }
-
             LOGGER.info("Admin {} Created new AccountType", customerId);
-
-            return accTypeRepo.save(_accType);
+            return accountTypeRepository.save(_accountType);
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
     @PutMapping("/{id}")
-    public AccountType updateAccountType(@PathVariable long id, @RequestBody AccountType br,
-            @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public AccountType updateAccountType(@PathVariable long id, @RequestBody AccountType accountType,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            if (accTypeRepo.existsById(id)) {
-
-                AccountType _accType = accTypeRepo.findById(id).orElseThrow();
-
-                _accType.setName(br.getName());
-                return accTypeRepo.save(_accType);
-            } else {
-                LOGGER.info("No Account Type with given ID Found");
-            }
-            return null;
+            AccountType _accountType = accountTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Account type not found"));
+            if (!accountType.getName().isBlank()) _accountType.setName(accountType.getName());
+            accountTypeRepository.save(_accountType);
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
     @DeleteMapping("/{id}")
-    public String deleteAccountType(@PathVariable long id, @RequestHeader("Customer") String customerId,
-            @RequestHeader("Role") Role role) {
+    public String deleteAccountType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            if (accTypeRepo.existsById(id)) {
-                LOGGER.info("Admin {} Deleted Account Type", customerId);
-                accTypeRepo.deleteById(id);
-                return "Account Type Deleted Successfully";
-            } else {
-                LOGGER.info("No Account Type Found with Given ID");
-                return "Account Type not Found";
-            }
+            AccountType accountType = accountTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Account type not found"));
+            accountTypeRepository.delete(accountType);
+            LOGGER.info("Admin {} deleted account type {}", customerId , id);
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
@@ -108,14 +80,14 @@ public class AccountTypeController {
                 .name("Savings")
                 .build();
         if (accType1 != null) {
-            accTypeRepo.save(accType1);
+            accountTypeRepository.save(accType1);
         }
 
         AccountType accType2 = AccountType.builder()
                 .name("Current")
                 .build();
         if (accType2 != null) {
-            accTypeRepo.save(accType2);
+            accountTypeRepository.save(accType2);
         }
     }
 

@@ -24,117 +24,80 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
-
 @RestController
 @RequestMapping("/account/branch")
 public class BranchController {
-    
+
     @Autowired
     private BranchRepository branchRepo;
 
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("")
-    public List<Branch> getAllBranches(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
-        if (role == Role.ADMIN || role == Role.EMPLOYEE)
-        {
-            LOGGER.info("Admin {} Displaying all Branches", customerId);
-            return branchRepo.findAll();
-        }
-
-        throw new UnauthorizedException("Unauthorized");
+    public List<Branch> getAllBranches(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        return branchRepo.findAll();
     }
 
     @PostMapping("")
-    public Branch postBranch(@RequestBody Branch br, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        
-        if (role == Role.ADMIN || role == Role.EMPLOYEE)
-        {
+    public Branch postBranch(@RequestBody Branch branch, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             Branch _branch = Branch
-            .builder()
-            .id(br.getId())
-            .name(br.getName())
-            .address(br.getAddress())
-            .ifsc(br.getIfsc())
-            .build();
-
-            if (_branch == null){
+                .builder()
+                .id(branch.getId())
+                .name(branch.getName())
+                .address(branch.getAddress())
+                .ifsc(branch.getIfsc())
+                .build();
+            if (_branch == null) {
                 throw new NotFoundException("Branch Object Null");
             }
-
             LOGGER.info("Admin {} Created new Branch", customerId);
-            
             return branchRepo.save(_branch);
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
     @PutMapping("/{id}")
-    public Branch updateBranch(@PathVariable long id, @RequestBody Branch br, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        
-        if (role == Role.ADMIN || role == Role.EMPLOYEE)
-        {
-            if(branchRepo.existsById(id)){
-
-                Branch _branch = branchRepo.findById(id).orElseThrow();
-                
-                _branch.setName(br.getName());
-                _branch.setAddress(br.getAddress());
-                _branch.setIfsc(br.getIfsc());
-
-                LOGGER.info("Admin {} Updating Branch with id : ",id);
-                return branchRepo.save(_branch);
-
-            }
-            else{
-                LOGGER.info("Admin {} No Branch with given ID Found", customerId);
-            }
-            return null;
+    public Branch updateBranch(@PathVariable long id, @RequestBody Branch branch,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+            Branch _branch = branchRepo.findById(id).orElseThrow(() -> new NotFoundException("Branch not found"));
+            if (!branch.getAddress().isBlank()) _branch.setAddress(branch.getAddress());
+            if (!branch.getIfsc().isBlank()) _branch.setIfsc(branch.getIfsc());
+            if (!branch.getName().isBlank()) _branch.setName(branch.getName());
+            return branchRepo.save(_branch);
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
     @DeleteMapping("/{id}")
-    public String deleteBranch(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
-
-        if (role == Role.ADMIN || role == Role.EMPLOYEE)
-        {
-            if(branchRepo.existsById(id)){
-                LOGGER.info("Admin {} Deleted Branch", customerId);
-                branchRepo.deleteById(id);
-                return "Branch Deleted Successfully";
-            }
-            else{
-                LOGGER.info("No Branch Found with Given ID");
-                return "Branch not Found";
-            }
+    public String deleteBranch(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+            Branch branch = branchRepo.findById(id).orElseThrow(() -> new NotFoundException("Branch not found"));
+            branchRepo.delete(branch);
+            LOGGER.info("Branch {} deleted by admin {}",id,customerId);
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
     @PostConstruct
-    public void init(){
+    public void init() {
         Branch branch1 = Branch.builder()
-        .name("Colaba")
-        .address("Mumbai")
-        .ifsc("1A2B3C")
-        .build();
+                .name("Colaba")
+                .address("Mumbai")
+                .ifsc("1A2B3C")
+                .build();
         if (branch1 != null) {
             branchRepo.save(branch1);
         }
 
         Branch branch2 = Branch.builder()
-        .name("Kalyan")
-        .address("Thane")
-        .ifsc("9A9B9C")
-        .build();
-        if (branch2 != null){
+                .name("Kalyan")
+                .address("Thane")
+                .ifsc("9A9B9C")
+                .build();
+        if (branch2 != null) {
             branchRepo.save(branch2);
         }
     }
-    
+
 }
