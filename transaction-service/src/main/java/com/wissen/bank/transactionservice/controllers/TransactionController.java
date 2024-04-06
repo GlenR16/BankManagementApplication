@@ -202,6 +202,7 @@ public class TransactionController {
         return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", _transaction));
     }
 
+
     @PostConstruct
     public void init(){
         Transaction txn = Transaction.builder()
@@ -213,6 +214,7 @@ public class TransactionController {
             .build();
         transactionservice.createTransaction(txn,Status.COMPLETED);
     }
+
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<Response> handleSQLException(Exception e) {
