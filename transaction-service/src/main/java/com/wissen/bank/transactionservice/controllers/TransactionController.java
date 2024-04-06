@@ -65,7 +65,7 @@ public class TransactionController {
         {
             Transaction _transaction = transactionservice.createTransferTransaction(transaction);
             LOGGER.info("Creating Transfer Transaction with id : ", _transaction.getId(),"Cusotmer : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", transaction));
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", _transaction));
         }
 
         throw new UnauthorizedException("Unauthorized");
@@ -78,7 +78,7 @@ public class TransactionController {
         {
             Transaction _transaction = transactionservice.createWithdrawTransaction(transaction);
             LOGGER.info("Creating Withdraw Transaction with id : ", _transaction.getId(), "Customr : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", transaction));
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", _transaction));
         }
         throw new UnauthorizedException("Unauthorized");
     }
@@ -90,7 +90,7 @@ public class TransactionController {
         {
             Transaction _transaction = transactionservice.createDepositTransaction(transaction);
             LOGGER.info("Creating Deposit Transaction with id : ", _transaction.getId(), "Customer : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", transaction));
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", _transaction));
         }
 
         throw new UnauthorizedException("Unauthorized");
@@ -103,7 +103,7 @@ public class TransactionController {
         {
             Transaction _transaction = transactionservice.createCardTransaction(transaction);
             LOGGER.info("Creating Card Transaction with id : ", _transaction.getId(),"Customer Id : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", transaction));
+            return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", _transaction));
         }
 
         throw new UnauthorizedException("Unauthorized");
@@ -135,6 +135,7 @@ public class TransactionController {
             
     }
 
+
     @PostConstruct
     public void init(){
         Transaction txn = Transaction.builder()
@@ -145,7 +146,9 @@ public class TransactionController {
             .typeId(2)
             .build();
         transactionservice.createTransferTransaction(txn);
+
     }
+
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<Response> handleSQLException(Exception e) {

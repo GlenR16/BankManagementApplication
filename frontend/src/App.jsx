@@ -11,6 +11,7 @@ import Transactions from "./pages/Transactions";
 import Transfer from "./pages/Transfer";
 import Account from "./pages/Account";
 import Deposit from "./pages/Deposit";
+import Receipt from "./pages/Receipt";
 
 
 const Signup = lazy(() => import("./pages/Signup"));
@@ -78,6 +79,10 @@ const router = createBrowserRouter([{
 			path:"/AdminTransactions",
 			element: <Suspense fallback={<Loading />}><AdminTransactions /></Suspense>
 		},
+		{
+			path: "/transaction/:id",
+			element: <Suspense fallback={<Loading />}><Receipt /></Suspense>
+		}
 	]
 }]);
 

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import useAxiosAuth from "../contexts/Axios";
 
 export default function Withdraw() {
+	const navigate = useNavigate();
     const [accounts, setAccounts] = useState([]);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -27,6 +29,20 @@ export default function Withdraw() {
     }
   }
 
+  function handlePay(e)  {
+	// Code to handle payment
+	e.preventDefault();
+	setLoading(true);
+	if (!form.accountNumber || !form.amount) {
+		setError("Please fill all the fields");
+		setLoading(false);
+		return;
+	}
+	else{
+			setLoading(false);
+		}
+	}
+
 	function deposit() {
         setLoading(true);
         if (!form.accountNumber || !form.amount) {
@@ -37,14 +53,15 @@ export default function Withdraw() {
 		console.log(form)
 		api.post("/transaction/deposit", form)
         .then((res) => {
-            sessionStorage.setItem("token", res.data.message);
             setLoading(false);
+            navigate("/transaction/"+res.data.transaction.id);
         })
         .catch((err) => {
             if (err.response) setError(err.response.data.error);
             else setError("Something went wrong");
             setLoading(false);
         });
+
 	}
 
     useEffect(() => {
@@ -91,11 +108,48 @@ export default function Withdraw() {
 							</div>
 							<p className="invalid-feedback d-block">{error}</p>
 							<div className="d-grid  d-md-block text-center">
-								<button type="button" onClick={deposit} className="btn btn-primary">
-									Deposit
-								</button>
+								<button className="btn btn-primary " type="button" data-bs-toggle =	{(!form.accountNumber || !form.amount) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Deposit</button>
 							</div>
 						</form>
+
+						<div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title" id="staticBackdropLabel">Confirm 
+										Deposit details</h5>
+                                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <b>
+                                            <table>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Account Number : </td>
+                                                        <td>{form.accountNumber}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Amount : </td>
+                                                        <td>{form.amount}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </b>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={deposit} disabled={loading}>{loading ? (
+                                            <div className="spinner-border mx-2" role="status">
+                                                <span className="visually-hidden">Loading...</span>
+                                            </div>
+                                        ) : (
+                                            "Confirm"
+                                        )}</button>
+                                    </div>
+								</div>
+							</div>
+						</div>
+
 					</div>
 				</div>
 			</div>

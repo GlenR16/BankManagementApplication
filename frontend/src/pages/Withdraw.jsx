@@ -1,58 +1,74 @@
 import React, { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
-
+import { useNavigate } from "react-router-dom";
 export default function Withdraw() {
-    const [accounts, setAccounts] = useState([]);
+	const [accounts, setAccounts] = useState([]);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-    const api = useAxiosAuth();
+	const navigate = useNavigate();
 
-    const [form, setForm] = useState({
-        accountNumber: "",
-        amount: "",
-		senderAccount:"",
-		receiverAccount:"",
-    });
+	const api = useAxiosAuth();
 
-    function handleChange(e) {
-    if (e.target.name === "accountNumber") {
-      setForm({
-        ...form,
-        [e.target.name]: e.target.value,
-        senderAccount: e.target.value,
-		receiverAccount: e.target.value,
-      });
-    } else {
-      setForm({ ...form, [e.target.name]: e.target.value });
-    }
-  }
 
-	function withdraw() {
+	useEffect(() => {
+		// Code to fetch accounts 
+		api.get("/account/list")
+			.then((response) => {
+				setAccounts(response.data);
+			});
+	}, []);
+
+	const [form, setForm] = useState({
+		accountNumber: "",
+		amount: "",
+		senderAccount: "",
+		receiverAccount: "",
+	});
+
+	function handleChange(e) {
+		if (e.target.name === "accountNumber") {
+			setForm({
+				...form,
+				[e.target.name]: e.target.value,
+				senderAccount: e.target.value,
+				receiverAccount: e.target.value,
+			});
+		} else {
+			setForm({ ...form, [e.target.name]: e.target.value });
+		}
+	}
+
+	function handlePay(e)  {
+        // Code to handle payment
+        e.preventDefault();
         setLoading(true);
-        if (!form.accountNumber || !form.amount) {
+        if (!form.senderAccount || !form.amount || !form.receiverAccount || !form) {
             setError("Please fill all the fields");
             setLoading(false);
             return;
         }
+        else{
+            setLoading(false);
+        }
+    }
+
+	function handleClick(e) {
+		setLoading(true);
+		e.preventDefault();
 		console.log(form)
 		api.post("/transaction/withdraw", form)
-        .then((res) => {
-            sessionStorage.setItem("token", res.data.message);
-            setLoading(false);
-        })
-        .catch((err) => {
-            if (err.response) setError(err.response.data.error);
-            else setError("Something went wrong");
-            setLoading(false);
-        });
+			.then((res) => {
+				console.log(res.data);
+				setLoading(false);
+				navigate("/transaction/"+res.data.transaction.id);
+			})
+			.catch((err) => {
+				if (err.response) setError(err.response.data.error);
+				else setError("Something went wrong");
+				setLoading(false);
+			});
+			
 	}
-
-    useEffect(() => {
-        api.get("/account/list")
-        .then((response) => {
-            setAccounts(response.data);
-        });
-    }, []);
 
 	return (
 		<div className="mx-auto m-5 p-5">
@@ -67,13 +83,13 @@ export default function Withdraw() {
 										Account Number
 									</label>
 									<select className="form-select" id="accountNumber" name="accountNumber" onChange={handleChange}>
-                                        <option value="">Select an Account</option>
+										<option value="">Select an Account</option>
 										{
-                                            accounts.length > 0 ? accounts.map((account) => {
+											accounts.length > 0 ? accounts.map((account) => {
 
-                                                return <option key={account.accountNumber} value={account.accountNumber}>{account.accountNumber}</option>
-                                            }) : <option>No Accounts</option>
-                                        }
+												return <option key={account.accountNumber} value={account.accountNumber}>{account.accountNumber}</option>
+											}) : <option>No Accounts</option>
+										}
 									</select>
 								</div>
 								<div className="form-text mx-3">Account Balance : ₹ {accounts.length > 0 ? accounts.find((account) => account.accountNumber == form.accountNumber)?.balance : 0}</div>
@@ -91,11 +107,47 @@ export default function Withdraw() {
 							</div>
 							<p className="invalid-feedback d-block">{error}</p>
 							<div className="d-grid  d-md-block text-center">
-								<button type="button" onClick={withdraw} className="btn btn-primary">
+								<button type="button" className="btn btn-primary" data-bs-toggle ={(!form.senderAccount || !form.amount || !form.receiverAccount || !form) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>
 									Withdraw
 								</button>
 							</div>
 						</form>
+						<div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+							<div className="modal-dialog">
+								<div className="modal-content">
+									<div className="modal-header">
+										<h5 className="modal-title" id="staticBackdropLabel">Confirm Transfer details</h5>
+										<button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div className="modal-body">
+										<b>
+											<table>
+												<tbody>
+													<tr>
+														<td>Account Number : </td>
+														<td>{form.senderAccount}</td>
+													</tr>
+													<tr>
+														<td>Amount : </td>
+														<td>{form.amount}</td>
+													</tr>
+												</tbody>
+											</table>
+										</b>
+									</div>
+									<div className="modal-footer">
+										<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+										<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={handleClick} disabled={loading}>{loading ? (
+											<div className="spinner-border mx-2" role="status">
+												<span className="visually-hidden">Loading...</span>
+											</div>
+										) : (
+											"Confirm"
+										)}</button>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
