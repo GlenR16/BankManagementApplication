@@ -20,8 +20,8 @@ public class Beneficiary {
     @GeneratedValue
     private long id;
     private String name;
-    private long accountId;
-    private long recieverId;
+    private long accountNumber;
+    private long recieverNumber;
     private String ifsc;
     
 }

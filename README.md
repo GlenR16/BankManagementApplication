@@ -19,21 +19,18 @@ Using Docker:
 
 ## Tasks remaining
 - Transaction service is to be changed as per frontend.
-- Webclient should be used instead of RestTemplate.
-- User service is to fine tuned for better code practices.
-- Account service is to fine tuned for better code practices.
-- Card service is to fine tuned for better code practices.
 - Add remaining pages to frontend.
 ------------------------------------------------
-- Enabling SSL
-- Real time updates to UI in case of multi user environment
-- Use at least 3 design patterns while implementing solution
 - Transaction management within service
 - Transaction management across services
+- Use at least 3 design patterns while implementing solution
+- Enabling SSL
+- Real time updates to UI in case of multi user environment
 
 ## Tasks Done
+- Asynchronous communication
+- ~~Webclient should be used instead of RestTemplate.~~
 - ~~Role authentication must be added.~~
-- ~~Asynchronous communication~~
 - ~~Define and document clear db design~~
 - ~~Standard coding practice should be followed~~
 - ~~Use SOLID principles while designing and implementing solutions~~

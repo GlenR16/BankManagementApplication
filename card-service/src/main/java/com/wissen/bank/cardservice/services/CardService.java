@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,47 +19,40 @@ import com.wissen.bank.cardservice.repositories.CardRepository;
 public class CardService {
     
     @Autowired
-    private CardRepository cardRepository;    
+    private CardRepository cardRepository; 
+    
 
     public List<Card> getAllCards(){
         return cardRepository.findAll();
     }
 
-    public Card getCardById(Long id){
-        if (id == null){
-            throw new InvalidDataException("Invalid card");
-        }
-        return cardRepository.findById(id).orElseThrow(()-> new NotFoundException("card Not Found"));
+    public Card getCardByNumber(long number){
+        return cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
     }
 
-    
-    
-
-    public long makeIdNo(){
-        Random rand = new Random();
-        long idNo = rand.nextLong(100000000,999999999);
-        return idNo;
+    public List<Card> getCardsByAccountNumber(long accountNumber){
+        return cardRepository.findByAccountNumber(accountNumber);
     }
 
-    public long makecardNo(){
+    private long makecardNo(){
         Random rand = new Random();
         long cardNo = rand.nextLong(100000000000l,999999999999l); 
         return cardNo;
     }
 
-    public int makeCvv(){
+    private int makeCvv(){
         Random rand = new Random();
         int cvv = rand.nextInt(100, 999); 
         return cvv;
     }
 
-    public int makePin(){
+    private int makePin(){
         Random rand = new Random();
         int pin = rand.nextInt(1000,9999);
         return pin;
     }
 
-    public Date makeExpiry(){
+    private Date makeExpiry(){
         Calendar c = Calendar.getInstance();
         c.set(Calendar.YEAR, c.get(Calendar.YEAR)+5);
         Date exp = c.getTime();
@@ -66,61 +61,56 @@ public class CardService {
 
 
     public Card createCard(Card card) {
-
         if (card == null || !validateCard(card)){
             throw new InvalidDataException("Invalid card");
         }
-
         Card _card = Card
-        .builder()
-        .customerId(card.getCustomerId())
-        .number(makecardNo())
-        .cvv(makeCvv())
-        .pin(makePin())
-        .expiryDate(makeExpiry())
-        .typeId(card.getTypeId())
-        .isVerified(false)
-        .isActive(true)
-        .isLocked(false)
-        .isDeleted(false)
-        .build();
-
+            .builder()
+            .accountNumber(card.getAccountNumber())
+            .number(makecardNo())
+            .cvv(makeCvv())
+            .pin(makePin())
+            .expiryDate(makeExpiry())
+            .typeId(card.getTypeId())
+            .isVerified(false)
+            .isActive(true)
+            .isLocked(false)
+            .isDeleted(false)
+            .build();
         if (_card == null){
-            throw new NotFoundException("card Not Found");
+            throw new NotFoundException("Card not found");
         }
         return cardRepository.save(_card);
     }
 
-    public Card updateCard(Card newCard, Long id) {
-        if (id == null){
-            throw new InvalidDataException("Invalid card");
+    public Card updateCardPin(int oldPin, int newPin , long number) {
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
+        if (card.getPin() == oldPin && newPin != oldPin && newPin > 9999 && newPin > 1000){
+            card.setPin(newPin);
         }
-        Card card = cardRepository.findById(id).orElseThrow(()-> new NotFoundException("card Not Found"));
-        if (card == null){
-            throw new NotFoundException("card Not Found");
-        }
-        if (newCard.getPin()>9999 || newCard.getPin()<1000 ){
-            throw new InvalidDataException("New Pin should be 4 digit number");
-        }
-        if (newCard.getPin() > 0){
-            card.setPin(newCard.getPin());
-        }
-
         return cardRepository.save(card);
     }
 
-    public Card deleteCardById(long id) {
-        Card card = cardRepository.findById(id).orElseThrow(()-> new NotFoundException("card Not Found"));
+    public Card lockSwitchCardByNumber(long number) {
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
+        if (card.isLocked() && card.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
+            card.setLocked(false);
+        }
+        else{
+            card.setLocked(true);
+        }
+            
+        return cardRepository.save(card);
+    }
+
+    public Card deleteCardByNumber(long number) {
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
         card.setDeleted(true);
         return cardRepository.save(card);
     }
 
-    public Card getNumber(long number){
-        return cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card Not Found"));
-    }
-
     public boolean validateCard(Card card){
-        if (card.getTypeId() == 0){
+        if (card.getTypeId() <= 0 || card.getAccountNumber() <= 0){
             return false;
         }
         return true;

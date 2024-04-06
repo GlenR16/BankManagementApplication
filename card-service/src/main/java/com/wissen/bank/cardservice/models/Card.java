@@ -25,7 +25,7 @@ public class Card {
     @Id
     @GeneratedValue
     private long id;
-    private String customerId;
+    private long accountNumber;
     @Column(unique = true)
     private long number;
     private int cvv;

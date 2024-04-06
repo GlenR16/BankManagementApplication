@@ -47,7 +47,6 @@ public class CardTypeController {
 
     @PostMapping("")
     public CardType postCardType(@RequestBody CardType ct, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
             CardType _cardType = CardType
@@ -56,13 +55,10 @@ public class CardTypeController {
             .name(ct.getName())
             .interest(ct.getInterest())
             .build();
-
             if (_cardType == null){
                 throw new NotFoundException("card Type Object Null");
             }
-        
             LOGGER.info("Admin {} Created new Card Type",customer);
-            
             return cardTypeRepo.save(_cardType);
         }
 
@@ -70,26 +66,18 @@ public class CardTypeController {
     }
 
     @PutMapping("/{id}")
-    public CardType updateCardType(@PathVariable long id, @RequestBody CardType br, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        
+    public CardType updateCardType(@PathVariable long id, @RequestBody CardType cardType, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
-            if(cardTypeRepo.existsById(id)){
-
-                CardType _cdt = cardTypeRepo.findById(id).orElseThrow();
-                
-                _cdt.setName(br.getName());
-                _cdt.setInterest(br.getInterest());
-
-                LOGGER.info("Admin {} Updating card details id : ",id, "Customer : ",customer);
-
-                return cardTypeRepo.save(_cdt);
-
+            CardType _cardType = cardTypeRepo.findById(id).orElseThrow(() -> new NotFoundException("CardType not found"));
+            if (cardType.getName() != null) {
+                _cardType.setName(cardType.getName());
             }
-            else{
-                LOGGER.info("No CardType with given ID Found",customer);
+            if (cardType.getInterest() != 0) {
+                _cardType.setInterest(cardType.getInterest());
             }
-            return null;
+            LOGGER.info("Admin {} Updated CardType with id : ",customer,id);
+            return cardTypeRepo.save(_cardType);
         }
         throw new UnauthorizedException("Unauthorized");
     }
@@ -97,19 +85,12 @@ public class CardTypeController {
     
     @DeleteMapping("/{id}")
     public String deleteCardType(@PathVariable long id, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
-
-            if(cardTypeRepo.existsById(id)){
-                LOGGER.info("Admin {} Deleted CardType",customer);
-                cardTypeRepo.deleteById(id);
-                return "CardType Deleted Successfully";
-            }
-            else{
-                LOGGER.info("Admin {} No CardType Found with Given ID",customer);
-                return "CardType not Found";
-            }
+            CardType cardType = cardTypeRepo.findById(id).orElseThrow(() -> new NotFoundException("CardType not found"));
+            cardTypeRepo.delete(cardType);
+            LOGGER.info("Admin {} Deleted CardType with id : ",customer,id);
+            return "CardType Deleted";
         }
         throw new UnauthorizedException("Unauthorized");
     }
@@ -131,6 +112,7 @@ public class CardTypeController {
         if (cardType2 != null) {
             cardTypeRepo.save(cardType2);
         }
+
 
     }
 

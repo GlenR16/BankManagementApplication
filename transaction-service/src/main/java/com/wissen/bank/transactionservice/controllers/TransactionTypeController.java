@@ -106,17 +106,31 @@ public class TransactionTypeController {
     @PostConstruct
     public void init() {
         TransactionType transactionType1 = TransactionType.builder()
-                .type("Debit")
+                .type("NEFT")
                 .build();
         if (transactionType1 != null) {
             transactionTypeRepository.save(transactionType1);
         }
 
         TransactionType transactionType2 = TransactionType.builder()
-                .type("Credit")
+                .type("Withdraw")
                 .build();
         if (transactionType2 != null) {
             transactionTypeRepository.save(transactionType2);
+        }
+
+        TransactionType transactionType3 = TransactionType.builder()
+                .type("Deposit")
+                .build();
+        if (transactionType3 != null) {
+            transactionTypeRepository.save(transactionType3);
+        }
+
+        TransactionType transactionType4 = TransactionType.builder()
+                .type("Card")
+                .build();
+        if (transactionType4 != null) {
+            transactionTypeRepository.save(transactionType4);
         }
     }
 

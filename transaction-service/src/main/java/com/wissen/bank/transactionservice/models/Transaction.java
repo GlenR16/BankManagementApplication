@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -25,12 +27,13 @@ public class Transaction {
     @Id
     @GeneratedValue
     private long id;
-    private long senderAccount;
-    private long senderCardId;
-    private long receiverAccount;
-    private float amount;
+    private long accountNumber;
+    private long cardNumber;
+    private long beneficiaryId;
+    private double amount;
     private long typeId;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @CreationTimestamp
     private Date createdAt;

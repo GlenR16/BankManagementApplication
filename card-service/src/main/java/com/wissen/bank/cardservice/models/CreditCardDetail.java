@@ -21,7 +21,7 @@ public class CreditCardDetail {
     @GeneratedValue
     private long id;
     private long cardId;
-    private int creditLimit;
-    private int creditUsed;
+    private double creditLimit;
+    private double creditUsed;
     private int creditTransactions;
 }

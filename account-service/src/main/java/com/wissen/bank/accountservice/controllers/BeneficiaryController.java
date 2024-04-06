@@ -30,6 +30,7 @@ import com.wissen.bank.accountservice.services.AccountService;
 import jakarta.annotation.PostConstruct;
 
 
+
 @RestController
 @RequestMapping("/account/beneficiary")
 public class BeneficiaryController {
@@ -69,8 +70,8 @@ public class BeneficiaryController {
                 .builder()
                 .id(benificiary.getId())
                 .name(benificiary.getName())
-                .accountId(benificiary.getAccountId())
-                .recieverId(benificiary.getRecieverId())
+                .accountNumber(benificiary.getAccountNumber())
+                .recieverNumber(benificiary.getRecieverNumber())
                 .ifsc(benificiary.getIfsc())
                 .build();
         if (_benificiary == null) {
@@ -80,13 +81,24 @@ public class BeneficiaryController {
         return beneficiaryRepository.save(_benificiary);
     }
 
+    @GetMapping("/{id}")
+    public Beneficiary getBeneficiaryById(@PathVariable long id, @RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
+        Beneficiary beneficiary = beneficiaryRepository.findById(id).orElseThrow(() -> new NotFoundException("Beneficiary not found"));
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || accountService.getAccountByAccountNumber(beneficiary.getAccountNumber()).getCustomerId().equals(customerId) ) {
+            LOGGER.info("User {} getting beneficiary id : ", id);
+            return beneficiary;
+        }
+        throw new UnauthorizedException("Unauthorized");
+    }
+    
+
     @PutMapping("/{id}")
     public Beneficiary updateBeneficiary(@PathVariable long id, @RequestBody Beneficiary beneficiary, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             Beneficiary _beneficiary = beneficiaryRepository.findById(id).orElseThrow(() -> new NotFoundException("Beneficiary not found"));
             if (!beneficiary.getName().isBlank()) _beneficiary.setName(beneficiary.getName());
-            if (beneficiary.getAccountId() > 0) _beneficiary.setAccountId(beneficiary.getAccountId());
-            if (beneficiary.getRecieverId() > 0) _beneficiary.setRecieverId(beneficiary.getRecieverId());
+            if (beneficiary.getAccountNumber() > 0) _beneficiary.setAccountNumber(beneficiary.getAccountNumber());
+            if (beneficiary.getRecieverNumber() > 0) _beneficiary.setRecieverNumber(beneficiary.getRecieverNumber());
             if (!beneficiary.getIfsc().isBlank()) _beneficiary.setIfsc(beneficiary.getIfsc());
             return beneficiaryRepository.save(_beneficiary);
         }
@@ -106,16 +118,20 @@ public class BeneficiaryController {
 
     @PostConstruct
     public void init() {
-        Beneficiary ben1 = Beneficiary.builder().id(1).name("Vir").accountId(999999).recieverId(888888).ifsc("1A2B3C")
-                .build();
-        if (ben1 != null) {
-            beneficiaryRepository.save(ben1);
-        }
-        Beneficiary ben2 = Beneficiary.builder().id(2).name("Jane").accountId(111111).recieverId(222222).ifsc("9A9B9C")
-                .build();
-        if (ben2 != null) {
-            beneficiaryRepository.save(ben2);
-        }
+        Beneficiary ben1 = Beneficiary.builder()
+        .accountNumber(accountService.getAllAccounts().get(0).getAccountNumber())
+        .ifsc("1A2B3C")
+        .name("Vir Rao")
+        .recieverNumber(accountService.getAllAccounts().get(2).getAccountNumber())
+        .build();
+        beneficiaryRepository.save(ben1);
+        Beneficiary ben2 = Beneficiary.builder()
+        .accountNumber(accountService.getAllAccounts().get(2).getAccountNumber())
+        .ifsc("1A2B3C")
+        .name("Admin User")
+        .recieverNumber(accountService.getAllAccounts().get(0).getAccountNumber())
+        .build();
+        beneficiaryRepository.save(ben2);
     }
 
 }

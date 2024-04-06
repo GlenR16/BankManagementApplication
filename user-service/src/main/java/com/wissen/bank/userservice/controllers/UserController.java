@@ -139,6 +139,24 @@ public class UserController {
             .pincode(123456)
             .build();
         userService.createAdmin(user);
+        User user2 = User.builder()
+            .customerId("1111111111")
+            .password("password")
+            .aadhaar("123123123123")
+            .pan("AAAAA1234A")
+            .email("glen@gmail.com")
+            .address("456 / Santacruz East")
+            .name("Glen Rodrigues")
+            .city("Mumbai")
+            .state("Maharashtra")
+            .pincode(123123)
+            .dateOfBirth(new Date())
+            .gender("Male")
+            .isDeleted(false)
+            .isLocked(false)
+            .phone("1111111111")
+            .build();
+        userService.createUser(user2);
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })

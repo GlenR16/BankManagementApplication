@@ -30,8 +30,8 @@ public class Account {
     @Column(unique = true)
     private long accountNumber;
     private long branchId;
-    private int typeId;
-    private int balance;
+    private long typeId;
+    private double balance;
     private int withdrawalLimit;
 
     private boolean isVerified;

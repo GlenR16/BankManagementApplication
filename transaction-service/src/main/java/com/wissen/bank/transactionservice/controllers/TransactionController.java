@@ -4,9 +4,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.wissen.bank.transactionservice.models.Transaction;
 import com.wissen.bank.transactionservice.exceptions.DatabaseIntegrityException;
+import com.wissen.bank.transactionservice.exceptions.TransactionFailedException;
 import com.wissen.bank.transactionservice.exceptions.UnauthorizedException;
+import com.wissen.bank.transactionservice.models.Account;
+import com.wissen.bank.transactionservice.models.Beneficiary;
+import com.wissen.bank.transactionservice.models.Card;
+import com.wissen.bank.transactionservice.models.CreditCardDetail;
 import com.wissen.bank.transactionservice.models.Role;
+import com.wissen.bank.transactionservice.models.Status;
 import com.wissen.bank.transactionservice.responses.Response;
+import com.wissen.bank.transactionservice.services.AccountClientService;
+import com.wissen.bank.transactionservice.services.CardClientService;
 import com.wissen.bank.transactionservice.services.TransactionService;
 
 import jakarta.annotation.PostConstruct;
@@ -20,12 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,119 +44,187 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionservice;
 
+    
+    @Autowired
+    private AccountClientService accountClientService;
+
+    @Autowired
+    private CardClientService cardClientService;
+
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("")
     public List<Transaction> getAllTransactions(@RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("ADmin {} Getting all Transactions",customerId);
-            return transactionservice.getAllTransaction();
+            LOGGER.info("Admin {} getting all transactions",customerId);
+            return transactionservice.getAllTransactions();
         }
         throw new UnauthorizedException("Unauthorized");
     }
 
     @GetMapping("/{id}")
     public Transaction getTransactionById(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) {
+        Transaction transaction = transactionservice.getTransactionByTransactionId(id);
+        Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || account.customerId().equals(customerId) ) {
             LOGGER.info("Admin {} Getting transaction id : ", id, "Customer : ",customerId);
-            return transactionservice.getTransactionByTransactionId(id);
+            return transaction;
         }
-
         throw new UnauthorizedException("Unauthorized");
     }
 
     @PostMapping("/transfer")
     public ResponseEntity<Response> createTransfer(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
-        {
-            Transaction _transaction = transactionservice.createTransferTransaction(transaction);
-            LOGGER.info("Creating Transfer Transaction with id : ", _transaction.getId(),"Cusotmer : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", transaction));
+        Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
+        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified() || account.balance() < transaction.getAmount()) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
         }
-
-        throw new UnauthorizedException("Unauthorized");
+        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.balance() - transaction.getAmount(), customerId, role.toString()).block();
+        if (_account == null) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
+        }
+        Transaction _transaction = transactionservice.createTransaction(transaction, Status.COMPLETED);
+        Beneficiary beneficiary = accountClientService.getBeneficiaryByBeneficiaryId(transaction.getBeneficiaryId(), customerId, role.toString()).block();
+        if (beneficiary == null) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
+        }
+        Account beneficiaryAccount = accountClientService.getAccountByAccountNumber(beneficiary.recieverNumber(), customerId, role.toString()).block();
+        if (beneficiaryAccount != null) {
+            Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.balance() + transaction.getAmount(), customerId, role.toString()).block();
+            if (_beneficiaryAccount == null) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            Transaction transaction2 = Transaction.builder()
+                .accountNumber(beneficiary.recieverNumber())
+                .amount(transaction.getAmount())
+                .typeId(1)
+                .build();
+            transactionservice.createTransaction(transaction2, Status.COMPLETED);
+        }
+        LOGGER.info("Creating Transfer Transaction with id : ", _transaction.getId(),"Cusotmer : ",customerId);
+        return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", _transaction)); 
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<Response> createWithdraw(@RequestBody Transaction transaction,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
-        {
-            Transaction _transaction = transactionservice.createWithdrawTransaction(transaction);
-            LOGGER.info("Creating Withdraw Transaction with id : ", _transaction.getId(), "Customr : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", transaction));
+        Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
+        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified() || account.balance() < transaction.getAmount()) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
         }
-        throw new UnauthorizedException("Unauthorized");
+        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.balance() - transaction.getAmount(), customerId, role.toString()).block();
+        if (_account == null) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
+        }
+        Transaction _transaction = transactionservice.createTransaction(transaction,Status.COMPLETED);
+        LOGGER.info("Creating Withdraw Transaction with id: {} Customer : {}",_transaction.getId(),customerId);
+        return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", _transaction));
     }
 
     @PostMapping("/deposit")
     public ResponseEntity<Response> createDeposit(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
-        {
-            Transaction _transaction = transactionservice.createDepositTransaction(transaction);
-            LOGGER.info("Creating Deposit Transaction with id : ", _transaction.getId(), "Customer : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", transaction));
+        Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
+        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified()) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
         }
-
-        throw new UnauthorizedException("Unauthorized");
+        Transaction _transaction = transactionservice.createTransaction(transaction,Status.COMPLETED);
+        LOGGER.info("Creating Deposit Transaction with id : ", _transaction.getId(), "Customer : ",customerId);
+        return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", _transaction));
     }
 
     @PostMapping("/cardTransfer")
     public ResponseEntity<Response> createCardTransfer(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || role == Role.USER) 
-        {
-            Transaction _transaction = transactionservice.createCardTransaction(transaction);
+        Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
+        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified()) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
+        }
+        Card card = cardClientService.getCardByNumber(transaction.getCardNumber(), customerId, role.toString()).block();
+        if (card == null) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
+        }
+        Transaction _transaction;
+        if (card.typeId() == 1){
+            Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.balance() - transaction.getAmount(), customerId, role.toString()).block();
+            if (_account == null) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            _transaction = transactionservice.createTransaction(transaction, Status.COMPLETED);
+            Beneficiary beneficiary = accountClientService.getBeneficiaryByBeneficiaryId(transaction.getBeneficiaryId(), customerId, role.toString()).block();
+            if (beneficiary == null) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            Account beneficiaryAccount = accountClientService.getAccountByAccountNumber(beneficiary.recieverNumber(), customerId, role.toString()).block();
+            if (beneficiaryAccount != null) {
+                Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.balance() + transaction.getAmount(), customerId, role.toString()).block();
+                if (_beneficiaryAccount == null) {
+                    throw new TransactionFailedException("Transaction Failed",transaction);
+                }
+                Transaction transaction2 = Transaction.builder()
+                    .accountNumber(beneficiary.recieverNumber())
+                    .amount(transaction.getAmount())
+                    .typeId(1)
+                    .build();
+                transactionservice.createTransaction(transaction2, Status.COMPLETED);
+            }
             LOGGER.info("Creating Card Transaction with id : ", _transaction.getId(),"Customer Id : ",customerId);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", transaction));
         }
-
-        throw new UnauthorizedException("Unauthorized");
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Response> updateTransaction(@PathVariable long id, @RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Updating Transaction ID : ", transaction.getId(),"Cusotmer Id : ",customerId);
-
-            transactionservice.updateTransaction(transaction, id);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Transaction Updated success", transaction));
+        else{
+            CreditCardDetail ccd = cardClientService.getCreditCardDetailByCardId(card.id(), customerId, role.toString()).block();
+            if (ccd == null) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            if (ccd.creditLimit() < ccd.creditUsed() + transaction.getAmount()) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            CreditCardDetail _ccd = cardClientService.updateCreditCardDetail(new CreditCardDetail(ccd.id(),ccd.cardId(),ccd.creditLimit(),ccd.creditUsed() + transaction.getAmount(),ccd.creditTransactions()+1), customerId, role.toString()).block();
+            if (_ccd == null) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            _transaction = transactionservice.createTransaction(transaction, Status.COMPLETED);
+            Beneficiary beneficiary = accountClientService.getBeneficiaryByBeneficiaryId(transaction.getBeneficiaryId(), customerId, role.toString()).block();
+            if (beneficiary == null) {
+                throw new TransactionFailedException("Transaction Failed",transaction);
+            }
+            Account beneficiaryAccount = accountClientService.getAccountByAccountNumber(beneficiary.recieverNumber(), customerId, role.toString()).block();
+            if (beneficiaryAccount != null) {
+                Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.balance() + transaction.getAmount(), customerId, role.toString()).block();
+                if (_beneficiaryAccount == null) {
+                    throw new TransactionFailedException("Transaction Failed",transaction);
+                }
+                Transaction transaction2 = Transaction.builder()
+                    .accountNumber(beneficiary.recieverNumber())
+                    .amount(transaction.getAmount())
+                    .typeId(1)
+                    .build();
+                transactionservice.createTransaction(transaction2, Status.COMPLETED);
+            }
+            LOGGER.info("Creating Card Transaction with id : ", _transaction.getId(),"Customer Id : ",customerId);
         }
-
-        throw new UnauthorizedException("Unauthorized");
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteTransaction(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role)
-    {
-        if(role == Role.ADMIN || role == Role.EMPLOYEE)
-        {
-            LOGGER.info("Deleting Transaction with id : ",id, "Cusotmer : ",customerId);
-            transactionservice.deleTransactionById(id);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Deleted Transaction Success with id : "+id, new Transaction()));
-        }
-
-        throw new UnauthorizedException("Unauthorized");
-            
+        return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", _transaction));
     }
 
     @PostConstruct
     public void init(){
         Transaction txn = Transaction.builder()
-            .senderAccount(99999)
-            .senderCardId(452343)
-            .receiverAccount(888888)
+            .accountNumber(9999999999L)
+            .cardNumber(9999999999L)
+            .beneficiaryId(1)
             .amount(300000)
             .typeId(2)
             .build();
-        transactionservice.createTransferTransaction(txn);
+        transactionservice.createTransaction(txn,Status.COMPLETED);
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class})
     public ResponseEntity<Response> handleSQLException(Exception e) {
         LOGGER.error("Error: {}", e.getMessage());
         throw new DatabaseIntegrityException("Database Integrity Violation");
+    }
+
+    @ExceptionHandler({ TransactionFailedException.class})
+    public ResponseEntity<Response> handleTransactionFailedException(TransactionFailedException e) {
+        Transaction transaction = e.getTransaction();
+        transactionservice.createTransaction(transaction, Status.FAILED);
+        return ResponseEntity.badRequest().body(new Response(new Date(), 400, "Transaction Failed", transaction));
     }
 }
  

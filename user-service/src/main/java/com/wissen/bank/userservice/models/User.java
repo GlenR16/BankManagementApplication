@@ -7,6 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -32,6 +34,7 @@ public class User{
     private String email;
    
     private String password;
+    @Enumerated(EnumType.STRING)
     private Role role;
     @Column(unique = true)
     private String phone;

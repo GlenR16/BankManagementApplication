@@ -70,8 +70,8 @@ public class AccountController {
 
     @PutMapping("/{accountNumber}")
     public ResponseEntity<Response> updateAccount(@PathVariable long accountNumber, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        Account _account = accountService.getAccountByAccountNumber(accountNumber);
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
+        // Account _account = accountService.getAccountByAccountNumber(accountNumber);
+        if ( role == Role.ADMIN || role == Role.EMPLOYEE ) {
             LOGGER.info("User {} updating account number: {}",customer, accountNumber);
             accountService.updateAccountByAccountNumber(account, accountNumber);
             return ResponseEntity.ok().body(new Response(new Date(), 200, "Account updated successfully", "/account/" + accountNumber));
@@ -108,9 +108,9 @@ public class AccountController {
                 .build();
         accountService.createAccount(acc2);
         Account acc3 = Account.builder()
-                .customerId("8888888888")
-                .branchId(2)
-                .typeId(2)
+                .customerId("1111111111")
+                .branchId(1)
+                .typeId(1)
                 .balance(200000)
                 .withdrawalLimit(20000)
                 .build();
