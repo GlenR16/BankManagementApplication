@@ -4,12 +4,17 @@ import { NavLink } from "react-router-dom";
 
 export default function AdminCustomers() {
     const [transactions, setTransactions] = useState([]);
+	const [beneficaries, setBeneficaries] = useState([]);
     const api = useAxiosAuth();
 
     useEffect(() => {
         api.get("/transaction")
         .then((response) => {
             setTransactions(response.data);
+        });
+		api.get("/account/beneficiary")
+        .then((response) => {
+            setBeneficaries(response.data);
         });
     }, []);
 
@@ -50,11 +55,11 @@ export default function AdminCustomers() {
 								transactions.map((transaction, index) => (
 									<tr key={index}>
                                         <td>{transaction.id}</td>
-                                        <td>{transaction.senderAccount}</td>
-                                        <td>{transaction.senderCardId}</td>
-                                        <td>{transaction.receiverAccount}</td>
+                                        <td>{transaction.accountNumber}</td>
+                                        <td>{transaction.cardNumber}</td>
+                                        <td>{beneficaries[transaction.beneficiaryId]?.accountNumber}</td>
                                         <td>{transaction.amount}</td>
-                                        <td>{transaction.createdAt.substring(0,11)}</td>
+                                        <td>{transaction.createdAt.substring(0,10)}</td>
                                         <td>{transaction.createdAt.substring(11,19).replace("T"," ")}</td>
                                         <td>{transaction.status}</td>
 										<td>

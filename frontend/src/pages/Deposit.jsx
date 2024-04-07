@@ -14,6 +14,7 @@ export default function Withdraw() {
         amount: "",
 		senderAccount:"",
 		receiverAccount:"",
+        typeId: 3,
     });
 
     function handleChange(e) {
