@@ -80,11 +80,11 @@ public class UserService {
     }
 
     public User getUserByCustomerId(String customerId){
-        return userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User Not Found"));
+        return userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User Not Found"));
     }
 
     public User getUserById(long id){
-        return userRepository.findById(id).orElseThrow(()-> new NotFoundException("User Not Found"));
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
     }
 
     public boolean validateUser(User user){
@@ -99,7 +99,7 @@ public class UserService {
     }
 
     public User updateUser(User newUser, String customerId){
-        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User Not Found"));
+        User user = userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User Not Found"));
         if (user == null){
             throw new NotFoundException("User Not Found");
         }
@@ -139,7 +139,7 @@ public class UserService {
         if (newUser.getDateOfBirth() != null){
             user.setDateOfBirth(newUser.getDateOfBirth());
         }
-        if (!newUser.isLocked() && newUser.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
+        if (!newUser.isLocked() && newUser.getUpdatedAt() != null && newUser.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
             user.setLocked(newUser.isLocked());
         }
         if (newUser.isLocked()){

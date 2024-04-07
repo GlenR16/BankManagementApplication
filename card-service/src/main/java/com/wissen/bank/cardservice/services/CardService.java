@@ -11,8 +11,11 @@ import org.springframework.stereotype.Service;
 
 import com.wissen.bank.cardservice.exceptions.InvalidDataException;
 import com.wissen.bank.cardservice.exceptions.NotFoundException;
+import com.wissen.bank.cardservice.exceptions.UnauthorizedException;
 import com.wissen.bank.cardservice.models.Card;
+import com.wissen.bank.cardservice.models.CreditCardDetail;
 import com.wissen.bank.cardservice.repositories.CardRepository;
+import com.wissen.bank.cardservice.repositories.CreditCardDetailRepository;
 
 
 @Service
@@ -20,6 +23,11 @@ public class CardService {
     
     @Autowired
     private CardRepository cardRepository; 
+
+
+    @Autowired
+    private CreditCardDetailRepository creditCardDetailRepository;
+
     
 
     public List<Card> getAllCards(){
@@ -72,7 +80,7 @@ public class CardService {
             .pin(makePin())
             .expiryDate(makeExpiry())
             .typeId(card.getTypeId())
-            .isVerified(false)
+            .isVerified(true)
             .isActive(true)
             .isLocked(false)
             .isDeleted(false)
@@ -80,15 +88,25 @@ public class CardService {
         if (_card == null){
             throw new NotFoundException("Card not found");
         }
+        if (_card.getTypeId() == 2){
+            CreditCardDetail ccd = CreditCardDetail
+                .builder()
+                .cardId(_card.getId())
+                .creditTransactions(0)
+                .creditLimit(100000)
+                .build();
+            creditCardDetailRepository.save(ccd);
+        }
         return cardRepository.save(_card);
     }
 
     public Card updateCardPin(int oldPin, int newPin , long number) {
         Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
-        if (card.getPin() == oldPin && newPin != oldPin && newPin > 9999 && newPin > 1000){
+        if (card.getPin() == oldPin && newPin != oldPin && newPin < 9999 && newPin > 1000){
             card.setPin(newPin);
+            return cardRepository.save(card);
         }
-        return cardRepository.save(card);
+        throw new UnauthorizedException("Invalid pin");
     }
 
     public Card lockSwitchCardByNumber(long number) {

@@ -1,10 +1,12 @@
 package com.wissen.bank.accountservice.controllers;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,7 @@ import com.wissen.bank.accountservice.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.AccountType;
 import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.repositories.AccountTypeRepository;
+import com.wissen.bank.accountservice.responses.Response;
 
 import jakarta.annotation.PostConstruct;
 
@@ -65,11 +68,12 @@ public class AccountTypeController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteAccountType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public ResponseEntity<Response> deleteAccountType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             AccountType accountType = accountTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Account type not found"));
             accountTypeRepository.delete(accountType);
             LOGGER.info("Admin {} deleted account type {}", customerId , id);
+            return ResponseEntity.ok().body(new Response(new Date(),200,"Account type deleted successfully","/account/type/"+id));
         }
         throw new UnauthorizedException("Unauthorized");
     }

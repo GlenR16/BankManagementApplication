@@ -225,6 +225,9 @@ public class TransactionController {
     @ExceptionHandler({ TransactionFailedException.class})
     public ResponseEntity<Response> handleTransactionFailedException(TransactionFailedException e) {
         Transaction transaction = e.getTransaction();
+        System.out.println("Stack Trace Begins here ------------------------------------------------------");
+        e.printStackTrace();
+        System.out.println("Stack Trace Ends here ------------------------------------------------------");
         transactionservice.createTransaction(transaction, Status.FAILED);
         return ResponseEntity.badRequest().body(new Response(new Date(), 400, "Transaction Failed", transaction));
     }

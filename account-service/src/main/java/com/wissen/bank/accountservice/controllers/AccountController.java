@@ -62,19 +62,29 @@ public class AccountController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Response> createAccount(@RequestBody Account account, @RequestHeader("Role") Role role) {
+    public Account createAccount(@RequestBody Account account,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        account.setCustomerId(customerId);
         Account _account = accountService.createAccount(account);
         LOGGER.info("Creating account number: {}", _account.getId());
-        return ResponseEntity.ok().body(new Response(new Date(), 200, "Account created successfully", "/account"));
+        return _account;
     }
 
+    @PostMapping("/verify/{accountNumber}")
+    public Account postVerifyAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+            LOGGER.info("Admin {} verifying account number: {}",customer, accountNumber);
+            return accountService.verifyAccountByAccountNumber(accountNumber);
+        }
+        throw new UnauthorizedException("Unauthorized");
+    }
+    
+
     @PutMapping("/{accountNumber}")
-    public ResponseEntity<Response> updateAccount(@PathVariable long accountNumber, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        // Account _account = accountService.getAccountByAccountNumber(accountNumber);
-        if ( role == Role.ADMIN || role == Role.EMPLOYEE ) {
+    public Account updateAccount(@PathVariable long accountNumber, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        Account _account = accountService.getAccountByAccountNumber(accountNumber);
+        if ( role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
             LOGGER.info("User {} updating account number: {}",customer, accountNumber);
-            accountService.updateAccountByAccountNumber(account, accountNumber);
-            return ResponseEntity.ok().body(new Response(new Date(), 200, "Account updated successfully", "/account/" + accountNumber));
+            return accountService.updateAccountByAccountNumber(account, accountNumber);
         }
         throw new UnauthorizedException("Unauthorized");
     }

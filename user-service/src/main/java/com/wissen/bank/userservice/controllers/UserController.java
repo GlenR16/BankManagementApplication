@@ -16,6 +16,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +160,7 @@ public class UserController {
         userService.createUser(user2);
     }
 
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })
+    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class })
     public ResponseEntity<Response> handleSQLException(Exception e){
         LOGGER.error("Error: {}",e.getMessage());
         throw new DatabaseIntegrityException("Database Integrity Violation");

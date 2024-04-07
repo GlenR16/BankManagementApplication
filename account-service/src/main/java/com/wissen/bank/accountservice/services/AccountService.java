@@ -71,6 +71,12 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    public Account verifyAccountByAccountNumber(long accountNumber){
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
+        account.setVerified(true);
+        return accountRepository.save(account);
+    }
+
     private boolean validateAccount(Account account){
         if (account.getCustomerId().isBlank() || account.getBranchId() == 0 || account.getBalance() == 0 || account.getWithdrawalLimit() == 0 || account.getTypeId() == 0){
             return false;

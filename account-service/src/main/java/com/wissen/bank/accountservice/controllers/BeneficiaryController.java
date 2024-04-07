@@ -31,6 +31,7 @@ import jakarta.annotation.PostConstruct;
 
 
 
+
 @RestController
 @RequestMapping("/account/beneficiary")
 public class BeneficiaryController {
@@ -58,27 +59,42 @@ public class BeneficiaryController {
         List<Beneficiary> beneficiaries = new ArrayList<>();
         accounts.stream().forEach(account -> {
             LOGGER.info("User {} getting all beneficiaries", customerId);
-            beneficiaries.addAll(beneficiaryRepository.findByAccountId(account.getId()));
+            beneficiaries.addAll(beneficiaryRepository.findByAccountNumber(account.getAccountNumber()));
         });
         return beneficiaries;
     }
+
+    @GetMapping("/{accountNumber}")
+    public List<Beneficiary> getBeneficiariesByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
+        Account account = accountService.getAccountByAccountNumber(accountNumber);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customerId)) {
+            LOGGER.info("User {} getting all beneficiaries by account number: {}", customerId, accountNumber);
+            return beneficiaryRepository.findByAccountNumber(accountNumber);
+        }
+        throw new UnauthorizedException("Unauthorized");
+    }
+    
     
 
     @PostMapping("")
     public Beneficiary postBeneficiary(@RequestBody Beneficiary benificiary, @RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
-        Beneficiary _benificiary = Beneficiary
-                .builder()
-                .id(benificiary.getId())
-                .name(benificiary.getName())
-                .accountNumber(benificiary.getAccountNumber())
-                .recieverNumber(benificiary.getRecieverNumber())
-                .ifsc(benificiary.getIfsc())
-                .build();
-        if (_benificiary == null) {
-            throw new NotFoundException("Object Null");
+        Account account = accountService.getAccountByAccountNumber(benificiary.getAccountNumber());
+        if (account.getCustomerId().equals(customerId)) {
+            Beneficiary _benificiary = Beneficiary
+                    .builder()
+                    .id(benificiary.getId())
+                    .name(benificiary.getName())
+                    .accountNumber(benificiary.getAccountNumber())
+                    .recieverNumber(benificiary.getRecieverNumber())
+                    .ifsc(benificiary.getIfsc())
+                    .build();
+            if (_benificiary == null) {
+                throw new NotFoundException("Object Null");
+            }
+            LOGGER.info("User {} created new beneficiary", customerId);
+            return beneficiaryRepository.save(_benificiary);
         }
-        LOGGER.info("User {} created new beneficiary", customerId);
-        return beneficiaryRepository.save(_benificiary);
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @GetMapping("/{id}")
@@ -107,8 +123,8 @@ public class BeneficiaryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Response> deleteBeneficiary(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            Beneficiary beneficiary = beneficiaryRepository.findById(id).orElseThrow(() -> new NotFoundException("Beneficiary not found"));
+        Beneficiary beneficiary = beneficiaryRepository.findById(id).orElseThrow(() -> new NotFoundException("Beneficiary not found"));
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || accountService.getAccountByAccountNumber(beneficiary.getAccountNumber()).getCustomerId().equals(customerId) ) {
             beneficiaryRepository.delete(beneficiary);
             LOGGER.info("Admin {} deleted Beneficiary {}", customerId, id);
             return ResponseEntity.ok().body(new Response(new Date(), 200, "Deleted Beneficiary successfully", "/account/beneficiary/" + id));
@@ -119,19 +135,12 @@ public class BeneficiaryController {
     @PostConstruct
     public void init() {
         Beneficiary ben1 = Beneficiary.builder()
-        .accountNumber(accountService.getAllAccounts().get(0).getAccountNumber())
-        .ifsc("1A2B3C")
-        .name("Vir Rao")
-        .recieverNumber(accountService.getAllAccounts().get(2).getAccountNumber())
+        .accountNumber(1234567890l)
+        .recieverNumber(1234567890l)
+        .ifsc("IFSC1234")
+        .name("Ben1")
         .build();
         beneficiaryRepository.save(ben1);
-        Beneficiary ben2 = Beneficiary.builder()
-        .accountNumber(accountService.getAllAccounts().get(2).getAccountNumber())
-        .ifsc("1A2B3C")
-        .name("Admin User")
-        .recieverNumber(accountService.getAllAccounts().get(0).getAccountNumber())
-        .build();
-        beneficiaryRepository.save(ben2);
     }
 
 }

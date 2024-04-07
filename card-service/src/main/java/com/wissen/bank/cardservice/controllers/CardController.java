@@ -80,10 +80,14 @@ public class CardController{
     }
 
     @PostMapping("")
-    public Card createCard(@RequestBody Card card, @RequestHeader("Role") Role role){
-        Card _card = cardService.createCard(card);
-        LOGGER.info("Creating card number: {}",_card.getNumber());
-        return _card;
+    public Card createCard(@RequestBody Card card,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+        Account account = accountClientService.getAccountByAccountNumber(card.getAccountNumber(),customerId,role.toString()).block();
+        if (account != null && account.customerId().equals(customerId)){
+            Card _card = cardService.createCard(card);
+            LOGGER.info("Creating card number: {}",_card.getNumber());
+            return _card;
+        }
+        throw new UnauthorizedException("Unauthorized");
     }
 
     @PostMapping("/{number}")
@@ -93,7 +97,7 @@ public class CardController{
         if (role == Role.ADMIN || role == Role.EMPLOYEE || accounts.stream().anyMatch(account -> account.accountNumber() == card.getAccountNumber()) ){
             LOGGER.info("Locking card number: {}",number);
             cardService.lockSwitchCardByNumber(number);
-            return ResponseEntity.ok().body(new Response(new Date(),200,"Card updated successfully","/card/"+number));
+            return ResponseEntity.ok().body(new Response(new Date(),200,"Card status changed successfully","/card/"+number));
         }
         throw new UnauthorizedException("Unauthorized");
     }
@@ -123,6 +127,7 @@ public class CardController{
     @PostMapping("/verify")
     public ResponseEntity<Response> verifyCard(@RequestBody Card card){
         Card _card = cardService.getCardByNumber(card.getNumber());
+        System.out.println(_card.isDeleted() + " " + _card.isLocked() + " " + (_card.getPin() == card.getPin()) + " " + (_card.getCvv() == card.getCvv()));
         if(!_card.isDeleted() && !_card.isLocked() && _card.getPin() == card.getPin() && _card.getCvv() == card.getCvv() ){
             return ResponseEntity.ok().body(new Response(new Date(),200,"Card Verified","/card/verify"));
         }

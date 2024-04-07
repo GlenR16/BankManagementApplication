@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary,Long> {
-    public List<Beneficiary> findByAccountId(long accountId);
+    public List<Beneficiary> findByAccountNumber(long accountNumber);
 }
