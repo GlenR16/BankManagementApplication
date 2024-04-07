@@ -18,11 +18,10 @@ Using Docker:
 - Uses large amount of RAM and CPU resources.
 
 ## Tasks remaining
-- Transaction service is to be changed as per frontend.
-- Add remaining pages to frontend.
-------------------------------------------------
 - Transaction management within service
 - Transaction management across services
+- Add remaining pages to frontend.
+------------------------------------------------
 - Use at least 3 design patterns while implementing solution
 - Enabling SSL
 - Real time updates to UI in case of multi user environment

@@ -62,6 +62,16 @@ public class TransactionController {
         throw new UnauthorizedException("Unauthorized");
     }
 
+    @GetMapping("/account/{accountNumber}")
+    public List<Transaction> getTransactionsByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        Account account = accountClientService.getAccountByAccountNumber(accountNumber, customerId, role.toString()).block();
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customerId)) {
+            LOGGER.info("Admin {} Getting transactions for account number : {}",customerId,accountNumber);
+            return transactionservice.getTransactionsByAccountNumber(accountNumber);
+        }
+        throw new UnauthorizedException("Unauthorized");
+    }
+
     @GetMapping("/{id}")
     public Transaction getTransactionById(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         Transaction transaction = transactionservice.getTransactionByTransactionId(id);
