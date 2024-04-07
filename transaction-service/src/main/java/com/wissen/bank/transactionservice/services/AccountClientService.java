@@ -1,7 +1,5 @@
 package com.wissen.bank.transactionservice.services;
 
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +23,16 @@ public class AccountClientService {
                     headers.set("Role", role);
                 })
                 .retrieve()
-                .bodyToMono(Account.class);
+                .bodyToMono(Account.class)
+                .onErrorResume(e -> Mono.empty());
     }
 
     public Mono<Account> updateAccountBalance(long accountNumber, double amount, String customerId, String role) {
-        Account account = new Account(0l,customerId,accountNumber,0,0,amount,0,true,true,true,true,new Date(),new Date());
+        Account account = Account.builder()
+                .customerId(customerId)
+                .accountNumber(accountNumber)
+                .balance(amount)
+                .build();
         return webClientConfig.accountWebClient().put()
             .uri("/account/"+accountNumber)
             .headers((headers) -> {
@@ -38,7 +41,8 @@ public class AccountClientService {
             })
             .body(Mono.just(account), Account.class)
             .retrieve()
-            .bodyToMono(Account.class);
+            .bodyToMono(Account.class)
+            .onErrorResume(e -> Mono.empty());
     }
 
     public Mono<Beneficiary> getBeneficiaryByBeneficiaryId(long beneficiaryId, String customerId, String role) {
@@ -49,7 +53,8 @@ public class AccountClientService {
                     headers.set("Role", role);
                 })
                 .retrieve()
-                .bodyToMono(Beneficiary.class);
+                .bodyToMono(Beneficiary.class)
+                .onErrorResume(e -> Mono.empty());
     }
     
 }

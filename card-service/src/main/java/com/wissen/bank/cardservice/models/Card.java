@@ -30,9 +30,9 @@ public class Card {
     private long number;
     private int cvv;
     private int pin;
-    
     private Date expiryDate;
     private long typeId;
+
     private boolean isVerified;
     private boolean isActive;
     private boolean isLocked;

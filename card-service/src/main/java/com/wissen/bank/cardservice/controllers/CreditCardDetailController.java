@@ -62,7 +62,7 @@ public class CreditCardDetailController {
             throw new UnauthorizedException("Unauthorized");
         }
         if (role == Role.ADMIN || role == Role.EMPLOYEE || account.customerId().equals(customer)) {
-            LOGGER.info("User {} displaying CreditCardDetail with card id : ", customer, cardId);
+            LOGGER.info("User {} displaying CreditCardDetail with card id: {} ", customer, cardId);
             return ccd;
         }
         throw new UnauthorizedException("Unauthorized");
@@ -106,7 +106,7 @@ public class CreditCardDetailController {
             if (newCcd.getCreditTransactions() != 0) {
                 ccd.setCreditTransactions(newCcd.getCreditTransactions());
             }
-            LOGGER.info("User {} displaying CreditCardDetail with id : ", customer, id);
+            LOGGER.info("User {} displaying CreditCardDetail with id: {} ", customer, id);
             return creditCardDetailRepo.save(ccd);
         }
         throw new UnauthorizedException("Unauthorized");
@@ -124,7 +124,7 @@ public class CreditCardDetailController {
             throw new UnauthorizedException("Unauthorized");
         }
         if (role == Role.ADMIN || role == Role.EMPLOYEE || account.customerId().equals(customer)) {
-            LOGGER.info("User {} displaying CreditCardDetail with id : ", customer, id);
+            LOGGER.info("User {} displaying CreditCardDetail with id: {}", customer, id);
             return ResponseEntity.ok().body(new Response(new Date(), 200, "Deleted CreditCardDetail successfully","/card/creditCardDetails/" + id));
         }
         throw new UnauthorizedException("Unauthorized");

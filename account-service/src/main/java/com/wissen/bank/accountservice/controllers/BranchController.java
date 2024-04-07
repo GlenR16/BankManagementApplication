@@ -51,7 +51,7 @@ public class BranchController {
             if (_branch == null) {
                 throw new NotFoundException("Branch Object Null");
             }
-            LOGGER.info("Admin {} Created new Branch", customerId);
+            LOGGER.info("Admin {} created new branch", customerId);
             return branchRepo.save(_branch);
         }
         throw new UnauthorizedException("Unauthorized");

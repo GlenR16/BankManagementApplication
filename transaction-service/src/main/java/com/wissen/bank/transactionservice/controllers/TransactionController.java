@@ -3,6 +3,7 @@ package com.wissen.bank.transactionservice.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wissen.bank.transactionservice.models.Transaction;
+import com.wissen.bank.transactionservice.dao.CardTransactionDao;
 import com.wissen.bank.transactionservice.exceptions.DatabaseIntegrityException;
 import com.wissen.bank.transactionservice.exceptions.TransactionFailedException;
 import com.wissen.bank.transactionservice.exceptions.UnauthorizedException;
@@ -44,7 +45,6 @@ public class TransactionController {
     @Autowired
     private TransactionService transactionservice;
 
-    
     @Autowired
     private AccountClientService accountClientService;
 
@@ -66,8 +66,8 @@ public class TransactionController {
     public Transaction getTransactionById(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         Transaction transaction = transactionservice.getTransactionByTransactionId(id);
         Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || account.customerId().equals(customerId) ) {
-            LOGGER.info("Admin {} Getting transaction id : ", id, "Customer : ",customerId);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customerId) ) {
+            LOGGER.info("Admin {} Getting transaction id : {}",customerId,id);
             return transaction;
         }
         throw new UnauthorizedException("Unauthorized");
@@ -76,10 +76,10 @@ public class TransactionController {
     @PostMapping("/transfer")
     public ResponseEntity<Response> createTransfer(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
-        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified() || account.balance() < transaction.getAmount()) {
+        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified() || account.getBalance() < transaction.getAmount()) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
-        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.balance() - transaction.getAmount(), customerId, role.toString()).block();
+        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.getBalance() - transaction.getAmount(), customerId, role.toString()).block();
         if (_account == null) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
@@ -90,7 +90,7 @@ public class TransactionController {
         }
         Account beneficiaryAccount = accountClientService.getAccountByAccountNumber(beneficiary.recieverNumber(), customerId, role.toString()).block();
         if (beneficiaryAccount != null) {
-            Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.balance() + transaction.getAmount(), customerId, role.toString()).block();
+            Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.getBalance() + transaction.getAmount(), customerId, role.toString()).block();
             if (_beneficiaryAccount == null) {
                 throw new TransactionFailedException("Transaction Failed",transaction);
             }
@@ -101,49 +101,66 @@ public class TransactionController {
                 .build();
             transactionservice.createTransaction(transaction2, Status.COMPLETED);
         }
-        LOGGER.info("Creating Transfer Transaction with id : ", _transaction.getId(),"Cusotmer : ",customerId);
+        LOGGER.info("User {} creating transfer transaction with id: {}",customerId,_transaction.getId());
         return ResponseEntity.ok().body(new Response(new Date(), 200, "Transfer Success", _transaction)); 
     }
 
     @PostMapping("/withdraw")
     public ResponseEntity<Response> createWithdraw(@RequestBody Transaction transaction,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
-        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified() || account.balance() < transaction.getAmount()) {
+        if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified() || account.getBalance() < transaction.getAmount()) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
-        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.balance() - transaction.getAmount(), customerId, role.toString()).block();
+        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.getBalance() - transaction.getAmount(), customerId, role.toString()).block();
         if (_account == null) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
         Transaction _transaction = transactionservice.createTransaction(transaction,Status.COMPLETED);
-        LOGGER.info("Creating Withdraw Transaction with id: {} Customer : {}",_transaction.getId(),customerId);
+        LOGGER.info("User {} creating withdraw transaction with id: {}",customerId,_transaction.getId());
         return ResponseEntity.ok().body(new Response(new Date(), 200, "Withdraw Success", _transaction));
     }
 
     @PostMapping("/deposit")
     public ResponseEntity<Response> createDeposit(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
+        System.out.println(account.toString());
         if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified()) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
+        Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.getBalance() + transaction.getAmount(), customerId, role.toString()).block();
+        if (_account == null) {
+            throw new TransactionFailedException("Transaction Failed",transaction);
+        }
         Transaction _transaction = transactionservice.createTransaction(transaction,Status.COMPLETED);
-        LOGGER.info("Creating Deposit Transaction with id : ", _transaction.getId(), "Customer : ",customerId);
+        LOGGER.info("User {} creating deposit transaction with id: {}",customerId,_transaction.getId());
         return ResponseEntity.ok().body(new Response(new Date(), 200, "Deposit Success", _transaction));
     }
 
     @PostMapping("/cardTransfer")
-    public ResponseEntity<Response> createCardTransfer(@RequestBody Transaction transaction, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public ResponseEntity<Response> createCardTransfer(@RequestBody CardTransactionDao cardTransactionDao, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        Transaction transaction = Transaction.builder()
+            .accountNumber(cardTransactionDao.getAccountNumber())
+            .cardNumber(cardTransactionDao.getNumber())
+            .beneficiaryId(cardTransactionDao.getBeneficiaryId())
+            .amount(cardTransactionDao.getAmount())
+            .typeId(cardTransactionDao.getTypeId())
+            .build();
+        Card cardData = Card.builder()
+            .number(cardTransactionDao.getNumber())
+            .cvv(cardTransactionDao.getCvv())
+            .pin(cardTransactionDao.getPin())
+            .build();
         Account account = accountClientService.getAccountByAccountNumber(transaction.getAccountNumber(), customerId, role.toString()).block();
         if (!account.isActive() || account.isDeleted() || account.isLocked() || !account.isVerified()) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
         Card card = cardClientService.getCardByNumber(transaction.getCardNumber(), customerId, role.toString()).block();
-        if (card == null) {
+        if (card == null || !card.isActive() || card.isDeleted() || card.isLocked() || !card.isVerified() || card.getCvv() != cardData.getCvv() || card.getPin() != cardData.getPin()){
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
         Transaction _transaction;
-        if (card.typeId() == 1){
-            Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.balance() - transaction.getAmount(), customerId, role.toString()).block();
+        if (card.getTypeId() == 1){
+            Account _account = accountClientService.updateAccountBalance(transaction.getAccountNumber(), account.getBalance() - transaction.getAmount(), customerId, role.toString()).block();
             if (_account == null) {
                 throw new TransactionFailedException("Transaction Failed",transaction);
             }
@@ -154,7 +171,7 @@ public class TransactionController {
             }
             Account beneficiaryAccount = accountClientService.getAccountByAccountNumber(beneficiary.recieverNumber(), customerId, role.toString()).block();
             if (beneficiaryAccount != null) {
-                Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.balance() + transaction.getAmount(), customerId, role.toString()).block();
+                Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.getBalance() + transaction.getAmount(), customerId, role.toString()).block();
                 if (_beneficiaryAccount == null) {
                     throw new TransactionFailedException("Transaction Failed",transaction);
                 }
@@ -165,10 +182,10 @@ public class TransactionController {
                     .build();
                 transactionservice.createTransaction(transaction2, Status.COMPLETED);
             }
-            LOGGER.info("Creating Card Transaction with id : ", _transaction.getId(),"Customer Id : ",customerId);
+            LOGGER.info("User {} creating transfer transaction with id: {}",customerId,_transaction.getId());
         }
         else{
-            CreditCardDetail ccd = cardClientService.getCreditCardDetailByCardId(card.id(), customerId, role.toString()).block();
+            CreditCardDetail ccd = cardClientService.getCreditCardDetailByCardId(card.getId(), customerId, role.toString()).block();
             if (ccd == null) {
                 throw new TransactionFailedException("Transaction Failed",transaction);
             }
@@ -186,7 +203,7 @@ public class TransactionController {
             }
             Account beneficiaryAccount = accountClientService.getAccountByAccountNumber(beneficiary.recieverNumber(), customerId, role.toString()).block();
             if (beneficiaryAccount != null) {
-                Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.balance() + transaction.getAmount(), customerId, role.toString()).block();
+                Account _beneficiaryAccount = accountClientService.updateAccountBalance(beneficiary.recieverNumber(), beneficiaryAccount.getBalance() + transaction.getAmount(), customerId, role.toString()).block();
                 if (_beneficiaryAccount == null) {
                     throw new TransactionFailedException("Transaction Failed",transaction);
                 }
@@ -197,7 +214,7 @@ public class TransactionController {
                     .build();
                 transactionservice.createTransaction(transaction2, Status.COMPLETED);
             }
-            LOGGER.info("Creating Card Transaction with id : ", _transaction.getId(),"Customer Id : ",customerId);
+            LOGGER.info("User {} creating transfer transaction with id: {}",customerId,_transaction.getId());
         }
         return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", _transaction));
     }
@@ -225,9 +242,6 @@ public class TransactionController {
     @ExceptionHandler({ TransactionFailedException.class})
     public ResponseEntity<Response> handleTransactionFailedException(TransactionFailedException e) {
         Transaction transaction = e.getTransaction();
-        System.out.println("Stack Trace Begins here ------------------------------------------------------");
-        e.printStackTrace();
-        System.out.println("Stack Trace Ends here ------------------------------------------------------");
         transactionservice.createTransaction(transaction, Status.FAILED);
         return ResponseEntity.badRequest().body(new Response(new Date(), 400, "Transaction Failed", transaction));
     }

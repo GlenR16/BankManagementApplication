@@ -51,7 +51,7 @@ public class AccountTypeController {
             if (_accountType == null) {
                 throw new NotFoundException("Account not found");
             }
-            LOGGER.info("Admin {} Created new AccountType", customerId);
+            LOGGER.info("Admin {} created new account type", customerId);
             return accountTypeRepository.save(_accountType);
         }
         throw new UnauthorizedException("Unauthorized");

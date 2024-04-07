@@ -64,7 +64,7 @@ public class BeneficiaryController {
         return beneficiaries;
     }
 
-    @GetMapping("/{accountNumber}")
+    @GetMapping("/list/{accountNumber}")
     public List<Beneficiary> getBeneficiariesByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
         Account account = accountService.getAccountByAccountNumber(accountNumber);
         if (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customerId)) {

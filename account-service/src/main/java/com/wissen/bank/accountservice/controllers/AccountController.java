@@ -40,7 +40,7 @@ public class AccountController {
     @GetMapping("")
     public List<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Admin {} Getting all accounts", customerId);
+            LOGGER.info("Admin {} getting all accounts", customerId);
             return accountService.getAllAccounts();
         }
         throw new UnauthorizedException("Unauthorized");
@@ -53,10 +53,9 @@ public class AccountController {
 
     @GetMapping("/{accountNumber}")
     public Account getAccountByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        Account _account = accountService.getAccountByAccountNumber(accountNumber);
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || accountService.getAccountByAccountNumber(accountNumber).getCustomerId().equals(customer)) {
             LOGGER.info("User {} getting account number: {}",customer, accountNumber);
-            return _account;
+            return  accountService.getAccountByAccountNumber(accountNumber);
         }
         throw new UnauthorizedException("Unauthorized");
     }
@@ -65,7 +64,7 @@ public class AccountController {
     public Account createAccount(@RequestBody Account account,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         account.setCustomerId(customerId);
         Account _account = accountService.createAccount(account);
-        LOGGER.info("Creating account number: {}", _account.getId());
+        LOGGER.info("Creating account number: {}", _account.getAccountNumber());
         return _account;
     }
 

@@ -51,7 +51,7 @@ public class CardTypeController {
             if (_cardType == null) {
                 throw new NotFoundException("Card type object null");
             }
-            LOGGER.info("Admin {} Created new card type", customer);
+            LOGGER.info("Admin {} created new card type", customer);
             return cardTypeRepo.save(_cardType);
         }
 
@@ -70,7 +70,7 @@ public class CardTypeController {
             if (cardType.getInterest() != 0) {
                 _cardType.setInterest(cardType.getInterest());
             }
-            LOGGER.info("Admin {} Updated CardType with id : ", customer, id);
+            LOGGER.info("Admin {} updated card type with id: {}", customer, id);
             return cardTypeRepo.save(_cardType);
         }
         throw new UnauthorizedException("Unauthorized");
@@ -83,7 +83,7 @@ public class CardTypeController {
             CardType cardType = cardTypeRepo.findById(id)
                     .orElseThrow(() -> new NotFoundException("CardType not found"));
             cardTypeRepo.delete(cardType);
-            LOGGER.info("Admin {} Deleted CardType with id : ", customer, id);
+            LOGGER.info("Admin {} deleted card type with id : {} ", customer, id);
             return "CardType Deleted";
         }
         throw new UnauthorizedException("Unauthorized");
