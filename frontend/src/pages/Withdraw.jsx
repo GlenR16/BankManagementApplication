@@ -23,6 +23,7 @@ export default function Withdraw() {
 		amount: "",
 		senderAccount: "",
 		receiverAccount: "",
+		typeId: 2,
 	});
 
 	function handleChange(e) {
@@ -42,7 +43,7 @@ export default function Withdraw() {
         // Code to handle payment
         e.preventDefault();
         setLoading(true);
-        if (!form.senderAccount || !form.amount || !form.receiverAccount || !form) {
+        if (!form.accountNumber || !form.amount ) {
             setError("Please fill all the fields");
             setLoading(false);
             return;

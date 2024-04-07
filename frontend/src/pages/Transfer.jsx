@@ -6,30 +6,36 @@ export default function () {
     const navigate = useNavigate();
     const [accounts, setAccounts] = useState([])
     const [error, setError] = useState("");
+    const [beneficaries, setBeneficaries] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const [transaction, setTransaction] = useState({ senderAccount: "", senderCardId: "", receiverAccount: "", amount: 0, typeId: 1, accountNumber: "", })
+    const [transaction, setTransaction] = useState({ accountNumber: 0, beneficiaryId: 0, amount: 0, typeId: 1})
     const api = useAxiosAuth();
 
     useEffect(() => {
-        // Code to fetch accounts 
         api.get("/account/list")
             .then((response) => {
                 setAccounts(response.data);
             });
     }, []);
 
+    useEffect(() => {
+        api.get("/account/beneficiary/list/"+transaction.accountNumber)
+        .then((response) => {
+            setBeneficaries(response.data);
+        });
+    }, [transaction.accountNumber]);
+
+    
     function handleChange(e) {
-        // Code to handle change in account
-        // console.log(e.target.value);
-        setTransaction({ ...transaction, senderAccount: e.target.value, accountNumber: e.target.value, senderCardId: e.target.value });
+        setTransaction({ ...transaction, [e.target.name]: e.target.value });
     }
 
     function handlePay(e)  {
         // Code to handle payment
         e.preventDefault();
         setLoading(true);
-        if (!transaction.senderAccount || !transaction.amount || !transaction.receiverAccount || !transaction) {
+        if (!transaction.accountNumber || !transaction.amount || !transaction.beneficiaryId) {
             setError("Please fill all the fields");
             setLoading(false);
             return;
@@ -41,16 +47,13 @@ export default function () {
 
     function handleClick(e) {
         setLoading(true);
-        
-        // Code to handle transfer
         e.preventDefault();
         console.log(transaction);
         api.post("/transaction/transfer", transaction)
             .then((res) => {
                 console.log(res.data);
-                setLoading(false);
                 navigate("/transaction/"+res.data.transaction.id);
-
+                setLoading(false);
             })
             .catch((err) => {
 				if (err.response) setError(err.response.data.error);
@@ -71,7 +74,7 @@ export default function () {
                             <div className="mb-3">
                                 <div className="input-group">
                                     <label className="input-group-text" htmlFor="accountSelect">Choose an Account</label>
-                                    <select className="form-select" id="accountSelect" onChange={handleChange}>
+                                    <select className="form-select" name="accountNumber" id="accountSelect" onChange={handleChange}>
                                         <option value="" defaultValue>Select an Account</option>
                                         {
                                             accounts.length > 0 ? accounts.map((account) => (
@@ -80,7 +83,7 @@ export default function () {
                                         }
                                     </select>
                                 </div>
-                                <div className="form-text mx-3">Account Balance : ₹ {accounts.length > 0 ? accounts.find((account) => account.accountNumber == transaction.senderAccount)?.balance : 0} </div>
+                                <div className="form-text mx-3">Account Balance : ₹ {accounts.length > 0 ? accounts.find((account) => account.accountNumber == transaction.accountNumber)?.balance : 0} </div>
                             </div>
 
 
@@ -89,7 +92,7 @@ export default function () {
                                     <label htmlFor="PayeeAccountName" className="col-form-label">Name of Payee : </label>
                                 </div>
                                 <div className="col">
-                                    <input type="text" id="PayeeAccountName" className="form-control  rounded" placeholder="Beneficiary Name" />
+                                    <input type="text" id="PayeeAccountName" className="form-control  rounded" disabled value={beneficaries.find(x => x.id == transaction.beneficiaryId)?.name} placeholder="Beneficiary Name" />
                                 </div>
                             </div>
 
@@ -98,7 +101,14 @@ export default function () {
                                     <label htmlFor="PayeeAccountNumber" className="col-form-label">Payee Account Number : </label>
                                 </div>
                                 <div className="col">
-                                    <input type="number" id="PayeeAccountNumber" className="form-control  rounded " placeholder="Beneficiary Account Number" onChange={(e) => { setTransaction({ ...transaction, receiverAccount: e.target.value }) }} />
+                                <select className="form-select" id="beneficiaryId" name='beneficiaryId' onChange={handleChange}>
+                                        <option value="" defaultValue>Select Beneficiary</option>
+                                        {
+                                            beneficaries.length > 0 ? beneficaries.map((account) => (
+                                                <option key={account.id} value={account.id}>{account.accountNumber}</option>
+                                            )) : <option value="" disabled>No Beneficiares found</option>
+                                        }
+                                    </select>
                                 </div>
                             </div>
 
@@ -109,11 +119,11 @@ export default function () {
                                 <div className="input-group col">
                                     <span className="input-group-text" id="basic-addon1">₹ </span>
                                     <input type="number" className="form-control  rounded" id="AmountTrafer" placeholder="Amount"
-                                        aria-label="To Change" aria-describedby="basic-addon1" onChange={(e) => { setTransaction({ ...transaction, amount: e.target.valueAsNumber }) }} />
+                                        aria-label="To Change" aria-describedby="basic-addon1" name="amount" onChange={handleChange} />
                                 </div>
                             </div>
 
-                            <div className="row align-items-center mb-3">
+                            {/* <div className="row align-items-center mb-3">
                                 <div className="col-3">
                                     <label className="col-form-label">Payment Option : </label>
                                 </div>
@@ -134,13 +144,13 @@ export default function () {
                                         <label className="form-check-label" htmlFor="inlineRadio3">RTGS </label>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <p className="invalid-feedback d-block">{error}</p>
 
 
                             <div className="d-grid gap-2 d-md-block text-center">
-                                <button className="btn btn-primary " type="button" data-bs-toggle ={(!transaction.senderAccount || !transaction.amount || !transaction.receiverAccount || !transaction) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Pay</button>
+                                <button className="btn btn-primary " type="button" data-bs-toggle ={(!transaction.accountNumber || !transaction.amount || !transaction.beneficiaryId) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Pay</button>
                                 <button className="btn btn-primary" type="reset">Clear</button>
                             </div>
                             
@@ -160,11 +170,11 @@ export default function () {
                                                 <tbody>
                                                     <tr>
                                                         <td>Account Number : </td>
-                                                        <td>{transaction.senderAccount}</td>
+                                                        <td>{transaction.accountNumber}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Payee AC Number : </td>
-                                                        <td>{transaction.receiverAccount}</td>
+                                                        <td>Payee Name : </td>
+                                                        <td>{beneficaries.find(x => x.id == transaction.beneficiaryId)?.name}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Amount : </td>

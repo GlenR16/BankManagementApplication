@@ -5,9 +5,10 @@ import { useParams } from 'react-router-dom';
 function Receipt() {
     const api = useAxiosAuth();
     const {id} = useParams();
-    const [transaction, setTransaction] = useState([]);
+    const [transaction, setTransaction] = useState({});
 	const [loading, setLoading] = useState(false);
-    
+    const [beneficaries, setBeneficaries] = useState([]);
+    const [beneficiary, setBeneficiary] = useState({});
     const [alert, setAlert] = useState(null);
 
   const showAlert = (message, type) => {
@@ -20,18 +21,22 @@ function Receipt() {
     }, 5000)
   }
 
-  useEffect(() => {
-    setLoading(true);
-    showAlert("Transaction successful", "success")
-    api.get("/transaction/"+id)
-        .then((response) => {
-            console.log("Respise : ",response.data);
-            setTransaction(response.data);
-        })
-        .catch((err) => {
-            console.log("Error : ",transaction);
-            console.log(err.response);
-        });
+    useEffect(() => {
+        setLoading(true);
+        showAlert("Transaction successful", "success")
+        api.get("/transaction/"+id)
+            .then((response) => {
+                console.log("Respise : ",response.data);
+                setTransaction(response.data);
+                api.get("/account/beneficiary/"+response.data.beneficiaryId)
+                    .then((response) => {
+                        setBeneficiary(response.data);
+                    });
+            })
+            .catch((err) => {
+                console.log("Error : ",transaction);
+                console.log(err.response);
+            });
     } ,[])
 
 
@@ -49,14 +54,18 @@ function Receipt() {
                     </div>
 
                     <div className="row m-2">
-                        <p className="col-3 fw-bold"> Sender Account : </p>
-                        <p className=" col"> {transaction.senderAccount}</p>
+                        <p className="col-3 fw-bold"> Account Number : </p>
+                        <p className=" col"> {transaction.accountNumber}</p>
                     </div>
-
-                    <div className="row m-2">
-                        <p className="col-3 fw-bold"> Reciever Account : </p>
-                        <p className=" col"> {transaction.receiverAccount}</p>
-                    </div>
+                    {
+                        ( transaction.typeId == 1 || transaction.typeId == 4 ) ?
+                        <div className="row m-2" >
+                            <p className="col-3 fw-bold"> Reciever Account : </p>
+                            <p className=" col"> {beneficiary.accountNumber}</p>
+                        </div>
+                        :
+                        ""
+                    }
 
                     <div className="row m-2">
                         <p className="col-3 fw-bold">Amount : </p>
