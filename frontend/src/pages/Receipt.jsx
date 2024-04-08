@@ -61,7 +61,7 @@ function Receipt() {
                         ( transaction.typeId == 1 || transaction.typeId == 4 ) ?
                         <div className="row m-2" >
                             <p className="col-3 fw-bold"> Reciever Account : </p>
-                            <p className=" col"> {beneficiary.accountNumber}</p>
+                            <p className=" col"> {beneficiary.recieverNumber}</p>
                         </div>
                         :
                         ""

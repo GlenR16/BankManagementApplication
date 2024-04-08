@@ -44,10 +44,16 @@ export default function Dashboard() {
 		navigate("/account");
 	}
 
+	function card() {
+		console.log("GOING TO CARD PAGE");
+		navigate("/card");
+	}
+
 	function transactions() {
 		console.log("GOING TO TRANSACTIONS PAGE");
 		navigate("/transactions");
 	}
+
 	return (
 		<div className="container col-sm-12 col-md-8 p-5">
 			<div className="row flex-lg-row-reverse align-items-center justify-content-center g-5 py-0 text-center">
@@ -57,7 +63,7 @@ export default function Dashboard() {
 						<div className="card">
 							<div className="card-body">
 								<p className="card-title">Withdraw</p>
-								<img src="/withdraw.png" alt="Index Image" width={100}/>
+								<img src="/withdraw.png" alt="Withdraw Image" width={100}/>
 								<p className="card-text">Withdraw money: Transfer funds from your account to access cash.</p>
 								<button className="btn btn-success" type="button" onClick={withdraw}>
 									Withdraw
@@ -69,7 +75,7 @@ export default function Dashboard() {
 						<div className="card">
 							<div className="card-body">
 								<p className="card-title">Deposit</p>
-								<img src="/deposit.png" alt="Index Image" width={100}/>
+								<img src="/deposit.png" alt="Deposit Image" width={100}/>
 								<p className="card-text">Deposit money: Transfer funds to your account to make payments.</p>
 								<button className="btn btn-success" type="button" onClick={deposit}>
 									Deposit
@@ -81,7 +87,7 @@ export default function Dashboard() {
 						<div className="card">
 							<div className="card-body">
 								<p className="card-title">Transfer</p>
-								<img src="/transactions.png" alt="Index Image" width={100}/>
+								<img src="/transactions.png" alt="Transfer Image" width={100}/>
 								<p className="card-text">Transfer money: Transfer funds to another account directly.</p>
 								<button className="btn btn-success" type="button" onClick={transfer}>
 									Transfer
@@ -93,7 +99,7 @@ export default function Dashboard() {
 						<div className="card">
 							<div className="card-body">
 								<p className="card-title">Accounts</p>
-								<img src="/accounts.png" alt="Index Image" width={100}/>
+								<img src="/accounts.png" alt="Accounts Image" width={100}/>
 								<p className="card-text">Account Details: View your account details and statements.</p>
 								<button className="btn btn-success" type="button" onClick={account}>
 									Accounts
@@ -104,11 +110,11 @@ export default function Dashboard() {
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Account Balance</p>
-								<img src="/balance.png" alt="Index Image" width={100}/>
-								<p className="card-text">Account Balance: View your account balance amount here.</p>
-								<button className="btn btn-success" type="button">
-									Balance
+								<p className="card-title">Card Transfer</p>
+								<img src="/card.png" alt="Cards Image" width={100} height={100}/>
+								<p className="card-text">Card Transfer: Transfer funds to a diffrent account using your card.</p>
+								<button className="btn btn-success" type="button" onClick={card}> 
+									Transfer
 								</button>
 							</div>
 						</div>
@@ -117,7 +123,7 @@ export default function Dashboard() {
 						<div className="card">
 							<div className="card-body">
 								<p className="card-title">Transaction History</p>
-								<img src="/customers.png" alt="Index Image" width={100}/>
+								<img src="/customers.png" alt="Transaction Image" width={100}/>
 								<p className="card-text">View your transaction history of previous transactions.</p>
 								<button className="btn btn-success" type="button" onClick={transactions}>
 									Transactions

@@ -12,6 +12,8 @@ import Transfer from "./pages/Transfer";
 import Account from "./pages/Account";
 import Deposit from "./pages/Deposit";
 import Receipt from "./pages/Receipt";
+import Card from "./pages/Card";
+import AccountRegistration from "./pages/AccountRegistration";
 
 
 const Signup = lazy(() => import("./pages/Signup"));
@@ -82,6 +84,14 @@ const router = createBrowserRouter([{
 		{
 			path: "/transaction/:id",
 			element: <Suspense fallback={<Loading />}><Receipt /></Suspense>
+		},
+		{
+			path: "/Card",
+			element: <Suspense fallback={<Loading />}><Card /></Suspense>
+		},
+		{
+			path: "/AccountRegister",
+			element: <Suspense fallback={<Loading />}><AccountRegistration /></Suspense>
 		}
 	]
 }]);

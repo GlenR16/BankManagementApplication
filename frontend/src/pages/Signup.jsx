@@ -53,7 +53,7 @@ export default function Signup() {
 			.then((res) => {
 				sessionStorage.setItem("token", res.message);
 				setLoading(false);
-				navigate("/dashboard");
+				navigate("/login");
 			})
 			.catch((err) => {
 				if (err.response) setError(err.response.data.error);
@@ -201,7 +201,7 @@ export default function Signup() {
 							<option value="Female">Female</option>
                         </select>
 					</div>
-                    <div className="my-2 text-start">
+                    {/* <div className="my-2 text-start">
 						<label htmlFor="accountType" className="form-label">
 							Account Type
 						</label>
@@ -210,7 +210,7 @@ export default function Signup() {
                             //dynamically bring options
                             <option value="Savings Account">Savings Account</option>
                         </select>
-					</div>
+					</div> */}
 
 					<div className="my-2 text-start">
 						<label htmlFor="services" className="form-label">

@@ -18,8 +18,23 @@ export default function AdminCustomers() {
         });
     }, []);
 
+	function checkType(transaction) {
+        if(transaction.typeId == 1){
+            return "Account Transfer";
+        }
+        else if (transaction.typeId == 2) {
+            return "Withdraw";
+        }
+        else if (transaction.typeId == 3) {
+            return "Deposit";
+        }
+        else if (transaction.typeId == 4) {
+            return "Card Transfer";
+        }
+    }
+
 	return (
-		<div className="mt-5 p-4">
+		<div className="mt-0 p-4">
 			<div className="card mt-4 border-0 shadow">
 				<div className="card-body table-responsive">
 					<table className="table caption-top">
@@ -45,6 +60,7 @@ export default function AdminCustomers() {
                                 <th scope="col">Sender Card Id</th>
                                 <th scope="col">Receiver Account</th>
                                 <th scope="col">Amount</th>
+                                <th scope="col">Type</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Time</th>
                                 <th scope="col">Status</th>
@@ -57,10 +73,11 @@ export default function AdminCustomers() {
                                         <td>{transaction.id}</td>
                                         <td>{transaction.accountNumber}</td>
                                         <td>{transaction.cardNumber}</td>
-                                        <td>{beneficaries[transaction.beneficiaryId]?.accountNumber}</td>
+                                        <td>{beneficaries[transaction.beneficiaryId-1]?.recieverNumber}</td>
                                         <td>{transaction.amount}</td>
+										<td>{checkType(transaction)}</td>
                                         <td>{transaction.createdAt.substring(0,10)}</td>
-                                        <td>{transaction.createdAt.substring(11,19).replace("T"," ")}</td>
+                                        <td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>
                                         <td>{transaction.status}</td>
 										<td>
 											<NavLink to="#" className="text-decoration-none">

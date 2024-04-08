@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Account() {
     const [accounts, setAccounts] = useState([]);
     const [accountTypes, setAccountTypes] = useState([]);
     const [branches, setBranches] = useState([]);
     const api = useAxiosAuth();
+	const navigate = useNavigate();
+    
 
     useEffect(() => {
         api.get("/account/list")
@@ -23,59 +25,20 @@ export default function Account() {
         });
     }, []);
 
+	function createAccount() {
+		console.log("GOING TO ACCOUNT CREATION PAGE");
+		navigate("/AccountRegister");
+	}
+
 	return (
 		<div className="mt-5 p-4">
-			{/* <div className="card ">
-                <h5 className="card-header">Account Details</h5>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold"> User Name</p>
-                    <p className=" col"> Mukesh Kumar</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold"> Account Number</p>
-                    <p className=" col"> 00000111000</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold"> Gender</p>
-                    <p className=" col"> Male</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold">Email Address</p>
-                    <p className=" col"> mukesh.kumar@example.com</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col- fw-bold"> Address</p>
-                    <p className=" col"> City/State/pincode</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold"> Pan Number</p>
-                    <p className=" col"> XXXXX0000X</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold"> Aadhar Number</p>
-                    <p className=" col"> 0000 0000 0000</p>
-                </div>
-
-                <div className="row m-2">
-                    <p className="col-2 fw-bold"> Account Type</p>
-                    <p className=" col"> Savings </p>
-                </div>
-
-            </div> */}
 			<div className="card mt-4 border-0 shadow">
 				<div className="card-body table-responsive">
 					<table className="table caption-top">
 						<caption className="text-center border-bottom border-2 border-dark">
-							<h3 className="d-flex flex-row align-items-center gap-2 text-black">
+							<h3 className="d-flex flex-row align-items-center gap-2 text-black" >
 								Your accounts
-								<a className="btn">
+								<a className="btn" onClick={createAccount}>
 									<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 										<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
