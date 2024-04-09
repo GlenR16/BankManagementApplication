@@ -79,11 +79,6 @@ export default function AdminCustomers() {
                                         <td>{transaction.createdAt.substring(0,10)}</td>
                                         <td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>
                                         <td>{transaction.status}</td>
-										<td>
-											<NavLink to="#" className="text-decoration-none">
-												View
-											</NavLink>
-										</td>
 									</tr>
 								))
 							) : (

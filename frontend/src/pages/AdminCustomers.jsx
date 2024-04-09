@@ -57,7 +57,7 @@ export default function AdminCustomers() {
                                         <td>{user.city}</td>
                                         <td>{user.state}</td>
 										<td>
-											<NavLink to="#" className="text-decoration-none">
+											<NavLink to="/profile" className="text-decoration-none">
 												View
 											</NavLink>
 										</td>
