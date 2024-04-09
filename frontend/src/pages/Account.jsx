@@ -71,22 +71,24 @@ export default function Account() {
 	return (
 		<>
 
-			<ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
-				<li className="nav-item" role="presentation">
-					<button className="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Accounts</button>
-				</li>
-				<li className="nav-item" role="presentation">
-					<button className="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Beneficiaries</button>
-				</li>
-				<li className="nav-item" role="presentation">
-					<button className="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Cards</button>
-				</li>
-			</ul>
+				<ul class="nav nav-tabs mt-5 mx-5" style={{width: '25%'}}>
+					<li class="nav-item"  role="presentation">
+					<button className="nav-link active text-dark" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true" >Accounts</button>
+					</li>
+
+					<li class="nav-item" role="presentation">
+					<button className="nav-link text-dark" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Beneficiaries</button>
+					</li>
+
+					<li class="nav-item" role="presentation">
+					<button className="nav-link text-dark" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Cards</button>
+					</li>
+				</ul>
 
 			<div className="tab-content" id="pills-tabContent">
 				<div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabIndex="0">
-					<div id="account" className="mt-5 p-4" >
-						<div className="card mt-4 border-0 shadow">
+					<div id="account" className="mt-0 px-4" >
+						<div className="card mt-0 border-0 shadow">
 							<div className="card-body table-responsive">
 
 								<table className="table caption-top">
@@ -142,12 +144,12 @@ export default function Account() {
 				</div>
 
 
-				<div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabIndex="0">
-					<div id="beneficiaries" className="mt-5 p-4" >
-						<div className="my-2 text-start">
-							<label htmlFor="branchId" className="form-label">
-								Choose an account
-							</label>
+				<div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabIndex="0" >
+					<div id="beneficiaries" className="mt-0 px-4" >
+						
+						<div className="card mt- border-0 shadow">
+							<div className="card-body table-responsive">
+							<div className="my-2 text-start" style={{width: '25%' , marginLeft: '39%'}}>
 							<select className="form-select" name="accountNumber" id="accountNumber" onChange={handleChange} aria-label="accountNumber" aria-describedby="accountNumber">
 								<option value="" defaultValue>Select an Account</option>
 								{
@@ -157,12 +159,11 @@ export default function Account() {
 								}
 							</select>
 						</div>
-						<div className="card mt-4 border-0 shadow">
-							<div className="card-body table-responsive">
+						<hr></hr>
 								<table className="table caption-top">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center gap-2 text-black" >
-											Your Beneficiariess
+											Your Beneficiaries
 											<a className="btn" onClick={createBeneficiaries}>
 												<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
 													<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -181,22 +182,16 @@ export default function Account() {
 											<th scope="col">Account Number</th>
 											<th scope="col">IFSC</th>
 											<th scope="col">Name</th>
-											<th scope="col">Action</th>
 										</tr>
 									</thead>
 									<tbody>
 										{beneficaries.length > 0 ? (
 											beneficaries.map((beneficiary, index) => (
 												<tr key={index}>
-													<td>{beneficiary.id}</td>
+													<td>{index+1}</td>
 													<td>{beneficiary.recieverNumber}</td>
 													<td> {beneficiary.ifsc} </td>
 													<td>{beneficiary.name}</td>
-													<td>
-														<NavLink to="#" className="text-decoration-none">
-															View
-														</NavLink>
-													</td>
 												</tr>
 											))
 										) : (
@@ -211,11 +206,11 @@ export default function Account() {
 					</div>
 				</div>
 				<div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabIndex="0">
-					<div id="cards" className="mt-5 p-4" >
-					<div className="my-2 text-start">
-							<label htmlFor="branchId" className="form-label">
-								Choose an account
-							</label>
+					<div id="cards" className="mt-0 px-4" >
+						
+						<div className="card mt-0 border-0 shadow">
+							<div className="card-body table-responsive">
+							<div className="my-2 text-start" style={{width: '25%' , marginLeft: '39%'}}>
 							<select className="form-select" name="accountNumber" id="accountNumber" onChange={handleChange} aria-label="accountNumber" aria-describedby="accountNumber">
 								<option value="" defaultValue>Select an Account</option>
 								{
@@ -225,8 +220,7 @@ export default function Account() {
 								}
 							</select>
 						</div>
-						<div className="card mt-4 border-0 shadow">
-							<div className="card-body table-responsive">
+						<hr></hr>
 								<table className="table caption-top">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center gap-2 text-black" >
@@ -250,25 +244,23 @@ export default function Account() {
 											<th scope="col">Account Number</th>   {/*Not Requiered*/}
 											<th scope="col">CVV</th>  {/*To be Hidden*/}
 											<th scope="col">PIN</th>  {/*To be Hidden*/}
-											<th scope="col">TypeId</th>
-											<th scope="col">Action</th>
+											<th scope="col">Type</th>
+											<th scope="col">Expiry Date</th>
+											<th scope="col">Active</th>
 										</tr>
 									</thead>
 									<tbody>
 										{cards.length > 0 ? (
 											cards.map((card, index) => (
 												<tr key={index}>
-													<td>{card.id}</td>
+													<td>{index+1}</td>
 													<td>{card.number}</td>
 													<td>{card.accountNumber}</td>
 													<td> {card.cvv} </td>
 													<td>{card.pin}</td>
 													<td>{checkTypeCard(card.typeId)}</td>
-													<td>
-														<NavLink to="#" className="text-decoration-none">
-															View
-														</NavLink>
-													</td>
+													<td>{new Date(Date.parse(card.expiryDate))?.toLocaleDateString()}</td>
+													<td>{card.active ? "TRUE" : "FALSE"}</td>
 												</tr>
 											))
 										) : (

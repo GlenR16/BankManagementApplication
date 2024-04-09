@@ -26,7 +26,7 @@ function Receipt() {
         showAlert("Transaction successful", "success")
         api.get("/transaction/"+id)
             .then((response) => {
-                console.log("Respise : ",response.data);
+                console.log("Response : ",response.data);
                 setTransaction(response.data);
                 api.get("/account/beneficiary/"+response.data.beneficiaryId)
                     .then((response) => {

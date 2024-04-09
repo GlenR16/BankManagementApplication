@@ -24,6 +24,7 @@ const Administration = lazy(() => import("./pages/Administration"));
 const AdminAccounts = lazy(() => import("./pages/AdminAccounts"));
 const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
 const AdminTransactions = lazy(() => import("./pages/AdminTransactions"));
+const Profile = lazy(() => import("./pages/Profile"));
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -101,6 +102,10 @@ const router = createBrowserRouter([{
 		{
 			path: "/addCard",
 			element: <Suspense fallback={<Loading />}><AddingCard /></Suspense>
+		},
+		{
+			path: "/profile",
+			element: <Suspense fallback={<Loading />}><Profile /></Suspense>
 		}
 	]
 }]);

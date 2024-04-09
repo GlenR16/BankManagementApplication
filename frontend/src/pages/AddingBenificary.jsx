@@ -115,15 +115,15 @@ export default function AddingBenificary() {
                         </label>
                     </div>
                     <br />
-                    <div className="d-flex flex-column flex-md-row justify-content-between gap-4 my-2">
+                    <div className="d-flex flex-column flex-md-row justify-content-center gap-4 my-2">
                         <div>
-                            <button className="w-100 btn btn-primary" type="button" onClick={AddBenificary} disabled={loading} style={{ marginLeft: '250%' }}>
+                            <button className="w-100 btn btn-primary" type="button" onClick={AddBenificary} disabled={loading}>
                                 {loading ? (
                                     <div className="spinner-border mx-2" role="status">
                                         <span className="visually-hidden">Loading...</span>
                                     </div>
                                 ) : (
-                                    "Add Benificary"
+                                    "Add Benificiary"
                                 )}
                             </button>
                         </div>

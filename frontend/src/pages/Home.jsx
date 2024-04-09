@@ -10,8 +10,8 @@ export default function Home() {
                         <h1 className="display-5 fw-bold lh-1 mb-3">Invest into a secure future.</h1>
                         <p className="lead">Experience the convenience of managing your finances on the go with our intuitive and secure mobile banking app. With robust security features and real-time transaction monitoring, you can trust Star Bank to keep your money safe and secure.</p>
                         <div className="d-grid gap-2 d-md-flex justify-content-md-start">
-                            <a className="btn btn-primary btn-lg px-4 me-md-2">Get Started</a>
-                            <a className="btn btn-outline-primary btn-lg px-4">About Us</a>
+                            <a className="btn btn-success btn-lg px-4 me-md-2">Get Started</a>
+                            <a className="btn btn-outline-success btn-lg px-4">About Us</a>
                         </div>
                     </div>
                 </div>

@@ -123,35 +123,12 @@ export default function () {
                                 </div>
                             </div>
 
-                            {/* <div className="row align-items-center mb-3">
-                                <div className="col-3">
-                                    <label className="col-form-label">Payment Option : </label>
-                                </div>
-                                <div className="col-auto">
-                                    <div className="form-check form-check-inline">
-                                        <input className="form-check-input  rounded" type="radio" name="inlineRadioOptions"
-                                            id="inlineRadio1" value="1" />
-                                        <label className="form-check-label" htmlFor="inlineRadio1" >IMPS</label>
-                                    </div>
-                                    <div className="form-check form-check-inline">
-                                        <input className="form-check-input  rounded" type="radio" name="inlineRadioOptions"
-                                            id="inlineRadio2" value="4" />
-                                        <label className="form-check-label fs-6" htmlFor="inlineRadio2">NEFT</label>
-                                    </div>
-                                    <div className="form-check form-check-inline">
-                                        <input className="form-check-input  rounded" type="radio" name="inlineRadioOptions"
-                                            id="inlineRadio3" value="5" />
-                                        <label className="form-check-label" htmlFor="inlineRadio3">RTGS </label>
-                                    </div>
-                                </div>
-                            </div> */}
 
                             <p className="invalid-feedback d-block">{error}</p>
 
 
                             <div className="d-grid gap-2 d-md-block text-center">
-                                <button className="btn btn-primary " type="button" data-bs-toggle ={(!transaction.accountNumber || !transaction.amount || !transaction.beneficiaryId) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Pay</button>
-                                <button className="btn btn-primary" type="reset">Clear</button>
+                                <button className="btn btn-primary " type="button" data-bs-toggle ={(!transaction.accountNumber || !transaction.amount || !transaction.beneficiaryId) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Transfer</button>
                             </div>
                             
 

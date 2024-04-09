@@ -10,7 +10,7 @@ export default function () {
     const [beneficaries, setBeneficaries] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const [transaction, setTransaction] = useState({number:0, pin:0, cvv:0, accountNumber: 0, beneficiaryId: 0, amount: 0, typeId: 1})
+    const [transaction, setTransaction] = useState({number:0, pin:0, cvv:0, accountNumber: 0, beneficiaryId: 0, amount: 0, typeId: 4})
     const api = useAxiosAuth();
 
     useEffect(() => {
@@ -155,7 +155,7 @@ export default function () {
                                         <option value="" defaultValue>Select Beneficiary</option>
                                         {
                                             beneficaries.length > 0 ? beneficaries.map((account) => (
-                                                <option key={account.id} value={account.id}>{account.accountNumber}</option>
+                                                <option key={account.id} value={account.id}>{account.recieverNumber}</option>
                                             )) : <option value="" disabled>No Beneficiares found</option>
                                         }
                                     </select>
