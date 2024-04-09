@@ -49,7 +49,7 @@ export default function AdminCustomers() {
 							{users.length > 0 ? (
 								users.map((user, index) => (
 									<tr key={index}>
-                                        <td>{user.id}</td>
+                                        <td>{index+1}</td>
                                         <td>{user.customerId}</td>
                                         <td>{user.name}</td>
                                         <td>{user.gender}</td>

@@ -66,12 +66,30 @@ function Receipt() {
                         :
                         ""
                     }
-
+                    
                     <div className="row m-2">
-                        <p className="col-3 fw-bold">Amount : </p>
-                        <p className=" col"> {transaction.amount}</p>
+                        <p className="col-3 fw-bold"> Balance : </p>
+                        <p className=" col"> {transaction.balance}</p>
                     </div>
 
+                    <div className="row m-2">
+                        <p className="col-3 fw-bold">
+                            {
+                                transaction.debit != 0 ?
+                                "Debit:"
+                                :
+                                "Credit:"
+                            }
+                        </p>
+                        <p className=" col"> 
+                            
+                            {
+                                transaction.debit != 0 ?
+                                transaction.debit
+                                :
+                                transaction.credit
+                            }</p>
+                    </div>
 
                     <div className="row m-2">
                         <p className="col-3 fw-bold">  DATE : </p>

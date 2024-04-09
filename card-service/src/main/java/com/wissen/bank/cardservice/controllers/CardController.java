@@ -137,7 +137,6 @@ public class CardController{
     @PostMapping("/verify")
     public ResponseEntity<Response> verifyCard(@RequestBody Card card){
         Card _card = cardService.getCardByNumber(card.getNumber());
-        System.out.println(_card.isDeleted() + " " + _card.isLocked() + " " + (_card.getPin() == card.getPin()) + " " + (_card.getCvv() == card.getCvv()));
         if(!_card.isDeleted() && !_card.isLocked() && _card.getPin() == card.getPin() && _card.getCvv() == card.getCvv() ){
             return ResponseEntity.ok().body(new Response(new Date(),200,"Card Verified","/card/verify"));
         }

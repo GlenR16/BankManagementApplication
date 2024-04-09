@@ -46,7 +46,7 @@ export default function AdminAccount() {
 						</caption>
 						<thead>
 							<tr>
-								<th scope="col">ID</th>
+								<th scope="col">Index</th>
                                 <th scope="col">CustomerId</th>
 								<th scope="col">Number</th>
 								<th scope="col">IFSC</th>
@@ -60,7 +60,7 @@ export default function AdminAccount() {
 							{accounts.length > 0 ? (
 								accounts.map((account, index) => (
 									<tr key={index}>
-										<td>{account.id}</td>
+										<td>{index+1}</td>
                                         <td>{account.customerId}</td>
 										<td>{account.accountNumber}</td>
 										<td>{branches[account.branchId - 1]?.ifsc}</td>

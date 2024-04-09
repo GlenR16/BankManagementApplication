@@ -1,8 +1,12 @@
 package com.wissen.bank.accountservice.services;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wissen.bank.accountservice.exceptions.InvalidDataException;
 import com.wissen.bank.accountservice.exceptions.NotFoundException;
@@ -26,14 +30,11 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
-    public Account getAccountById(long id){
-        return accountRepository.findById(id).orElseThrow(()-> new NotFoundException("Account not found"));
-    }
-
     public Account getAccountByAccountNumber(long accountNumber){
         return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundException("Account not found"));
     }
 
+    @Transactional
     public Account createAccount(Account account){
         if (account == null || !validateAccount(account)){
             throw new InvalidDataException("Invalid account");
@@ -54,6 +55,7 @@ public class AccountService {
         return accountRepository.save(_account);
     }
 
+    @Transactional
     public Account updateAccountByAccountNumber(Account newAccount, long accountNumber){
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
         if (newAccount.getBranchId() > 0){
@@ -71,9 +73,22 @@ public class AccountService {
         return accountRepository.save(account);
     }
 
+    @Transactional
     public Account verifyAccountByAccountNumber(long accountNumber){
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
         account.setVerified(true);
+        return accountRepository.save(account);
+    }
+
+    @Transactional
+    public Account switchAccountLockByAccountNumber(long accountNumber){
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
+        if (account.isLocked() && account.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
+            account.setLocked(false);
+        }
+        else{
+            account.setLocked(true);
+        }
         return accountRepository.save(account);
     }
 
@@ -84,6 +99,7 @@ public class AccountService {
         return true;
     }
 
+    @Transactional
     public Account deleteAccountByAccountNumber(long accountNumber){
         Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
         account.setDeleted(true);

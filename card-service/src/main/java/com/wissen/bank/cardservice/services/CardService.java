@@ -8,6 +8,7 @@ import java.util.Random;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wissen.bank.cardservice.exceptions.InvalidDataException;
 import com.wissen.bank.cardservice.exceptions.NotFoundException;
@@ -67,7 +68,7 @@ public class CardService {
         return exp;
     }
 
-
+    @Transactional
     public Card createCard(Card card) {
         if (card == null || !validateCard(card)){
             throw new InvalidDataException("Invalid card");
@@ -100,6 +101,7 @@ public class CardService {
         return cardRepository.save(_card);
     }
 
+    @Transactional
     public Card updateCardPin(int oldPin, int newPin , long number) {
         Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
         if (card.getPin() == oldPin && newPin != oldPin && newPin < 9999 && newPin > 1000){
@@ -109,6 +111,7 @@ public class CardService {
         throw new UnauthorizedException("Invalid pin");
     }
 
+    @Transactional
     public Card lockSwitchCardByNumber(long number) {
         Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
         if (card.isLocked() && card.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
@@ -117,10 +120,10 @@ public class CardService {
         else{
             card.setLocked(true);
         }
-            
         return cardRepository.save(card);
     }
-
+    
+    @Transactional
     public Card deleteCardByNumber(long number) {
         Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
         card.setDeleted(true);

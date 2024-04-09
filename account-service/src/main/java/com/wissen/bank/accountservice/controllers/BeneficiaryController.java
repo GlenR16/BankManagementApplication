@@ -134,6 +134,13 @@ public class BeneficiaryController {
 
     @PostConstruct
     public void init() {
+        Beneficiary bank = Beneficiary.builder()
+        .accountNumber(1234567890l)
+        .recieverNumber(1234567890l)
+        .ifsc("IFSC1234")
+        .name("Bank")
+        .build();
+        beneficiaryRepository.save(bank);
         Beneficiary ben1 = Beneficiary.builder()
         .accountNumber(1234567890l)
         .recieverNumber(1234567890l)

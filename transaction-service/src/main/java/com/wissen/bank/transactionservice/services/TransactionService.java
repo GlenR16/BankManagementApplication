@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.wissen.bank.transactionservice.exceptions.InvalidDataException;
 import com.wissen.bank.transactionservice.models.Status;
@@ -30,6 +31,7 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
+    @Transactional
     public Transaction createTransaction(Transaction transaction, Status status ){
         if (transaction == null || !validateTransaction(transaction)) {
             throw new InvalidDataException("Invalid Transaction");
@@ -40,7 +42,9 @@ public class TransactionService {
                 .builder()
                 .accountNumber(transaction.getAccountNumber())
                 .beneficiaryId(transaction.getBeneficiaryId())
-                .amount(transaction.getAmount())
+                .balance(transaction.getBalance())
+                .credit(transaction.getCredit())
+                .debit(transaction.getDebit())
                 .typeId(1)
                 .status(status)
                 .build();
@@ -48,7 +52,9 @@ public class TransactionService {
             _transaction = Transaction
                 .builder()
                 .accountNumber(transaction.getAccountNumber())
-                .amount(transaction.getAmount())
+                .credit(transaction.getCredit())
+                .balance(transaction.getBalance())
+                .debit(transaction.getDebit())
                 .typeId(transaction.getTypeId())
                 .status(status)
                 .build();
@@ -58,7 +64,9 @@ public class TransactionService {
                 .accountNumber(transaction.getAccountNumber())
                 .cardNumber(transaction.getCardNumber())
                 .beneficiaryId(transaction.getBeneficiaryId())
-                .amount(transaction.getAmount())
+                .credit(transaction.getCredit())
+                .balance(transaction.getBalance())
+                .debit(transaction.getDebit())
                 .typeId(4)
                 .status(status)
                 .build();
@@ -70,14 +78,18 @@ public class TransactionService {
     }
 
     public boolean validateTransaction(Transaction transaction) {
-        if (transaction.getAmount() <= 0 || transaction.getTypeId() <= 0)
+        if (transaction.getTypeId() <= 0 || transaction.getAccountNumber() <= 0 || ( transaction.getCredit() <= 0 && transaction.getDebit() <= 0 ) || transaction.getDebit() < 0 || transaction.getCredit() < 0){
+            System.out.println("Error on type 0");
             return false;
-        else if (transaction.getTypeId() == 1 && ( transaction.getBeneficiaryId() == 0 || transaction.getAccountNumber() == 0 ))
+        }
+        else if (transaction.getTypeId() == 1 && ( transaction.getDebit() > 0 && transaction.getBeneficiaryId() == 0 )){
+            System.out.println("Error on type 1");
             return false;
-        else if ((transaction.getTypeId() == 2 || transaction.getTypeId() == 3 ) && transaction.getAccountNumber() == 0) 
+        }
+        else if (transaction.getTypeId() == 4 && ( transaction.getDebit() > 0 && (transaction.getCardNumber() == 0 || transaction.getBeneficiaryId() == 0))){
+            System.out.println("Error on type 2");
             return false;
-        else if (transaction.getTypeId() == 4 && ( transaction.getAccountNumber() == 0 || transaction.getCardNumber() == 0 || transaction.getBeneficiaryId() == 0))
-            return false;
+        }
         return true;
     }
 }

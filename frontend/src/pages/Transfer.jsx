@@ -9,7 +9,7 @@ export default function () {
     const [beneficaries, setBeneficaries] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const [transaction, setTransaction] = useState({ accountNumber: 0, beneficiaryId: 0, amount: 0, typeId: 1})
+    const [transaction, setTransaction] = useState({ accountNumber: 0, beneficiaryId: 0, debit: 0, typeId: 1})
     const api = useAxiosAuth();
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function () {
         // Code to handle payment
         e.preventDefault();
         setLoading(true);
-        if (!transaction.accountNumber || !transaction.amount || !transaction.beneficiaryId) {
+        if (!transaction.accountNumber || !transaction.debit || !transaction.beneficiaryId) {
             setError("Please fill all the fields");
             setLoading(false);
             return;
@@ -119,7 +119,7 @@ export default function () {
                                 <div className="input-group col">
                                     <span className="input-group-text" id="basic-addon1">₹ </span>
                                     <input type="number" className="form-control  rounded" id="AmountTrafer" placeholder="Amount"
-                                        aria-label="To Change" aria-describedby="basic-addon1" name="amount" onChange={handleChange} />
+                                        aria-label="To Change" aria-describedby="basic-addon1" name="debit" onChange={handleChange} />
                                 </div>
                             </div>
 
@@ -128,7 +128,7 @@ export default function () {
 
 
                             <div className="d-grid gap-2 d-md-block text-center">
-                                <button className="btn btn-primary " type="button" data-bs-toggle ={(!transaction.accountNumber || !transaction.amount || !transaction.beneficiaryId) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Transfer</button>
+                                <button className="btn btn-primary " type="button" data-bs-toggle ={(!transaction.accountNumber || !transaction.debit || !transaction.beneficiaryId) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>Transfer</button>
                             </div>
                             
 
@@ -155,7 +155,7 @@ export default function () {
                                                     </tr>
                                                     <tr>
                                                         <td>Amount : </td>
-                                                        <td>{transaction.amount}</td>
+                                                        <td>{transaction.debit}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>

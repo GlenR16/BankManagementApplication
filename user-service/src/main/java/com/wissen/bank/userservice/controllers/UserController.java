@@ -2,6 +2,8 @@ package com.wissen.bank.userservice.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wissen.bank.userservice.dao.UserDao;
+import com.wissen.bank.userservice.dao.UserPasswordDao;
 import com.wissen.bank.userservice.exceptions.DatabaseIntegrityException;
 import com.wissen.bank.userservice.exceptions.InvalidCredentialsException;
 import com.wissen.bank.userservice.exceptions.TokenInvalidException;
@@ -50,7 +52,7 @@ public class UserController {
     private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("")
-    public List<User> getAllUsers(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+    public List<UserDao> getAllUsers(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE){
             LOGGER.info("Admin {} Getting all users",customerId);
             return userService.getAllUsers();
@@ -59,23 +61,25 @@ public class UserController {
     }
 
     @GetMapping("/{customerId}")
-    public User getUserById(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+    public UserDao getUserByCustomerId(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE){
             LOGGER.info("Admin Getting user id: {}",customerId);
-            return userService.getUserByCustomerId(customerId);
+            User user = userService.getUserByCustomerId(customerId);
+            return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).gender(user.getGender()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
         }
         throw new UnauthorizedException("Unauthorized");
     }
 
     @GetMapping("/details")
-    public User getUserDetails(@RequestHeader("Customer") String customerId) {
-        return userService.getUserByCustomerId(customerId);
+    public UserDao getUserDetails(@RequestHeader("Customer") String customerId) {
+        User user =  userService.getUserByCustomerId(customerId);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).gender(user.getGender()).updatedAt(user.getUpdatedAt()).build();
     }
 
     @PostMapping("/signup")
     public ResponseEntity<Response> createUser(@RequestBody User user){
         User _user = userService.createUser(user);
-        LOGGER.info("Creating user id: {}",_user.getId());
+        LOGGER.info("Creating user with customer id: {}",_user.getCustomerId());
         String token = jwtService.generateToken(_user);
         return ResponseEntity.ok().body(new Response(new Date(),200,token,"/user/signup"));
     }
@@ -83,7 +87,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Response> loginUser(@RequestBody User user){
         User _user = userService.getUserByCustomerId(user.getCustomerId());
-        if(!_user.isDeleted() && !_user.isLocked() && _user.getPassword().equals(user.getPassword())){
+        if(!_user.isDeleted() && !_user.isLocked() && _user.verifyPassword(user.getPassword()) ){
             LOGGER.info("Logging in user id: {}",_user.getId());
             String token = jwtService.generateToken(_user);
             return ResponseEntity.ok().body(new Response(new Date(),200,token,"/user/login"));
@@ -93,9 +97,10 @@ public class UserController {
     }
 
     @PostMapping("/verify")
-    public User verifyUser(@RequestBody Map<String,String> body){
+    public UserDao verifyUser(@RequestBody Map<String,String> body){
         String customerId = jwtService.extractId(body.get("token"));
-        return userService.getUserByCustomerId(customerId);
+        User user = userService.getUserByCustomerId(customerId);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
 
     @DeleteMapping("/{customerId}")
@@ -110,6 +115,22 @@ public class UserController {
         }
     }
 
+    @PostMapping("/lock/{customerId}")
+    public UserDao postLock(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+        User user = userService.getUserByCustomerId(customerId);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || user.getCustomerId().equals(customer)){
+            LOGGER.info("Locking user id: {}",customerId);
+            if (user.isLocked()){
+                return userService.unlockUser(customerId);
+            }
+            else{
+                return userService.lockUser(customerId);
+            }
+        }
+        throw new UnauthorizedException("Unauthorized");
+    }
+    
+
     @PutMapping("/{customerId}")
     public ResponseEntity<Response> updateUser(@PathVariable String customerId, @RequestBody User user,@RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE || customer.equals(customerId)){
@@ -118,6 +139,11 @@ public class UserController {
             return ResponseEntity.ok().body(new Response(new Date(),200,"User updated successfully","/user/"+customerId));
         }
         throw new UnauthorizedException("Unauthorized");
+    }
+
+    @PutMapping("password")
+    public UserDao putPassword(@RequestBody UserPasswordDao user ,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        return userService.changePassword(customerId, user.getOldPassword(), user.getNewPassword1(), user.getNewPassword2());
     }
 
     @PostConstruct

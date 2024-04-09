@@ -39,6 +39,12 @@ public class CardTypeController {
         return cardTypeRepo.findAll();
     }
 
+    @GetMapping("/{id}")
+    public CardType getCardTypeById(@PathVariable long id, @RequestHeader("Customer") String customer,
+            @RequestHeader("Role") Role role) {
+        return cardTypeRepo.findById(id).orElseThrow(() -> new NotFoundException("CardType not found"));
+    }
+
     @PostMapping("")
     public CardType postCardType(@RequestBody CardType cardType, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {

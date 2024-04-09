@@ -7,7 +7,9 @@ import java.util.UUID;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.wissen.bank.userservice.dao.UserDao;
 import com.wissen.bank.userservice.exceptions.InvalidDataException;
 import com.wissen.bank.userservice.exceptions.NotFoundException;
 import com.wissen.bank.userservice.models.Role;
@@ -20,6 +22,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Transactional
     public User createUser(User user){
         if (user == null || !validateUser(user)){
             throw new InvalidDataException("Invalid User");
@@ -45,12 +48,13 @@ public class UserService {
         .isDeleted(false)
         .build();
         if (_user == null){
-            throw new NotFoundException("User Not Found");
+            throw new NotFoundException("User not found");
         }
         return userRepository.save(_user);
     }
 
-    public User createAdmin(User user){
+    @Transactional
+    public UserDao createAdmin(User user){
         if (user == null || !validateUser(user)){
             throw new InvalidDataException("Invalid User");
         }
@@ -74,17 +78,14 @@ public class UserService {
         .isDeleted(false)
         .build();
         if (_user == null){
-            throw new NotFoundException("User Not Found");
+            throw new NotFoundException("User not found");
         }
-        return userRepository.save(_user);
+        _user = userRepository.save(_user);
+        return UserDao.builder().customerId(_user.getCustomerId()).name(_user.getName()).email(_user.getEmail()).role(_user.getRole()).phone(_user.getPhone()).aadhaar(_user.getAadhaar()).pan(_user.getPan()).state(_user.getState()).city(_user.getCity()).address(_user.getAddress()).pincode(_user.getPincode()).dateOfBirth(_user.getDateOfBirth()).isLocked(_user.isLocked()).isDeleted(_user.isDeleted()).createdAt(_user.getCreatedAt()).updatedAt(_user.getUpdatedAt()).build();
     }
 
     public User getUserByCustomerId(String customerId){
-        return userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User Not Found"));
-    }
-
-    public User getUserById(long id){
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
+        return userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     public boolean validateUser(User user){
@@ -94,23 +95,30 @@ public class UserService {
         return true;
     }
 
-    public List<User> getAllUsers(){
-        return userRepository.findAll();
+    public List<UserDao> getAllUsers(){
+        List<User> users = userRepository.findAll();
+        return users.stream().map(user -> UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).gender(user.getGender()).build()).toList();
     }
 
-    public User updateUser(User newUser, String customerId){
-        User user = userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User Not Found"));
+    @Transactional
+    public UserDao changePassword(String customerId, String oldPassword, String newPassword1, String newPassword2){
+        User user = userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User not found"));
+        user.changePassword(oldPassword, newPassword1, newPassword2);
+        user = userRepository.save(user);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+    }
+
+    @Transactional
+    public UserDao updateUser(User newUser, String customerId){
+        User user = userRepository.findByCustomerId(customerId).orElseThrow(() -> new NotFoundException("User not found"));
         if (user == null){
-            throw new NotFoundException("User Not Found");
+            throw new NotFoundException("User not found");
         }
         if (newUser.getName() != null && !newUser.getName().isBlank()){
             user.setName(newUser.getName());
         }
         if (newUser.getEmail() != null && !newUser.getEmail().isBlank()){
             user.setEmail(newUser.getEmail());
-        }
-        if (newUser.getPassword() != null && !newUser.getPassword().isBlank()){
-            user.setPassword(newUser.getPassword());
         }
         if (newUser.getPhone() != null && !newUser.getPhone().isBlank()){
             user.setPhone(newUser.getPhone());
@@ -145,30 +153,31 @@ public class UserService {
         if (newUser.isLocked()){
             user.setLocked(true);
         }
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
 
-    public User deleteUserByCustomerId(String customerId){
-        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User Not Found"));
+    @Transactional
+    public UserDao deleteUserByCustomerId(String customerId){
+        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User not found"));
         user.setDeleted(true);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
 
-    public User deleteUserById(long id){
-        User user = userRepository.findById(id).orElseThrow(()-> new NotFoundException("User Not Found"));
-        user.setDeleted(true);
-        return userRepository.save(user);
-    }
-
-    public User lockUser(String customerId){
-        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User Not Found"));
+    @Transactional
+    public UserDao lockUser(String customerId){
+        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User not found"));
         user.setLocked(true);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
 
-    public User unlockUser(String customerId){
-        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User Not Found"));
+    @Transactional
+    public UserDao unlockUser(String customerId){
+        User user = userRepository.findByCustomerId(customerId).orElseThrow(()-> new NotFoundException("User not found"));
         user.setLocked(false);
-        return userRepository.save(user);
+        user = userRepository.save(user);
+        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
 }

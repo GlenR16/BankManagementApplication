@@ -74,7 +74,7 @@ export default function AdminCustomers() {
                                         <td>{transaction.accountNumber}</td>
                                         <td>{transaction.cardNumber}</td>
                                         <td>{beneficaries[transaction.beneficiaryId-1]?.recieverNumber}</td>
-                                        <td>{transaction.amount}</td>
+                                        <td>{transaction.debit != 0 ? transaction.debit : transaction.credit}</td>
 										<td>{checkType(transaction)}</td>
                                         <td>{transaction.createdAt.substring(0,10)}</td>
                                         <td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>

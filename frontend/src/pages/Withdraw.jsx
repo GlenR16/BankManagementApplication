@@ -20,30 +20,22 @@ export default function Withdraw() {
 
 	const [form, setForm] = useState({
 		accountNumber: "",
-		amount: "",
-		senderAccount: "",
-		receiverAccount: "",
+		debit: "",
 		typeId: 2,
 	});
 
 	function handleChange(e) {
-		if (e.target.name === "accountNumber") {
-			setForm({
-				...form,
-				[e.target.name]: e.target.value,
-				senderAccount: e.target.value,
-				receiverAccount: e.target.value,
-			});
-		} else {
-			setForm({ ...form, [e.target.name]: e.target.value });
-		}
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value,
+        });
 	}
 
 	function handlePay(e)  {
         // Code to handle payment
         e.preventDefault();
         setLoading(true);
-        if (!form.accountNumber || !form.amount ) {
+        if (!form.accountNumber || !form.debit ) {
             setError("Please fill all the fields");
             setLoading(false);
             return;
@@ -96,19 +88,19 @@ export default function Withdraw() {
 								<div className="form-text mx-3">Account Balance : ₹ {accounts.length > 0 ? accounts.find((account) => account.accountNumber == form.accountNumber)?.balance : 0}</div>
 							</div>
 							<div className="row align-items-center mb-3">
-								<label htmlFor="amount" className="col-auto col-form-label">
+								<label htmlFor="debit" className="col-auto col-form-label">
 									Enter Amount to Withdraw :{" "}
 								</label>
 								<div className="input-group col">
 									<span className="input-group-text" id="basic-addon1">
 										{"\u20B9"}
 									</span>
-									<input type="text" className="form-control  rounded-end" id="amount" placeholder="Amount" name="amount" value={form.amount} onChange={handleChange} />
+									<input type="text" className="form-control  rounded-end" id="debit" placeholder="Amount" name="debit" value={form.debit} onChange={handleChange} />
 								</div>
 							</div>
 							<p className="invalid-feedback d-block">{error}</p>
 							<div className="d-grid  d-md-block text-center">
-								<button type="button" className="btn btn-primary" data-bs-toggle ={(!form.senderAccount || !form.amount || !form.receiverAccount || !form) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>
+								<button type="button" className="btn btn-primary" data-bs-toggle ={( !form.debit || !form.accountNumber) ? ("") : ('modal')} data-bs-target="#staticBackdrop" onClick={handlePay}>
 									Withdraw
 								</button>
 							</div>
@@ -126,11 +118,11 @@ export default function Withdraw() {
 												<tbody>
 													<tr>
 														<td>Account Number : </td>
-														<td>{form.senderAccount}</td>
+														<td>{form.accountNumber}</td>
 													</tr>
 													<tr>
 														<td>Amount : </td>
-														<td>{form.amount}</td>
+														<td>{form.debit}</td>
 													</tr>
 												</tbody>
 											</table>

@@ -108,10 +108,10 @@ export default function AdminCustomers() {
 						</caption>
 						<thead>
 							<tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">Sender Account</th>
-                                <th scope="col">Sender Card Id</th>
-                                <th scope="col">Receiver Account</th>
+                                <th scope="col">Index</th>
+                                <th scope="col">Account</th>
+                                <th scope="col">Card Id</th>
+                                <th scope="col">Beneficiary Account</th>
                                 <th scope="col">Amount</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Date</th>
@@ -123,11 +123,11 @@ export default function AdminCustomers() {
 							{transactions.length > 0 ? (
 								transactions.map((transaction, index) => (
 									<tr key={index}>
-                                        <td>{transaction.id}</td>
+                                        <td>{index+1}</td>
                                         <td>{transaction.accountNumber}</td>
                                         <td>{transaction.cardNumber}</td>
-                                        <td>{beneficaries[transaction.beneficiaryId-1]?.recieverNumber}</td>
-                                        <td>{transaction.amount}</td>
+                                        <td>{beneficaries.find(x => x.id == transaction.beneficiaryId)?.recieverNumber }</td>
+                                        <td>{transaction.debit != 0 ? transaction.debit : transaction.credit}</td>
 										<td>{checkType(transaction)}</td>
                                         <td>{transaction.createdAt.substring(0,10)}</td>
                                         <td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>

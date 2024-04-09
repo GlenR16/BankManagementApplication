@@ -1,7 +1,6 @@
 package com.wissen.bank.transactionservice.controllers;
 
 import java.util.List;
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,24 +35,17 @@ public class TransactionTypeController {
 
     @GetMapping("")
     public List<TransactionType> getAllTransactionType(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-
-        if(role == Role.ADMIN || role == Role.EMPLOYEE)
-        {
-            LOGGER.info("Admin {} Fetched all Transaction Type" ,customerId);
-            return transactionTypeRepository.findAll();
-        }
-        throw new UnauthorizedException("Unauthorized");
+        LOGGER.info("Admin {} Fetched all Transaction Type" ,customerId);
+        return transactionTypeRepository.findAll();
     }
 
     @PostMapping("")
-    public TransactionType puTransactionType(@RequestBody TransactionType tr, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public TransactionType putTransactionType(@RequestBody TransactionType tr, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
 
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
-            Random random = new Random();
             TransactionType _transactionType = TransactionType
                     .builder()
-                    .id(random.nextLong(1, 999))
                     .type(tr.getType())
                     .build();
 
@@ -80,7 +72,7 @@ public class TransactionTypeController {
                 LOGGER.info("Admin {} Update TransactionType success",customerId);
                 return transactionTypeRepository.save(_transactionType);
             } else
-                LOGGER.info("Admin {} TransactionType with id :" + id + " not found with CUSTOMER : ",customerId);
+                LOGGER.info("Admin {} TransactionType with id :{} not found with CUSTOMER : ",id,customerId);
             return null;
         }
         throw new UnauthorizedException("Unauthorized");
@@ -96,7 +88,7 @@ public class TransactionTypeController {
                 transactionTypeRepository.deleteById(id);
                 return "DELETED SUCCESSFULLY";
             } else
-                LOGGER.info("Admin {} TransactionType with id :" + id + " not found",customerId);
+                LOGGER.info("Admin {} TransactionType with id : {} not found",id,customerId);
                 return "Unsuccessfull";
         }
         throw new UnauthorizedException("Unauthorized");

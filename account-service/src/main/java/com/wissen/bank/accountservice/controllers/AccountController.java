@@ -53,7 +53,8 @@ public class AccountController {
 
     @GetMapping("/{accountNumber}")
     public Account getAccountByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE || accountService.getAccountByAccountNumber(accountNumber).getCustomerId().equals(customer)) {
+        Account account = accountService.getAccountByAccountNumber(accountNumber);
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customer)) {
             LOGGER.info("User {} getting account number: {}",customer, accountNumber);
             return  accountService.getAccountByAccountNumber(accountNumber);
         }
@@ -76,6 +77,17 @@ public class AccountController {
         }
         throw new UnauthorizedException("Unauthorized");
     }
+
+    @PostMapping("/lock/{accountNumber}")
+    public Account postLockAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+            LOGGER.info("Admin {} locking account number: {}",customer, accountNumber);
+            return accountService.switchAccountLockByAccountNumber(accountNumber);
+        }
+        throw new UnauthorizedException("Unauthorized");
+       
+    }
+    
     
 
     @PutMapping("/{accountNumber}")
@@ -89,7 +101,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{accountNumber}")
-    public ResponseEntity<Response> isDeletedAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+    public ResponseEntity<Response> deleteAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             LOGGER.info("Deleting account number: {}", accountNumber);
             accountService.deleteAccountByAccountNumber(accountNumber);

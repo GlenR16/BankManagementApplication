@@ -5,6 +5,8 @@ import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.wissen.bank.userservice.exceptions.InvalidCredentialsException;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -57,16 +59,18 @@ public class User{
     @UpdateTimestamp
     private Date updatedAt;
 
-    public boolean changePassword(String oldPassword, String newPassword1, String newPassword2){
-        if (!oldPassword.equals(this.password) || !newPassword1.equals(newPassword2)){
-            return false;
+    public void changePassword(String oldPassword, String newPassword1, String newPassword2){
+        if ( !verifyPassword(oldPassword) || !newPassword1.equals(newPassword2)){
+            throw new InvalidCredentialsException("Invalid Credentials");
         }
         this.setPassword(newPassword1);
-        return true;
     }
 
-    public void setPassword(String password){
+    public boolean verifyPassword(String password){
+        return this.password.equals(password);
+    }
+
+    private void setPassword(String password){
         this.password = password;
     }
-
 }

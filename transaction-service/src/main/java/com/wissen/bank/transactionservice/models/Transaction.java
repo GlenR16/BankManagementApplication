@@ -30,7 +30,9 @@ public class Transaction {
     private long accountNumber;
     private long cardNumber;
     private long beneficiaryId;
-    private double amount;
+    private double credit;
+    private double debit;
+    private double balance;
     private long typeId;
     @Enumerated(EnumType.STRING)
     private Status status;
