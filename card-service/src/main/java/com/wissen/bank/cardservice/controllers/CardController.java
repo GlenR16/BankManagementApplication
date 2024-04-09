@@ -57,6 +57,16 @@ public class CardController{
         throw new UnauthorizedException("Unauthorized");
     }
 
+    @GetMapping("/account/{accountNumber}")
+    public List<Card> getCardsByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+        Account account = accountClientService.getAccountByAccountNumber(accountNumber,customerId,role.toString()).block();
+        if (account != null && (role == Role.ADMIN || role == Role.EMPLOYEE || account.customerId().equals(customerId))){
+            LOGGER.info("Getting cards for account number: {}",accountNumber);
+            return cardService.getCardsByAccountNumber(accountNumber);
+        }
+        throw new UnauthorizedException("Unauthorized");
+    }
+
     @GetMapping("/list")
     public List<Card> getCards(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
         List<Account> accounts = accountClientService.getAccountsByCustomerId(customerId,role.toString()).block();

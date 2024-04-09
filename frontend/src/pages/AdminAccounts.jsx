@@ -21,6 +21,7 @@ export default function AdminAccount() {
         .then((response) => {
             setBranches(response.data);
         });
+		
     }, []);
 
 	return (
@@ -51,6 +52,7 @@ export default function AdminAccount() {
 								<th scope="col">IFSC</th>
 								<th scope="col">Type</th>
 								<th scope="col">Balance</th>
+								<th scope="col">Verified</th>
 								<th scope="col">Action</th>
 							</tr>
 						</thead>
@@ -64,7 +66,9 @@ export default function AdminAccount() {
 										<td>{branches[account.branchId - 1]?.ifsc}</td>
 										<td>{accountTypes[account.typeId - 1]?.name}</td>
                                         <td>₹ {account.balance}</td>
+										<td>{account.verified ? "TRUE" : "FALSE"}</td>
 										<td>
+											{/* TO CHANGE THE LINK */}
 											<NavLink to="#" className="text-decoration-none">
 												View
 											</NavLink>

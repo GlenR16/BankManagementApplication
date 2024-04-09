@@ -14,7 +14,8 @@ import Deposit from "./pages/Deposit";
 import Receipt from "./pages/Receipt";
 import Card from "./pages/Card";
 import AccountRegistration from "./pages/AccountRegistration";
-
+import AddingBenificary from "./pages/AddingBenificary";
+import AddingCard from "./pages/AddingCard";
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
@@ -92,6 +93,14 @@ const router = createBrowserRouter([{
 		{
 			path: "/AccountRegister",
 			element: <Suspense fallback={<Loading />}><AccountRegistration /></Suspense>
+		},
+		{
+			path: "/addBeneficiary",
+			element: <Suspense fallback={<Loading />}><AddingBenificary /></Suspense>
+		},
+		{
+			path: "/addCard",
+			element: <Suspense fallback={<Loading />}><AddingCard /></Suspense>
 		}
 	]
 }]);
