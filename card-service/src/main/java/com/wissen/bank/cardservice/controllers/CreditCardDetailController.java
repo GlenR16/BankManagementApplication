@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.wissen.bank.cardservice.exceptions.NotFoundException;
 import com.wissen.bank.cardservice.exceptions.UnauthorizedException;
 import com.wissen.bank.cardservice.models.Account;
 import com.wissen.bank.cardservice.models.Card;
@@ -26,8 +27,6 @@ import com.wissen.bank.cardservice.repositories.CardRepository;
 import com.wissen.bank.cardservice.repositories.CreditCardDetailRepository;
 import com.wissen.bank.cardservice.responses.Response;
 import com.wissen.bank.cardservice.services.AccountClientService;
-
-import jakarta.ws.rs.NotFoundException;
 
 @RestController
 @RequestMapping("/card/creditCardDetails")
@@ -53,10 +52,13 @@ public class CreditCardDetailController {
         throw new UnauthorizedException("Unauthorized");
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{cardId}")
     public CreditCardDetail getCreditCardDetailByCardId(@PathVariable long cardId, @RequestHeader("Customer") String customer,@RequestHeader("Role") Role role) {
+        System.out.println("ID: "+cardId);
         Card card = cardRepository.findById(cardId).orElseThrow(() -> new NotFoundException("Card not found"));
+        System.out.println("Card -> "+ card);
         CreditCardDetail ccd = creditCardDetailRepo.findByCardId(card.getId()).orElseThrow(() -> new NotFoundException("CreditCardDetail not found"));
+        System.out.println("Details -> "+ccd);
         Account account = accountClientService.getAccountByAccountNumber(card.getAccountNumber(), customer, role.toString()).block();
         if (account == null) {
             throw new UnauthorizedException("Unauthorized");

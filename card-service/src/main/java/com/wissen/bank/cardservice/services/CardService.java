@@ -89,6 +89,7 @@ public class CardService {
         if (_card == null){
             throw new NotFoundException("Card not found");
         }
+        _card = cardRepository.save(_card);
         if (_card.getTypeId() == 2){
             CreditCardDetail ccd = CreditCardDetail
                 .builder()
@@ -98,7 +99,7 @@ public class CardService {
                 .build();
             creditCardDetailRepository.save(ccd);
         }
-        return cardRepository.save(_card);
+        return _card;
     }
 
     @Transactional

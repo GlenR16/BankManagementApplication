@@ -18,7 +18,6 @@ Using Docker:
 - Uses large amount of RAM and CPU resources.
 
 ## Tasks remaining
-- Transaction management across services
 - Add remaining pages to frontend.
 ------------------------------------------------
 - Use at least 3 design patterns while implementing solution
@@ -47,6 +46,7 @@ Using Docker:
 - ~~Check for edge cases before saving data.~~
 - ~~All exceptions are to be handled properly.~~
 - ~~Transaction management within service~~
+- ~~Transaction management across services~~
 
 ## Ports
 - frontend:80
