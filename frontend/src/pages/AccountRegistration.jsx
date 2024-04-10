@@ -1,13 +1,13 @@
 import { useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function AccountRegister() {
 	const api = useAxiosAuth();
 	const navigate = useNavigate();
+
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-    
 	const [form, setForm] = useState({
         branchId:"",
         balance: "",
@@ -16,17 +16,12 @@ export default function AccountRegister() {
 	});
 
 	function handleChange(e) {
-		setForm({
-			...form,
-			[e.target.name]: e.target.value,
-		});
-        console.log(form);
+		setForm({...form,[e.target.name]: e.target.value,});
 	}
 
 	function signup() {
-        console.log(form)
 		setLoading(true);
-        if (!form.branchId || !form.typeId) {
+        if (!form.branchId || !form.typeId || !form.balance) {
             setError("Please fill all the fields");
             setLoading(false);
             return;

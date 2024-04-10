@@ -1,93 +1,118 @@
-import React, {useState, useEffect} from 'react'
+import { useState, useEffect } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { useParams } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function Profile() {
-
-    const [user, setUser] = useState({})
-    const [loading, setLoading] = useState(false)
+	const [profile, setProfile] = useState({});
 	const api = useAxiosAuth();
-    const { customerId } = useParams();
-    console.log(customerId);
+    const { user } = useUser();
+	const { customerId } = useParams();
 
-    useEffect(() => {
-        setLoading(true)
-        api.get("/user/"+customerId)
-			.then((response) => {
-                setLoading(false);
-				setUser(response.data);
-		});
-    } ,[])
+    function refreshData(){
+        api.get("/user/" + customerId).then((response) => {
+            setProfile(response.data);
+        });
+    }
 
-  return (
-    <div className="card m-5 p-0 w-75 align-self-center" >
-            <h5 className="card-header">Customer Details</h5>
+	useEffect(() => {
+        refreshData();
+	}, []);
 
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> User Name</p>
-                <p className=" col"> {user.name} </p>
-            </div>
+    function lockUnlockUser(){
+        api.post("/user/lock/"+customerId).then((response) => {
+            refreshData();
+        });
+    }
 
-            <div className="row m-2">
-                <p className="col-2 fw-bold">Customer ID</p>
-                <p className=" col"> {user.customerId} </p>
-            </div>
+    function deleteUser(){
+        api.delete("/user/"+customerId).then((response) => {
+            refreshData();
+        });
+    }
 
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> Gender</p>
-                <p className=" col"> {user.gender}</p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold">Email Address</p>
-                <p className=" col"> {user.email}</p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold">Phone</p>
-                <p className=" col"> {user.phone}</p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> Address</p>
-                <p className=" col"> {user.address} , {user.city}, {user.state}, {user.pincode}. </p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> City</p>
-                <p className=" col"> {user.city}  </p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> State</p>
-                <p className=" col"> {user.state} </p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> Pincode</p>
-                <p className=" col">{user.pincode} </p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> Pan Number</p>
-                <p className=" col"> {user.pan}</p>
-            </div>
-            
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> Aadhar Number</p>
-                <p className=" col"> {user.aadhaar}</p>
-            </div>
-            
-            <div className="row m-2">
-                <p className="col-2 fw-bold"> Date of Birth</p>
-                <p className=" col"> {new Date(Date.parse(user.dateOfBirth))?.toLocaleDateString()} </p>
-            </div>
-
-            <div className="row m-2">
-                <p className="col-2 fw-bold">Account Locked </p>
-                <p className=" col"> {user.locked? "TRUE" : "FALSE"} </p>
-            </div>
-
-        </div>
-  )
+	return (
+		<div className="container-fluid col-sm-12 col-md-8 my-4">
+			<div className="card gap-2">
+				<h5 className="card-header p-3 text-center fw-bold">Customer Details</h5>
+				<div className="row mx-2 mt-3">
+					<div className="col-sm-6 col-md-2 fw-bold"> User Name </div>
+					<div className=" col"> {profile.name}  </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold">Customer ID </div>
+					<div className=" col"> {profile.customerId}  </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> Gender </div>
+					<div className=" col"> {profile.gender} </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold">Email Address </div>
+					<div className=" col"> {profile.email} </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold">Phone </div>
+					<div className=" col"> {profile.phone} </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> Address </div>
+					<div className=" col">
+						{profile.address} , {profile.city}, {profile.state}, {profile.pincode}{" "}
+					 </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> City </div>
+					<div className=" col"> {profile.city}  </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> State </div>
+					<div className=" col"> {profile.state}  </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> Pincode </div>
+					<div className=" col">{profile.pincode}  </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> Pan Number </div>
+					<div className=" col"> {profile.pan} </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> Aadhar Number </div>
+					<div className=" col"> {profile.aadhaar} </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold"> Date of Birth </div>
+					<div className=" col"> {new Date(Date.parse(profile.dateOfBirth))?.toLocaleDateString()}  </div>
+				</div>
+				<div className="row mx-2">
+					<div className="col-sm-6 col-md-2 fw-bold">Account Status  </div>
+					<div className=" col">
+						{(profile.locked && profile.deleted) || profile.deleted ? <span className="badge rounded-pill text-bg-danger">Deleted</span> : ""}
+						{profile.locked && !profile.deleted ? <span className="badge rounded-pill bg-secondary">Locked</span> : ""}
+						{!profile.locked && !profile.deleted ? <span className="badge rounded-pill bg-success">Active</span> : ""}
+					 </div>
+				</div>
+                {
+                    (user.role == "ADMIN" || user.role == "EMPLOYEE") && !profile.deleted ?
+                    <div className="row row-cols-1 row-cols-md-2 p-2 g-2">
+                        <div className="d-grid">
+                            <button type="button" className="btn btn-warning" onClick={lockUnlockUser}>
+                                {
+                                    profile.locked ? "Unlock Account" : "Lock Account"
+                                }
+                            </button>
+                        </div>
+                        <div className="d-grid">
+                            <button type="button" className="btn btn-danger" onClick={deleteUser}>
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                    :
+                    ""
+                }
+			</div>
+		</div>
+	);
 }

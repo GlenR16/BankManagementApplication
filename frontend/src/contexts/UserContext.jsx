@@ -1,6 +1,7 @@
 import { createContext,useContext,useCallback,useMemo,useState } from "react";
+import { DataStore } from "./StorageProvider";
 
-var dbUser = localStorage.getItem("user") || null
+var dbUser = await DataStore.getItem("user");
     
 const UserContext = createContext(dbUser);
 
@@ -16,12 +17,12 @@ export function UserProvider({ children }) {
         if (!user){
             throw Error("User cannot be empty!")
         }
-        localStorage.setItem("user",user);
+        DataStore.setItem("user", user);
         setUser(user);
     }, []);
 
     const deleteUser = useCallback(() => {
-        localStorage.removeItem("user")
+        DataStore.removeItem("user");
         setUser(null)
     }, []);
 

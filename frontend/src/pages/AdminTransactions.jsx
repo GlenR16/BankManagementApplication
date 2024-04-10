@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
-import { NavLink } from "react-router-dom";
 
-export default function AdminCustomers() {
+export default function AdminTransactions() {
     const [transactions, setTransactions] = useState([]);
 	const [beneficaries, setBeneficaries] = useState([]);
     const api = useAxiosAuth();
@@ -34,20 +33,20 @@ export default function AdminCustomers() {
     }
 
 	return (
-		<div className="mt-0 p-4">
+		<div className="container-fluid col-sm-12 col-md-8 my-4">
 			<div className="card mt-4 border-0 shadow">
 				<div className="card-body table-responsive">
 					<table className="table caption-top">
 						<caption className="text-center border-bottom border-2 border-dark">
-							<h3 className="d-flex flex-row align-items-center gap-2 text-black">
+							<h3 className="d-flex flex-row align-items-center gap-2 text-black fw-bold">
 								All Transactions
 							</h3>
 						</caption>
 						<thead>
 							<tr>
                                 <th scope="col">ID</th>
-                                <th scope="col">Sender Account</th>
-                                <th scope="col">Sender Card Id</th>
+                                <th scope="col">Account</th>
+                                <th scope="col">Card Number</th>
                                 <th scope="col">Receiver Account</th>
                                 <th scope="col">Amount</th>
                                 <th scope="col">Type</th>
@@ -62,13 +61,26 @@ export default function AdminCustomers() {
 									<tr key={index}>
                                         <td>{transaction.id}</td>
                                         <td>{transaction.accountNumber}</td>
-                                        <td>{transaction.cardNumber}</td>
-                                        <td>{beneficaries[transaction.beneficiaryId-1]?.recieverNumber}</td>
+                                        <td>{transaction.cardNumber? transaction.cardNumber : "-"}</td>
+                                        <td>
+                                            {
+                                                beneficaries.find(x => x.id == transaction.beneficiaryId)?.recieverNumber?
+                                                beneficaries.find(x => x.id == transaction.beneficiaryId)?.recieverNumber:
+                                                "-"
+                                            }
+                                        </td>
                                         <td>{transaction.debit != 0 ? transaction.debit : transaction.credit}</td>
 										<td>{checkType(transaction)}</td>
                                         <td>{transaction.createdAt.substring(0,10)}</td>
                                         <td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>
-                                        <td>{transaction.status}</td>
+                                        <td>
+                                            {
+                                                transaction.status == "COMPLETED" ?
+                                                <span className="badge rounded-pill text-bg-success">Success</span>
+                                                :
+                                                <span className="badge rounded-pill text-bg-danger">Failed</span>
+                                            }
+                                        </td>
 									</tr>
 								))
 							) : (

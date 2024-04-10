@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { NavLink, useNavigate } from "react-router-dom";
-import { useUser } from "../contexts/UserContext";
+import { Modal } from "bootstrap";
 
 export default function Signup() {
 	const api = useAxiosAuth();
 	const navigate = useNavigate();
+
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const [details, setDetails] = useState({});
-	const {user, changeUser} = useUser();
+	const [user, setUser] = useState(null);
 	const [form, setForm] = useState({
 		name: "",
 		email: "",
@@ -27,10 +27,7 @@ export default function Signup() {
 	});
 
 	function handleChange(e) {
-		setForm({
-			...form,
-			[e.target.name]: e.target.value,
-		});
+		setForm({ ...form, [e.target.name]: e.target.value });
 	}
 
 	function signup() {
@@ -53,8 +50,10 @@ export default function Signup() {
 
 		api.post("/user/signup", form)
 			.then((res) => {
-				sessionStorage.setItem("token", res.data.message);
+                setUser(res.data);
 				setLoading(false);
+                const detailsModal = new Modal("#detailsModal");
+                detailsModal.show();
 			})
 			.catch((err) => {
 				if (err.response) setError(err.response.data.error);
@@ -62,44 +61,30 @@ export default function Signup() {
 				setLoading(false);
 			});
 	}
-	
-	useEffect(() => {
-			// let signupElement = document.getElementById("signup");
-			// signupElement.setAttribute("data-bs-toggle", "modal");
-			setLoading(false);
-		api.get("/user/details")
-			.then((res) => {
-				setDetails(res.data);
-				setLoading(false);
-			})
-			.catch((err) => {
-				console.log(err);
-			});
-	}, [sessionStorage.getItem("token")]);
 
 	return (
 		<>
-			<div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-				<div className="modal-dialog">
+			<div className="modal fade" id="detailsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+				<div className="modal-dialog modal-dialog-centered">
 					<div className="modal-content">
 						<div className="modal-header">
-							<h1 className="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
-							<button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							<h1 className="modal-title fs-5" id="detailsModalLabel">
+								User Profile Details
+							</h1>
 						</div>
 						<div className="modal-body">
-							<p>Account Created Successfully</p>
-							<p>Customer ID : {details.customerId}</p>
-							<p>Please remember your customer-id and password for future login</p>
+							<p> Congratulations! Your account has been successfully created. </p>
+                            <p> Your customer ID is: <b> {user?.customerId} </b> </p>
+                            <p> Please keep this ID safe for future reference. Thank you for choosing Star Bank! </p>
 						</div>
 						<div className="modal-footer">
-							<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-							<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => navigate("/login")}>Understood</button>
+							<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => navigate("/login")}>
+								I Understand
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
-
-
 
 			<div className="container">
 				<div className="row flex-lg-row-reverse align-items-center justify-content-center g-5 m-3 text-center">
@@ -288,28 +273,30 @@ export default function Signup() {
 							</div>
 						</div>
 						<hr />
-						<p className="invalid-feedback d-block">{error}</p>
+						{error && (
+							<div className="alert alert-danger p-2" role="alert">
+								{error}
+							</div>
+						)}
 						<div className="form-check text-start">
 							<input className="form-check-input" name="agreement" type="checkbox" id="termsandconditions" />
 							<label className="form-check-label" htmlFor="termsandconditions">
 								I hereby state that I have read and understood the terms and conditions and the information provided by me is true and accurate.
 							</label>
 						</div>
-						<br />
-						<div className="d-flex flex-column flex-md-row justify-content-between gap-4 my-2">
-							<div className="d-flex flex-column text-start">
+						<div className="row row-cols-1 row-cols-md-2 g-2 my-2">
+							<div className="col text-start">
 								<div>
 									Already have an account ? <NavLink to="/login">Login</NavLink>
 									<br />
 								</div>
 							</div>
-							<div>
-
-								<button id="signup" className="w-100 btn btn-primary" type="button" onClick={signup} disabled={loading} data-bs-target="#staticBackdrop" data-bs-toggle ={(!details) ? ("") : ('modal')} >
+							<div className="col d-grid">
+								<button id="signup" className="w-100 btn btn-primary" type="button" onClick={signup} disabled={loading} >
 									{loading ? (
-										<div className="spinner-border mx-2" role="status">
-											<span className="visually-hidden">Loading...</span>
-										</div>
+										<>
+											<span className="spinner-border spinner-border-sm" aria-hidden="true"></span> <span role="status">Loading...</span>
+										</>
 									) : (
 										"Signup"
 									)}
@@ -319,7 +306,6 @@ export default function Signup() {
 					</form>
 				</div>
 			</div>
-
 		</>
 	);
 }

@@ -1,27 +1,14 @@
-import { useEffect, useState } from "react";
-import useAxiosAuth from "../contexts/Axios";
+import { useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function Dashboard() {
-	const [accounts, setAccounts] = useState([]);
-    const [accountTypes, setAccountTypes] = useState([]);
-    const [branches, setBranches] = useState([]);
-    const [user, setUser] = useState({});
-
-	const api = useAxiosAuth();
 	const navigate = useNavigate();
-    
-    
+    const { user } = useUser();
+
 	useEffect(() => {
-        api.get("/user/details")
-        .then((response) => {
-            setUser(response.data);
-        })
-        .catch((error) => {
-            return navigate("/login");
-        });
-		
-	}, []);
+        if (user == null) navigate("/login");
+    },[user]);
 
 
 	function withdraw() {
@@ -55,79 +42,88 @@ export default function Dashboard() {
 	}
 
 	return (
-		<div className="container col-sm-12 col-md-8 p-5">
-			<div className="row flex-lg-row-reverse align-items-center justify-content-center g-5 py-0 text-center">
-				
-				<div className="row row-cols-1 row-cols-md-3 g-4">
+		<div className="container-fluid col-sm-12 col-md-8 my-4">
+			<div className="row flex-lg-row-reverse align-items-center justify-content-center text-center">
+				<div className="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4 mt-0">
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Withdraw</p>
-								<img src="/withdraw.png" alt="Withdraw Image" width={100}/>
-								<p className="card-text">Withdraw money: Transfer funds from your account to access cash.</p>
-								<button className="btn btn-success" type="button" onClick={withdraw}>
+								<p className="card-title fs-3">Withdraw</p>
+								<img className="card-text py-2" src="/withdraw.png" alt="Withdraw Image" width={100} height={100} />
+								<p className="card-text">
+                                    Transfer funds from your account to access cash.
+                                </p>
+                                <NavLink className="btn btn-primary" to="/withdraw" >
 									Withdraw
-								</button>
+                                </NavLink>
 							</div>
 						</div>
 					</div>
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Deposit</p>
-								<img src="/deposit.png" alt="Deposit Image" width={100}/>
-								<p className="card-text">Deposit money: Transfer funds to your account to make payments.</p>
-								<button className="btn btn-success" type="button" onClick={deposit}>
+								<p className="card-title fs-3">Deposit</p>
+								<img className="card-text py-2" src="/deposit.png" alt="Deposit Image" width={100} height={100} />
+								<p className="card-text">
+                                    Transfer funds to your account to make payments.
+                                </p>
+								<NavLink className="btn btn-primary" to="/deposit" >
 									Deposit
-								</button>
+                                </NavLink>
 							</div>
 						</div>
 					</div>
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Transfer</p>
-								<img src="/transactions.png" alt="Transfer Image" width={100}/>
-								<p className="card-text">Transfer money: Transfer funds to another account directly.</p>
-								<button className="btn btn-success" type="button" onClick={transfer}>
+								<p className="card-title fs-3">Transfer</p>
+								<img className="card-text py-2" src="/transactions.png" alt="Transfer Image" width={100} height={100} />
+								<p className="card-text">
+                                    Transfer funds to another account directly.
+                                </p>
+								<NavLink className="btn btn-primary" to="/transfer" >
 									Transfer
-								</button>
+                                </NavLink>
 							</div>
 						</div>
 					</div>
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Accounts</p>
-								<img src="/accounts.png" alt="Accounts Image" width={100}/>
-								<p className="card-text">Account Details: View your account details and statements.</p>
-								<button className="btn btn-success" type="button" onClick={account}>
+								<p className="card-title fs-3">Accounts</p>
+								<img className="card-text py-2" src="/accounts.png" alt="Accounts Image" width={100} height={100}/>
+								<p className="card-text">
+                                    View your account details and statements.
+                                </p>
+								<NavLink className="btn btn-primary" to="/account" >
 									Accounts
-								</button>
+                                </NavLink>
 							</div>
 						</div>
 					</div>
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Card Transfer</p>
-								<img src="/card.png" alt="Cards Image" width={100} height={100}/>
-								<p className="card-text">Card Transfer: Transfer funds to a diffrent account using your card.</p>
-								<button className="btn btn-success" type="button" onClick={card}> 
-									Transfer
-								</button>
+								<p className="card-title fs-3">Card Transfer</p>
+								<img className="card-text py-2" src="/card.png" alt="Cards Image" width={100} height={100} />
+								<p className="card-text">
+                                    Transfer funds to a diffrent account using your card.
+                                </p>
+								<NavLink className="btn btn-primary" to="/card" >
+									Card Transaction
+                                </NavLink>
 							</div>
 						</div>
 					</div>
 					<div className="col">
 						<div className="card">
 							<div className="card-body">
-								<p className="card-title">Transaction History</p>
-								<img src="/customers.png" alt="Transaction Image" width={100}/>
+								<p className="card-title fs-3">Transaction History</p>
+								<img className="card-text py-2" src="/customers.png" alt="Transaction Image" width={100} height={100} />
 								<p className="card-text">View your transaction history of previous transactions.</p>
-								<button className="btn btn-success" type="button" onClick={transactions}>
+								<NavLink className="btn btn-primary" to="/transactions" >
 									Transactions
-								</button>
+                                </NavLink>
 							</div>
 						</div>
 					</div>

@@ -15,6 +15,7 @@ import com.wissen.bank.userservice.services.JWTService;
 import com.wissen.bank.userservice.services.UserService;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 
@@ -77,11 +78,10 @@ public class UserController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<Response> createUser(@RequestBody User user){
+    public UserDao createUser(@RequestBody User user){
         User _user = userService.createUser(user);
         LOGGER.info("Creating user with customer id: {}",_user.getCustomerId());
-        String token = jwtService.generateToken(_user);
-        return ResponseEntity.ok().body(new Response(new Date(),200,token,"/user/signup"));
+        return UserDao.builder().customerId(_user.getCustomerId()).name(_user.getName()).email(_user.getEmail()).gender(_user.getGender()).role(_user.getRole()).phone(_user.getPhone()).aadhaar(_user.getAadhaar()).pan(_user.getPan()).state(_user.getState()).city(_user.getCity()).address(_user.getAddress()).pincode(_user.getPincode()).dateOfBirth(_user.getDateOfBirth()).isLocked(_user.isLocked()).isDeleted(_user.isDeleted()).createdAt(_user.getCreatedAt()).updatedAt(_user.getUpdatedAt()).build();
     }
 
     @PostMapping("/login")
@@ -192,7 +192,7 @@ public class UserController {
         throw new DatabaseIntegrityException("Database Integrity Violation");
     }
 
-    @ExceptionHandler({ SignatureException.class, ExpiredJwtException.class })
+    @ExceptionHandler({ SignatureException.class, ExpiredJwtException.class, MalformedJwtException.class })
     public ResponseEntity<Response> handleSignatureException(Exception e){
         LOGGER.error("Error: {}",e.getMessage());
         throw new TokenInvalidException("Token Invalid");

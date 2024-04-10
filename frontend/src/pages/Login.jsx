@@ -7,6 +7,7 @@ import { useUser } from "../contexts/UserContext";
 export default function Login() {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
+    const { user , changeUser } = useUser();
 	const [form, setForm] = useState({
 		customerId: "",
 		password: "",
@@ -15,10 +16,7 @@ export default function Login() {
 	const navigate = useNavigate();
 
 	function handleChange(e) {
-		setForm({
-			...form,
-			[e.target.name]: e.target.value,
-		});
+		setForm({...form,[e.target.name]: e.target.value,});
 	}
 
 	function login() {
@@ -41,18 +39,20 @@ export default function Login() {
 	}
 
     useEffect(() => {
-        if (!sessionStorage.getItem("token")) return;
-        api.get("/user/details")
-        .then((res)=>{
-            if(res.data.role === "ADMIN")
-                navigate("/administration");
-            if(res.data.role === "USER")
-                navigate("/dashboard");
-        })
-        .catch((err)=>{
-            console.log(err);
-        });
-    }, [sessionStorage.getItem("token")]);
+        if (user == null) return;
+        else if (user.role == "ADMIN" || user.role == "EMPLOYEE" ) navigate("/administration");
+        else navigate("/dashboard");
+    },[user]);
+
+    useEffect(() => {
+        if (sessionStorage.getItem("token") != null) {
+            api.get("/user/details")
+            .then((res) => {
+                changeUser(res.data);
+            })
+            .catch((err) => {});
+        }
+    },[sessionStorage.getItem("token")]);
     
 	return (
 		<div className="container">
@@ -84,10 +84,12 @@ export default function Login() {
 						</label>
 						<input type="password" className="form-control" name="password" id="password" value={form.password} onChange={handleChange} placeholder="********" />
 					</div>
-					<p className="invalid-feedback d-block">{error}</p>
+					{
+                        error && <div className="alert alert-danger p-2" role="alert">{error}</div>
+                    }
 					<hr />
-					<div className="d-flex flex-column flex-md-row justify-content-between gap-4">
-						<div className="d-flex flex-column text-start">
+					<div className="row row-cols-1 row-cols-md-2 g-2">
+						<div className="col text-start">
 							<div>
 								Don't have an account ? <NavLink to="/signup">Register</NavLink>
 								<br />
@@ -96,12 +98,14 @@ export default function Login() {
 								Forgot your password ? <NavLink to="/">Reset Password</NavLink>
 							</div>
 						</div>
-						<div>
-							<button className="w-100 btn btn-primary" type="button" onClick={login} disabled={loading}>
+						<div className="col d-grid" >
+							<button className="btn btn-primary" type="button" onClick={login} disabled={loading}>
 								{loading ? (
-									<div className="spinner-border mx-2" role="status">
-										<span className="visually-hidden">Loading...</span>
-									</div>
+                                    <>
+                                        <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                        {" "}
+                                        <span role="status">Loading...</span>
+                                    </>
 								) : (
 									"Login"
 								)}
