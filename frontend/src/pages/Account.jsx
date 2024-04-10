@@ -109,10 +109,12 @@ export default function Account() {
 									</caption>
 									<thead>
 										<tr>
-											<th scope="col">Number</th>
+											<th scope="col">Account Number</th>
 											<th scope="col">IFSC</th>
 											<th scope="col">Type</th>
 											<th scope="col">Balance</th>
+											<th scope="col">Verified</th>
+											<th scope="col">Locked</th>
 											<th scope="col">Action</th>
 										</tr>
 									</thead>
@@ -124,8 +126,10 @@ export default function Account() {
 													<td>{branches[account.branchId - 1]?.ifsc}</td>
 													<td>{accountTypes[account.typeId - 1]?.name}</td>
 													<td>₹ {account.balance}</td>
+													<td>{account.verified ? "TRUE" : "FALSE"}</td>
+													<td>{account.locked ? "TRUE" : "FALSE"}</td>
 													<td>
-														<NavLink to="#" className="text-decoration-none">
+														<NavLink to={"/accountDetails/"+account.accountNumber} className="text-decoration-none">
 															View
 														</NavLink>
 													</td>
@@ -247,6 +251,7 @@ export default function Account() {
 											<th scope="col">Type</th>
 											<th scope="col">Expiry Date</th>
 											<th scope="col">Active</th>
+											<th scope="col">Action</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -261,6 +266,11 @@ export default function Account() {
 													<td>{checkTypeCard(card.typeId)}</td>
 													<td>{new Date(Date.parse(card.expiryDate))?.toLocaleDateString()}</td>
 													<td>{card.active ? "TRUE" : "FALSE"}</td>
+													<td>
+														<NavLink to={"/cardDetails/"+card.number} className="text-decoration-none">
+															View
+														</NavLink>
+													</td>
 												</tr>
 											))
 										) : (

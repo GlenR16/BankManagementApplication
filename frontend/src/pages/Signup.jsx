@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function Signup() {
 	const api = useAxiosAuth();
 	const navigate = useNavigate();
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
-	const [details, setDetails] = useState({})
+	const [details, setDetails] = useState({});
+	const {user, changeUser} = useUser();
 	const [form, setForm] = useState({
 		name: "",
 		email: "",
@@ -29,7 +31,6 @@ export default function Signup() {
 			...form,
 			[e.target.name]: e.target.value,
 		});
-		console.log(form);
 	}
 
 	function signup() {
@@ -56,13 +57,12 @@ export default function Signup() {
 				setLoading(false);
 			})
 			.catch((err) => {
-				console.log("ERROR");
 				if (err.response) setError(err.response.data.error);
 				else setError("Something went wrong");
 				setLoading(false);
 			});
-
 	}
+	
 	useEffect(() => {
 			// let signupElement = document.getElementById("signup");
 			// signupElement.setAttribute("data-bs-toggle", "modal");
@@ -70,7 +70,6 @@ export default function Signup() {
 		api.get("/user/details")
 			.then((res) => {
 				setDetails(res.data);
-				console.log("SET DETAILS : ",res.data);
 				setLoading(false);
 			})
 			.catch((err) => {
@@ -90,7 +89,6 @@ export default function Signup() {
 						<div className="modal-body">
 							<p>Account Created Successfully</p>
 							<p>Customer ID : {details.customerId}</p>
-							<p>Password : {details.password}</p>
 							<p>Please remember your customer-id and password for future login</p>
 						</div>
 						<div className="modal-footer">
@@ -241,16 +239,6 @@ export default function Signup() {
 								<option value="Female">Female</option>
 							</select>
 						</div>
-						{/* <div className="my-2 text-start">
-						<label htmlFor="accountType" className="form-label">
-							Account Type
-						</label>
-                        <select className="form-select" name="accountType" id="accountType" value={form.accountType} onChange={handleChange} aria-label="Account Type" aria-describedby="accountType">
-                            <option value="">Select Account Type</option>
-                            //dynamically bring options
-                            <option value="Savings Account">Savings Account</option>
-                        </select>
-					</div> */}
 
 						<div className="my-2 text-start">
 							<label htmlFor="services" className="form-label">

@@ -81,7 +81,7 @@ export default function Withdraw() {
 										{
                                             accounts.length > 0 ? accounts.map((account) => {
 
-                                                return <option key={account.accountNumber} value={account.accountNumber}>{account.accountNumber}</option>
+                                                return <option key={account.accountNumber} value={account.accountNumber} disabled={!account.verified}>{account.accountNumber} {!account.verified ? "(Not Verified)": ""}</option>
                                             }) : <option>No Accounts</option>
                                         }
 									</select>

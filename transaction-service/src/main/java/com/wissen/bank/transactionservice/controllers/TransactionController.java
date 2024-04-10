@@ -18,9 +18,12 @@ import com.wissen.bank.transactionservice.responses.Response;
 import com.wissen.bank.transactionservice.services.AccountClientService;
 import com.wissen.bank.transactionservice.services.CardClientService;
 import com.wissen.bank.transactionservice.services.TransactionService;
+import com.wissen.bank.transactionservice.responses.BillResponse;
+import com.wissen.bank.transactionservice.exceptions.NotFoundException;
+
 
 import jakarta.annotation.PostConstruct;
-
+import java.util.stream.Collectors;
 import java.util.Date;
 import java.util.List;
 
@@ -243,6 +246,29 @@ public class TransactionController {
             LOGGER.info("User {} creating transfer transaction with id: {}",customerId,_transaction.getId());
         }
         return ResponseEntity.ok().body(new Response(new Date(), 200, "CardTransfer Success", _transaction));
+    }
+
+    @GetMapping("/pay/{number}")
+    public ResponseEntity<BillResponse> getBillDetails(@PathVariable long number, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+        Card card = cardClientService.getCardByNumber(number, customer).blockOptional().orElse(null);
+        if (card == null || !card.isActive() || card.isDeleted() || card.isLocked() || !card.isVerified()){
+            throw new NotFoundException("Card Not Found");
+        }
+        CreditCardDetail ccd = cardClientService.getCreditCardDetailByCardId(card.getId(), customer).blockOptional().orElse(null);
+        if (ccd == null) {
+            throw new NotFoundException("Card Not Found");
+        }
+        CardType cardType = cardClientService.getCardTypeById(card.getTypeId(), customer).blockOptional().orElse(null);
+        if (cardType == null) {
+            throw new NotFoundException("Card Not Found");
+        }
+        List<Transaction> transactions = transactionservice.getTransactionsByAccountNumber(card.getAccountNumber());
+        double total = 0.0;
+        transactions  = transactions.stream().filter(t -> t.getTypeId() == 2).limit(ccd.creditTransactions()).collect(Collectors.toList());
+        for (Transaction t : transactions) {
+            total += t.getDebit();
+        }
+        return ResponseEntity.ok().body(new BillResponse(new Date(),200,transactions,total,cardType.interest()));
     }
 
     @PostMapping("/pay/{number}")

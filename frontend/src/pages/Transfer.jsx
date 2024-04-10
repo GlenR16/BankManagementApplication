@@ -78,7 +78,7 @@ export default function () {
                                         <option value="" defaultValue>Select an Account</option>
                                         {
                                             accounts.length > 0 ? accounts.map((account) => (
-                                                <option key={account.id} value={account.accountNumber}>{account.accountNumber}</option>
+                                                <option key={account.id} value={account.accountNumber}disabled={!account.verified}>{account.accountNumber} {!account.verified ? "(Not Verified)": ""}</option>
                                             )) : <option value="" disabled>No Accounts Found</option>
                                         }
                                     </select>
@@ -87,14 +87,7 @@ export default function () {
                             </div>
 
 
-                            <div className="row align-items-center mb-3">
-                                <div className="col-3">
-                                    <label htmlFor="PayeeAccountName" className="col-form-label">Name of Payee : </label>
-                                </div>
-                                <div className="col">
-                                    <input type="text" id="PayeeAccountName" className="form-control  rounded" disabled value={beneficaries.find(x => x.id == transaction.beneficiaryId)?.name} placeholder="Beneficiary Name" />
-                                </div>
-                            </div>
+                            
 
                             <div className="row align-items-center mb-3">
                                 <div className="col-3">
@@ -105,10 +98,20 @@ export default function () {
                                         <option value="" defaultValue>Select Beneficiary</option>
                                         {
                                             beneficaries.length > 0 ? beneficaries.map((account) => (
-                                                <option key={account.id} value={account.id}>{account.recieverNumber}</option>
+                                                <option key={account.id} value={account.id} >{account.recieverNumber}</option>
                                             )) : <option value="" disabled>No Beneficiares found</option>
                                         }
                                     </select>
+                                </div>
+                            </div>
+
+
+                            <div className="row align-items-center mb-3">
+                                <div className="col-3">
+                                    <label htmlFor="PayeeAccountName" className="col-form-label">Name of Payee : </label>
+                                </div>
+                                <div className="col">
+                                    <input type="text" id="PayeeAccountName" className="form-control  rounded" disabled value={beneficaries.find(x => x.id == transaction.beneficiaryId)?.name} placeholder="Beneficiary Name" />
                                 </div>
                             </div>
 

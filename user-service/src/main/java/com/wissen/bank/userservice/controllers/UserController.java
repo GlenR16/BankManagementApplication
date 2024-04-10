@@ -62,7 +62,7 @@ public class UserController {
 
     @GetMapping("/{customerId}")
     public UserDao getUserByCustomerId(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-        if (role == Role.ADMIN || role == Role.EMPLOYEE){
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || customer.equals(customerId)){
             LOGGER.info("Admin Getting user id: {}",customerId);
             User user = userService.getUserByCustomerId(customerId);
             return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).gender(user.getGender()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();

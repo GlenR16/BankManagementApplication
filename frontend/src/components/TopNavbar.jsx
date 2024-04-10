@@ -1,15 +1,28 @@
 import { Collapse } from "bootstrap";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect,useState } from "react";
+import useAxiosAuth from "../contexts/Axios";
+import { useUser } from "../contexts/UserContext";
 
 export default function TopNavbar() {
 	const navigate = useNavigate();
 	const token = sessionStorage.getItem("token", null);
+	const api = useAxiosAuth();
+	const {user,changeUser,deleteUser} = useUser();
 
 	function logout() {
 		sessionStorage.removeItem("token");
 		sessionStorage.removeItem("refresh");
+		deleteUser();
 		navigate("/login");
 	}
+
+	useEffect(() => {
+		api.get("/user/details")
+		.then((res) => {
+			changeUser(res.data);
+		})
+	}, [])
 
 	return (
 		<nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -36,13 +49,23 @@ export default function TopNavbar() {
 						</li>
 						{token ? (
 							<>
+								{
+									user?.role == "ADMIN" || user?.role == "EMPLOYEE" ?
+									<li className="nav-item">
+										<NavLink to="/administration" className="nav-link">
+											Administration
+										</NavLink>
+									</li>
+									:
+									""
+								}
 								<li className="nav-item">
 									<NavLink to="/dashboard" className="nav-link">
 										Dashboard
 									</NavLink>
 								</li>
 								<li className="nav-item">
-									<NavLink to="/profile" className="nav-link">
+									<NavLink to={"/profile/"+user?.customerId} className="nav-link">
 										Profile
 									</NavLink>
 								</li>

@@ -1,14 +1,18 @@
 import React, {useState, useEffect} from 'react'
 import useAxiosAuth from "../contexts/Axios";
+import { useParams } from "react-router-dom";
+
 export default function Profile() {
 
     const [user, setUser] = useState({})
     const [loading, setLoading] = useState(false)
 	const api = useAxiosAuth();
+    const { customerId } = useParams();
+    console.log(customerId);
 
     useEffect(() => {
         setLoading(true)
-        api.get("/user/details")
+        api.get("/user/"+customerId)
 			.then((response) => {
                 setLoading(false);
 				setUser(response.data);
@@ -17,7 +21,7 @@ export default function Profile() {
 
   return (
     <div className="card m-5 p-0 w-75 align-self-center" >
-            <h5 className="card-header">User Details</h5>
+            <h5 className="card-header">Customer Details</h5>
 
             <div className="row m-2">
                 <p className="col-2 fw-bold"> User Name</p>

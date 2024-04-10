@@ -137,14 +137,7 @@ export default function () {
                                 
 
 
-                            <div className="row align-items-center mb-3">
-                                
-                                    <label htmlFor="PayeeAccountName" className="col-form-label">Name of Payee : </label>
-                                
-                                <div className="col">
-                                    <input type="text" id="PayeeAccountName" className="form-control  rounded" disabled value={beneficaries.find(x => x.id == transaction.beneficiaryId)?.name} placeholder="Beneficiary Name" />
-                                </div>
-                            </div>
+                           
 
                             <div className="row align-items-center mb-3">
                                 
@@ -161,6 +154,15 @@ export default function () {
                                     </select>
                                 </div>
                             </div>
+
+                            <div className="row align-items-center mb-3">
+                                
+                                <label htmlFor="PayeeAccountName" className="col-form-label">Name of Payee : </label>
+                            
+                            <div className="col">
+                                <input type="text" id="PayeeAccountName" className="form-control  rounded" disabled value={beneficaries.find(x => x.id == transaction.beneficiaryId)?.name} placeholder="Beneficiary Name" />
+                            </div>
+                        </div>
 
                             <div className="row align-items-center mb-3">
                                 

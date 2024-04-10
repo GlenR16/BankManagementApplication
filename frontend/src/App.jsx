@@ -2,20 +2,12 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy,Suspense } from "react";
 
+import { UserProvider } from "./contexts/UserContext";
 import Root from "./pages/Root";
 import Error from "./pages/Error";
 import Loading from "./pages/Loading";
 import Home from "./pages/Home";
-import Withdraw from "./pages/Withdraw";
-import Transactions from "./pages/Transactions";
-import Transfer from "./pages/Transfer";
-import Account from "./pages/Account";
-import Deposit from "./pages/Deposit";
-import Receipt from "./pages/Receipt";
-import Card from "./pages/Card";
-import AccountRegistration from "./pages/AccountRegistration";
-import AddingBenificary from "./pages/AddingBenificary";
-import AddingCard from "./pages/AddingCard";
+
 
 const Signup = lazy(() => import("./pages/Signup"));
 const Login = lazy(() => import("./pages/Login"));
@@ -25,6 +17,18 @@ const AdminAccounts = lazy(() => import("./pages/AdminAccounts"));
 const AdminCustomers = lazy(() => import("./pages/AdminCustomers"));
 const AdminTransactions = lazy(() => import("./pages/AdminTransactions"));
 const Profile = lazy(() => import("./pages/Profile"));
+const AccountDetails = lazy(() => import("./pages/AccountDetails"));
+const Transactions = lazy(() => import("./pages/Transactions"));
+const Transfer = lazy(() => import("./pages/Transfer"));
+const Account = lazy(() => import("./pages/Account"));
+const Receipt = lazy(() => import("./pages/Receipt"));
+const Card = lazy(() => import("./pages/Card"));
+const Withdraw = lazy(() =>import("./pages/Withdraw"));
+const Deposit = lazy(() =>import("./pages/Deposit"));
+const AddingBenificary = lazy(() => import("./pages/AddingBenificary"));
+const AddingCard = lazy(() => import("./pages/AddingCard"));
+const AccountRegistration = lazy(() => import("./pages/AccountRegistration"));
+const CardDetails = lazy(()=> import("./pages/CardDetails"))
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -104,15 +108,27 @@ const router = createBrowserRouter([{
 			element: <Suspense fallback={<Loading />}><AddingCard /></Suspense>
 		},
 		{
-			path: "/profile",
+			path: "/profile/:customerId",
 			element: <Suspense fallback={<Loading />}><Profile /></Suspense>
+		},
+		{
+			path: "/accountDetails/:AccountNumber",
+			element: <Suspense fallback={<Loading />}><AccountDetails /></Suspense>
+		},
+		{
+			path: "/cardDetails/:number",
+			element: <Suspense fallback={<Loading />}><CardDetails /></Suspense>
 		}
 	]
 }]);
 
 
 function App() {
-	return <RouterProvider router={router} />
+	return (
+		<UserProvider>
+			<RouterProvider router={router} />
+		</UserProvider>
+	);
 }
 
 export default App;

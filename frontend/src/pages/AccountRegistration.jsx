@@ -39,7 +39,7 @@ export default function AccountRegister() {
 		api.post("/account", form)
 			.then((res) => {
 				setLoading(false);
-				navigate("/dashboard");
+				navigate("/account");
 			})
 			.catch((err) => {
 				if (err.response) setError(err.response.data.error);
@@ -96,14 +96,6 @@ export default function AccountRegister() {
 						<input type="number" className="form-control" name="balance" id="balance" value={form.balance} onChange={handleChange} placeholder="₹ 500" aria-describedby="balance" pattern="[0-9]{10}" />
 					</div>
 
-                    {/* <div className="my-2 text-start">
-						<label htmlFor="withdrawalLimit" className="form-label">
-							Withdrawal Limit
-						</label>
-						<input type="number" className="form-control" name="withdrawalLimit" id="withdrawalLimit" value={form.withdrawalLimit} onChange={handleChange} aria-describedby="withdrawalLimit" pattern="[0-9]{10}" />
-					</div> */}
-					
-					
 					
                     <p className="invalid-feedback d-block">{error}</p>
 					<div className="form-check text-start">

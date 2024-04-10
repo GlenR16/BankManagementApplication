@@ -80,7 +80,7 @@ public class AccountController {
 
     @PostMapping("/lock/{accountNumber}")
     public Account postLockAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
-        if (role == Role.ADMIN || role == Role.EMPLOYEE) {
+        if (role == Role.ADMIN || role == Role.EMPLOYEE || accountService.getAccountByAccountNumber(accountNumber).getCustomerId().equals(customer)) {
             LOGGER.info("Admin {} locking account number: {}",customer, accountNumber);
             return accountService.switchAccountLockByAccountNumber(accountNumber);
         }

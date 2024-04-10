@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function Login() {
 	const [error, setError] = useState("");

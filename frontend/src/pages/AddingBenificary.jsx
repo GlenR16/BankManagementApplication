@@ -44,7 +44,7 @@ export default function AddingBenificary() {
         api.post("/account/beneficiary", form)
             .then((res) => {
                 setLoading(false);
-				navigate("/dashboard");
+				navigate("/account");
             })
             .catch((err) => {
                 if (err.response) setError(err.response.data.error);
