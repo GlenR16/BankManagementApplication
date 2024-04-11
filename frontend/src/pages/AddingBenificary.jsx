@@ -20,7 +20,6 @@ export default function AddingBenificary() {
         api.get("/account/list")
             .then((response) => {
                 setAccounts(response.data);
-                console.log(response.data);
             });
     }, []);
 
@@ -29,7 +28,6 @@ export default function AddingBenificary() {
     }
 
     function AddBenificary() {
-        console.log(form);
         setLoading(true);
         if (!form.accountNumber || !form.recieverNumber || !form.name || !form.ifsc) {
             setError("Please fill all the fields");

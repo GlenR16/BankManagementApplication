@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
+import { useUser } from "../contexts/UserContext";
 
 export default function AdminTransactions() {
+    const api = useAxiosAuth();
+    const { user } = useUser();
+
     const [transactions, setTransactions] = useState([]);
 	const [beneficaries, setBeneficaries] = useState([]);
-    const api = useAxiosAuth();
+
+    useEffect(() => {
+        if (user == null) navigate("/login");
+        else if (user.role == "USER") navigate("/dashboard");
+    },[user]);
 
     useEffect(() => {
         api.get("/transaction")

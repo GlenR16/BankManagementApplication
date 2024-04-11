@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { NavLink, useNavigate } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function Account() {
+	const api = useAxiosAuth();
+    const navigate = useNavigate();
+    const { user } = useUser();
+
 	const [accountNumber, setAccountNumber] = useState("");
 	const [accounts, setAccounts] = useState([]);
 	const [accountTypes, setAccountTypes] = useState([]);
 	const [branches, setBranches] = useState([]);
 	const [beneficaries, setBeneficaries] = useState([]);
 	const [cards, setCards] = useState([]);
-	const api = useAxiosAuth();
-	const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user == null) navigate("/login");
+    },[user]);
 
 	useEffect(() => {
 		api.get("/account/list").then((response) => {
@@ -33,16 +40,8 @@ export default function Account() {
 		});
 	}, [accountNumber]);
 
-	function createBeneficiaries() {
-		navigate("/addBeneficiary");
-	}
-
 	function handleChange(e) {
 		setAccountNumber(e.target.value);
-	}
-
-	function addCard() {
-		navigate("/addCard");
 	}
 
 	function checkTypeCard(typeId) {
@@ -116,8 +115,16 @@ export default function Account() {
 													<td>{branches[account.branchId - 1]?.ifsc}</td>
 													<td>{accountTypes[account.typeId - 1]?.name}</td>
 													<td>₹ {account.balance}</td>
-													<td>{account.verified ? "TRUE" : "FALSE"}</td>
-													<td>{account.locked ? "TRUE" : "FALSE"}</td>
+													<td>{account.verified ? 
+                                                    <span className="badge rounded-pill text-bg-success">Verified</span>
+                                                    : 
+                                                    <span className="badge rounded-pill text-bg-warning">Unverified</span>
+                                                    }</td>
+													<td>{account.locked ? 
+                                                    <span className="badge rounded-pill text-bg-danger">Locked</span>
+                                                    : 
+                                                    <span className="badge rounded-pill text-bg-primary">Unlocked</span>
+                                                    }</td>
 													<td>
 														<NavLink to={"/accountDetails/" + account.accountNumber} className="text-decoration-none">
 															View

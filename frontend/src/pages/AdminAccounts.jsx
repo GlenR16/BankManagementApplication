@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { NavLink } from "react-router-dom";
+import { useUser } from "../contexts/UserContext";
 
 export default function AdminAccounts() {
+    const api = useAxiosAuth();
+    const { user } = useUser();
+
     const [accounts, setAccounts] = useState([]);
     const [accountTypes, setAccountTypes] = useState([]);
     const [branches, setBranches] = useState([]);
-    const api = useAxiosAuth();
+
+    useEffect(() => {
+        if (user == null) navigate("/login");
+        else if (user.role == "USER") navigate("/dashboard");
+    },[user]);
 
     useEffect(() => {
         api.get("/account")
@@ -17,7 +25,7 @@ export default function AdminAccounts() {
         .then((response) => {
             setAccountTypes(response.data);
         });
-        api.get("account/branch")
+        api.get("/account/branch")
         .then((response) => {
             setBranches(response.data);
         });

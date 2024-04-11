@@ -11,36 +11,6 @@ export default function Dashboard() {
     },[user]);
 
 
-	function withdraw() {
-		console.log("GOING TO WITHDRAW PAGE");
-		navigate("/withdraw");
-	}
-
-	function deposit() {
-		console.log("GOING TO DEPOST PAGE");
-		navigate("/deposit");
-	}
-
-	function transfer() {
-		console.log("GOING TO TRANSFER PAGE");
-		navigate("/transfer");
-	}
-
-	function account() {
-		console.log("GOING TO ACCOUNT PAGE");
-		navigate("/account");
-	}
-
-	function card() {
-		console.log("GOING TO CARD PAGE");
-		navigate("/card");
-	}
-
-	function transactions() {
-		console.log("GOING TO TRANSACTIONS PAGE");
-		navigate("/transactions");
-	}
-
 	return (
 		<div className="container-fluid col-sm-12 col-md-8 my-4">
 			<div className="row flex-lg-row-reverse align-items-center justify-content-center text-center">
@@ -110,7 +80,7 @@ export default function Dashboard() {
                                     Transfer funds to a diffrent account using your card.
                                 </p>
 								<NavLink className="btn btn-primary" to="/card" >
-									Card Transaction
+									Card Transfer
                                 </NavLink>
 							</div>
 						</div>

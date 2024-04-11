@@ -123,9 +123,9 @@ export default function Withdraw() {
 												<div className="col">Amount: ₹ <b> {form.credit} </b></div>
 											</div>
 										</div>
-										<div className="modal-footer">
+										<div className="modal-footer justify-content-between">
 											<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-												Close
+                                                Cancel Transaction
 											</button>
 											<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={deposit} disabled={loading}>
 												{loading ? (
@@ -144,7 +144,7 @@ export default function Withdraw() {
 					</div>
 				</div>
                 <div className="col-12 col-sm-8 col-lg-6 d-none d-md-flex align-items-center justify-content-center">
-					<img src="/index.png" alt="Index Image" className="w-75" />
+					<img src="/atm.png" alt="Index Image" className="w-75" />
 				</div>
 			</div>
 		</div>

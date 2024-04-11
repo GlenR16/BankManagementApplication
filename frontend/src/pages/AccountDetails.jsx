@@ -31,13 +31,21 @@ export default function Account() {
     }
 
 	function lock() {
-		api.post("/account/lock/" + AccountNumber).then((response) => {
+		api.post("/account/lock/" + AccountNumber)
+        .then((response) => {
 			refreshData();
             setAlert({type: "success", message: "Account Locked Successfully"});
             setTimeout(() => {
                 setAlert(null);
             }, 6000);
-		});
+		})
+        .catch((error) => {
+            setAlert({type: "danger", message: "Account cannot be unlocked before 2 days."});
+            setTimeout(() => {
+                setAlert(null);
+            }, 6000);
+        });
+        // backend change status 
 	}
 
 	function verify() {
@@ -132,7 +140,7 @@ export default function Account() {
                             </div>
                         </div>
                     </div>
-                    <div className="row p-2 g-2 mt-2">
+                    <div className="row p-2 g-4 m-2">
                         {!account.verified && (user.role == "ADMIN" || user.role == "EMPLOYEE") && (
                             <div className="col d-grid">
                                 <button className="btn btn-primary" onClick={verify}>

@@ -95,15 +95,15 @@ export default function Profile() {
 				</div>
                 {
                     (user.role == "ADMIN" || user.role == "EMPLOYEE") && !profile.deleted ?
-                    <div className="row row-cols-1 row-cols-md-2 p-2 g-2">
-                        <div className="d-grid">
+                    <div className="row p-2 g-4 m-2">
+                        <div className="col d-grid">
                             <button type="button" className="btn btn-warning" onClick={lockUnlockUser}>
                                 {
                                     profile.locked ? "Unlock Account" : "Lock Account"
                                 }
                             </button>
                         </div>
-                        <div className="d-grid">
+                        <div className="col d-grid">
                             <button type="button" className="btn btn-danger" onClick={deleteUser}>
                                 Delete Account
                             </button>

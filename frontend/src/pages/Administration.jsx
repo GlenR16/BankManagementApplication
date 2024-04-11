@@ -8,6 +8,7 @@ export default function Administration() {
 
     useEffect(() => {
         if (user == null) navigate("/login");
+        else if (user.role == "USER") navigate("/dashboard");
     },[user]);
 
 

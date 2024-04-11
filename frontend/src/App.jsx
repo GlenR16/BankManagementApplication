@@ -28,7 +28,9 @@ const Deposit = lazy(() =>import("./pages/Deposit"));
 const AddingBenificary = lazy(() => import("./pages/AddingBenificary"));
 const AddingCard = lazy(() => import("./pages/AddingCard"));
 const AccountRegistration = lazy(() => import("./pages/AccountRegistration"));
-const CardDetails = lazy(()=> import("./pages/CardDetails"))
+const CardDetails = lazy(()=> import("./pages/CardDetails"));
+const AboutUs = lazy(()=> import("./pages/AboutUs"));
+const AdminBranches = lazy(()=> import("./pages/AdminBranches"));
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -118,7 +120,15 @@ const router = createBrowserRouter([{
 		{
 			path: "/cardDetails/:number",
 			element: <Suspense fallback={<Loading />}><CardDetails /></Suspense>
-		}
+		},
+        {
+            path: "/aboutus",
+            element: <Suspense fallback={<Loading />}><AboutUs /></Suspense>
+        },
+        {
+            path: "/AdminBranches",
+            element: <Suspense fallback={<Loading />}><AdminBranches /></Suspense>
+        }
 	]
 }]);
 
