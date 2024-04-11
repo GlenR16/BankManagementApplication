@@ -58,6 +58,34 @@ export default function Administration() {
 							</div>
 						</div>
 					</div>
+                    <div className="col">
+						<div className="card">
+							<div className="card-body">
+								<p className="card-title fs-3">Branches</p>
+								<img className="card-text py-2" src="/branch.png" alt="Index Image" width={100} height={100} />
+								<p className="card-text">
+                                    View and edit branches.
+                                </p>
+								<NavLink className="btn btn-primary" to="/AdminBranches" >
+                                    Branches
+                                </NavLink>
+							</div>
+						</div>
+					</div>
+                    <div className="col">
+						<div className="card">
+							<div className="card-body">
+								<p className="card-title fs-3">Cards</p>
+								<img className="card-text py-2" src="/card.png" alt="Index Image" width={100} height={100} />
+								<p className="card-text">
+                                    View and verify all cards.
+                                </p>
+								<NavLink className="btn btn-primary" to="/AdminCards" >
+                                    Cards
+                                </NavLink>
+							</div>
+						</div>
+					</div>
 
 					<div className="col">
 						<div className="card">

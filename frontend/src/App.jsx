@@ -32,6 +32,7 @@ const CardDetails = lazy(()=> import("./pages/CardDetails"));
 const AboutUs = lazy(()=> import("./pages/AboutUs"));
 const AdminBranches = lazy(()=> import("./pages/AdminBranches"));
 const AddingBranch = lazy(()=> import("./pages/AddingBranch"));
+const AdminCards = lazy(()=> import("./pages/AdminCards"));
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -134,6 +135,10 @@ const router = createBrowserRouter([{
 			path: "/addBranch/:id?",
 			element: <Suspense fallback={<Loading />}><AddingBranch /></Suspense>
 		},
+        {
+            path: "/AdminCards",
+            element: <Suspense fallback={<Loading />}><AdminCards /></Suspense>
+        }
 	]
 }]);
 

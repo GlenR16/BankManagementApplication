@@ -73,9 +73,10 @@ export default function AdminCustomers() {
 							<tr>
 								<th scope="col">ID</th>
 								<th scope="col">Account</th>
-								<th scope="col">Card Id</th>
-								<th scope="col">Beneficiary Account</th>
+								<th scope="col">Card Number</th>
+								<th scope="col">Beneficiary Number</th>
 								<th scope="col">Amount</th>
+								<th scope="col">Balance</th>
 								<th scope="col">Type</th>
 								<th scope="col">Date</th>
 								<th scope="col">Time</th>
@@ -90,7 +91,14 @@ export default function AdminCustomers() {
 										<td>{transaction.accountNumber}</td>
 										<td>{transaction.cardNumber}</td>
 										<td>{beneficaries.find((x) => x.id == transaction.beneficiaryId)?.recieverNumber ?? "-"}</td>
-										<td>{transaction.debit != 0 ? transaction.debit : transaction.credit}</td>
+										<td>{transaction.debit != 0 ? 
+                                        <div className="text-danger" >- {transaction.debit}</div>
+                                        : 
+                                        <div className="text-success" >+ {transaction.credit}</div>
+                                        }</td>
+                                        <td>
+                                            {transaction.balance}
+                                        </td>
 										<td>{checkType(transaction)}</td>
 										<td>{transaction.createdAt.substring(0, 10)}</td>
 										<td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>
@@ -106,7 +114,7 @@ export default function AdminCustomers() {
 								))
 							) : (
 								<tr>
-									<td colSpan="9">No Transactions found</td>
+									<td colSpan="10">No Transactions found</td>
 								</tr>
 							)}
 						</tbody>

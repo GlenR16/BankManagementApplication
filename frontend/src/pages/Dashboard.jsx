@@ -89,7 +89,7 @@ export default function Dashboard() {
 						<div className="card">
 							<div className="card-body">
 								<p className="card-title fs-3">Transaction History</p>
-								<img className="card-text py-2" src="/customers.png" alt="Transaction Image" width={100} height={100} />
+								<img className="card-text py-2" src="/history.png" alt="Transaction Image" width={100} height={100} />
 								<p className="card-text">View your transaction history of previous transactions.</p>
 								<NavLink className="btn btn-primary" to="/transactions" >
 									Transactions
