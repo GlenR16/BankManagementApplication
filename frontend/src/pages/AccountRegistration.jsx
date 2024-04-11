@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAxiosAuth from "../contexts/Axios";
 import { useNavigate } from "react-router-dom";
 
 export default function AccountRegister() {
 	const api = useAxiosAuth();
 	const navigate = useNavigate();
-
+	const [branch, setBranch] = useState([]);
+	const [accountType, setAccountType] = useState([]);
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [form, setForm] = useState({
@@ -14,6 +15,17 @@ export default function AccountRegister() {
         withdrawalLimit: 10000,
         typeId:"",
 	});
+
+	useEffect(() => {
+		api.get("/account/branch")
+			.then((response) => {
+				setBranch(response.data);
+			});
+		api.get("/account/type")
+			.then((response) => {
+				setAccountType(response.data);
+			});
+	}, []);
 
 	function handleChange(e) {
 		setForm({...form,[e.target.name]: e.target.value,});
@@ -68,8 +80,11 @@ export default function AccountRegister() {
 						</label>
 						<select className="form-select" name="branchId" id="branchId" value={form.branchId} onChange={handleChange} aria-label="branchId" aria-describedby="branchId">
                             <option value="">Select Branch</option>
-                            <option value="1">Mumbai</option>
-							<option value="2">Thane</option>
+							{branch.map((branch) => (
+								<option key={branch.id} value={branch.id}>
+									{branch.name}
+								</option>
+							))}
 						</select>
 					</div>
 
@@ -78,9 +93,12 @@ export default function AccountRegister() {
 							Type
 						</label>
 						<select className="form-select" name="typeId" id="typeId" value={form.typeId} onChange={handleChange} aria-label="typeId" aria-describedby="typeId">
-                            <option value="">Select Account Type</option>
-                            <option value="1">Savings</option>
-							<option value="2">Current</option>
+                            <option value="">Select Type</option>
+							{accountType.map((type) => (
+								<option key={type.id} value={type.id}>
+									{type.name}
+								</option>
+							))}
 						</select>
 					</div>
 

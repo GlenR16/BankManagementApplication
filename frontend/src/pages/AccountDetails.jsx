@@ -11,22 +11,36 @@ export default function Account() {
 	const [account, setAccount] = useState({});
     const [ alert, setAlert ] = useState(null);
 	const [accountTypes, setAccountTypes] = useState([]);
-	const [branches, setBranches] = useState([]);
+	const [branch, setBranch] = useState([]);
 	const { AccountNumber } = useParams();
 
 	useEffect(() => {
-		refreshData();
-		api.get("/account/type").then((response) => {
+		api.get("/account/" + AccountNumber).then((response) => {
+			setAccount(response.data);
+		});
+        api.get("/account/type").then((response) => {
 			setAccountTypes(response.data);
 		});
 		api.get("account/branch").then((response) => {
-			setBranches(response.data);
+			response.data.map((branch) => {
+                branch.id == account.branchId && setBranch(branch);
+            });
+            console.log(response.data, " and " , account.branchId, " and ", branch);
 		});
 	}, []);
 
     function refreshData(){
         api.get("/account/" + AccountNumber).then((response) => {
 			setAccount(response.data);
+		});
+        api.get("/account/type").then((response) => {
+			setAccountTypes(response.data);
+		});
+		api.get("account/branch").then((response) => {
+			response.data.map((branch) => {
+                branch.id == account.branchId && setBranch(branch);
+            });
+            console.log(response.data, " and " , account.branchId, " and ", branch);
 		});
     }
 
@@ -85,11 +99,11 @@ export default function Account() {
                             </div>
                             <div className="row mx-2 mt-2">
                                 <div className="col-6 fw-bold"> Branch </div>
-                                <div className=" col"> {branches[account.branchId - 1]?.name} </div>
+                                <div className=" col"> {branch.name} </div>
                             </div>
                             <div className="row mx-2 mt-2">
                                 <div className="col-6 fw-bold"> IFSC  </div>
-                                <div className=" col"> {branches[account.branchId - 1]?.ifsc} </div>
+                                <div className=" col"> {branch.ifsc} </div>
                             </div>
                             <div className="row mx-2 mt-2">
                                 <div className="col-6 fw-bold">Account Type </div>

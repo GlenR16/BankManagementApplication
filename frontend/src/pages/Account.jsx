@@ -21,12 +21,14 @@ export default function Account() {
 
 	useEffect(() => {
 		api.get("/account/list").then((response) => {
+			console.log("Accounts", response.data);
 			setAccounts(response.data);
 		});
 		api.get("/account/type").then((response) => {
 			setAccountTypes(response.data);
 		});
 		api.get("account/branch").then((response) => {
+			console.log("Branches", response.data);
 			setBranches(response.data);
 		});
 	}, []);
@@ -112,7 +114,13 @@ export default function Account() {
 											accounts.map((account, index) => (
 												<tr key={index}>
 													<td>{account.accountNumber}</td>
-													<td>{branches[account.branchId - 1]?.ifsc}</td>
+													<td>
+														{branches.map((branch) => {
+															if (branch.id === account.branchId) {
+																return branch.ifsc;
+															}
+														} )}
+													</td>
 													<td>{accountTypes[account.typeId - 1]?.name}</td>
 													<td>₹ {account.balance}</td>
 													<td>{account.verified ? 

@@ -31,6 +31,7 @@ const AccountRegistration = lazy(() => import("./pages/AccountRegistration"));
 const CardDetails = lazy(()=> import("./pages/CardDetails"));
 const AboutUs = lazy(()=> import("./pages/AboutUs"));
 const AdminBranches = lazy(()=> import("./pages/AdminBranches"));
+const AddingBranch = lazy(()=> import("./pages/AddingBranch"));
 
 const router = createBrowserRouter([{
 	path: "/",
@@ -128,7 +129,11 @@ const router = createBrowserRouter([{
         {
             path: "/AdminBranches",
             element: <Suspense fallback={<Loading />}><AdminBranches /></Suspense>
-        }
+        },
+		{
+			path: "/addBranch/:id?",
+			element: <Suspense fallback={<Loading />}><AddingBranch /></Suspense>
+		},
 	]
 }]);
 
