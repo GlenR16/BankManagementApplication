@@ -102,12 +102,8 @@ public class CreditCardDetailController {
             if (newCcd.getCreditLimit() != 0) {
                 ccd.setCreditLimit(newCcd.getCreditLimit());
             }
-            if (newCcd.getCreditUsed() != 0) {
-                ccd.setCreditUsed(newCcd.getCreditUsed());
-            }
-            if (newCcd.getCreditTransactions() != 0) {
-                ccd.setCreditTransactions(newCcd.getCreditTransactions());
-            }
+            ccd.setCreditUsed(newCcd.getCreditUsed());
+            ccd.setCreditTransactions(newCcd.getCreditTransactions());
             LOGGER.info("User {} displaying CreditCardDetail with id: {} ", customer, id);
             return creditCardDetailRepo.save(ccd);
         }

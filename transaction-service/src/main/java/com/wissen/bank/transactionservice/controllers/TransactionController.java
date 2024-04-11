@@ -263,11 +263,8 @@ public class TransactionController {
             throw new NotFoundException("Card Not Found");
         }
         List<Transaction> transactions = transactionservice.getTransactionsByAccountNumber(card.getAccountNumber());
-        double total = 0.0;
+        double total = ccd.creditUsed() * (1 + cardType.interest());
         transactions  = transactions.stream().filter(t -> t.getTypeId() == 2).limit(ccd.creditTransactions()).collect(Collectors.toList());
-        for (Transaction t : transactions) {
-            total += t.getDebit();
-        }
         return ResponseEntity.ok().body(new BillResponse(new Date(),200,transactions,total,cardType.interest()));
     }
 
@@ -301,6 +298,7 @@ public class TransactionController {
         if (_ccd == null) {
             throw new TransactionFailedException("Transaction Failed",transaction);
         }
+        System.out.println("CCD -> " + _ccd);
         LOGGER.info("User {} paying card fees with id: {}",customerId,_transaction.getId());
         return _transaction;
     }

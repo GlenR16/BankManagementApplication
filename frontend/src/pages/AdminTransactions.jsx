@@ -57,6 +57,7 @@ export default function AdminTransactions() {
                                 <th scope="col">Card Number</th>
                                 <th scope="col">Receiver Account</th>
                                 <th scope="col">Amount</th>
+                                <th scope="col">Balance</th>
                                 <th scope="col">Type</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Time</th>
@@ -77,7 +78,14 @@ export default function AdminTransactions() {
                                                 "-"
                                             }
                                         </td>
-                                        <td>{transaction.debit != 0 ? transaction.debit : transaction.credit}</td>
+                                        <td>{transaction.debit != 0 ? 
+                                        <div className="text-danger" >- {transaction.debit}</div>
+                                        : 
+                                        <div className="text-success" >+ {transaction.credit}</div>
+                                        }</td>
+                                        <td>
+                                            {transaction.balance}
+                                        </td>
 										<td>{checkType(transaction)}</td>
                                         <td>{transaction.createdAt.substring(0,10)}</td>
                                         <td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>
