@@ -15,32 +15,26 @@ export default function Account() {
 	const { AccountNumber } = useParams();
 
 	useEffect(() => {
+        refreshData()
 		api.get("/account/" + AccountNumber).then((response) => {
-			setAccount(response.data);
-		});
-        api.get("/account/type").then((response) => {
-			setAccountTypes(response.data);
-		});
-		api.get("account/branch").then((response) => {
-			response.data.map((branch) => {
-                branch.id == account.branchId && setBranch(branch);
+            setAccount(response.data);
+            api.get("account/branch").then((branchResponse) => {
+                branchResponse.data.forEach((x) => {
+                    if (x.id === response.data.branchId) {
+                        setBranch(x);
+                    }
+                });
             });
-            console.log(response.data, " and " , account.branchId, " and ", branch);
-		});
+            api.get("/account/type").then((typeResponse) => {
+                setAccountTypes(typeResponse.data);
+            });
+        });
+        
 	}, []);
 
     function refreshData(){
         api.get("/account/" + AccountNumber).then((response) => {
 			setAccount(response.data);
-		});
-        api.get("/account/type").then((response) => {
-			setAccountTypes(response.data);
-		});
-		api.get("account/branch").then((response) => {
-			response.data.map((branch) => {
-                branch.id == account.branchId && setBranch(branch);
-            });
-            console.log(response.data, " and " , account.branchId, " and ", branch);
 		});
     }
 

@@ -13,6 +13,7 @@ export default function Reciept() {
 	useEffect(() => {
 		api.get("/transaction/" + id)
 			.then((response) => {
+				console.log(response.data);
 				setTransaction(response.data);
 				setAlert({ message: "Transaction Successful", type: "success" });
                 setTimeout(() => {

@@ -37,10 +37,10 @@ export default function () {
 			setLoading(false);
 			return;
 		}
-        setError("");
+		setError("");
 		setLoading(false);
-        const transferModal = new Modal("#tranferModal");
-        transferModal.show();
+		const transferModal = new Modal("#tranferModal");
+		transferModal.show();
 	}
 
 	function handleClick(e) {
@@ -52,7 +52,7 @@ export default function () {
 				console.log(res.data);
 				navigate("/transaction/" + res.data.transaction.id);
 				setLoading(false);
-                setError("");
+				setError("");
 			})
 			.catch((err) => {
 				if (err.response) setError(err.response.data.error);
@@ -98,27 +98,33 @@ export default function () {
 										<label htmlFor="PayeeAccountNumber" className="input-group-text">
 											Payee Account Number{" "}
 										</label>
-										<select className="form-select" id="beneficiaryId" name="beneficiaryId" onChange={handleChange}>
-											<option value="" defaultValue>
+										< select className="form-select" id="beneficiaryId" name="beneficiaryId" onChange={handleChange} disabled={!transaction.accountNumber}>
+											{!transaction.accountNumber ?  <option value="" defaultValue>
+												Select an Account
+											</option> : <option value="" defaultValue>
 												Select Beneficiary
-											</option>
+											</option>}
+											
 											{beneficaries.length > 0 ? (
-												beneficaries.map((account) => (
-													<option key={account.id} value={account.id}>
-														{account.recieverNumber}
+													beneficaries.map((account) => (
+														<option key={account.id} value={account.id}>
+															{account.recieverNumber}
+														</option>
+													))
+												) : (
+													<option value="" disabled>
+														No Beneficiares found
 													</option>
-												))
-											) : (
-												<option value="" disabled>
-													No Beneficiares found
-												</option>
-											)}
+												)}
 										</select>
 									</div>
 								</div>
 
 								<div className="mb-3">
 									<div className="input-group">
+										<label htmlFor="PayeeAccountName" className="input-group-text">
+											Payee Account Name{" "}
+										</label>
 										<input type="text" id="PayeeAccountName" className="form-control" disabled value={beneficaries.find((x) => x.id == transaction.beneficiaryId)?.name} placeholder="Beneficiary Name" />
 									</div>
 								</div>
@@ -149,14 +155,14 @@ export default function () {
 									<div className="modal-content">
 										<div className="modal-header">
 											<h5 className="modal-title" id="tranferModalLabel">
-                                                Confirm transaction details
+												Confirm transaction details
 											</h5>
 										</div>
 										<div className="modal-body text-start">
-                                            <div className="row mx-2">
+											<div className="row mx-2">
 												<div className="col"> Account Number: <b> {transaction.accountNumber} </b></div>
 											</div>
-                                            <div className="row mx-2">
+											<div className="row mx-2">
 												<div className="col">Payee Name: <b> {beneficaries.find((x) => x.id == transaction.beneficiaryId)?.name} </b></div>
 											</div>
 											<div className="row mx-2">
@@ -165,7 +171,7 @@ export default function () {
 										</div>
 										<div className="modal-footer justify-content-between">
 											<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
-                                                Cancel Transaction
+												Cancel Transaction
 											</button>
 											<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={handleClick} disabled={loading}>
 												{loading ? (

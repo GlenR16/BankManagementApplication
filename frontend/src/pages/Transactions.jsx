@@ -83,10 +83,15 @@ export default function AdminCustomers() {
 								<th scope="col">Status</th>
 							</tr>
 						</thead>
-						<tbody>
-							{transactions.length > 0 ? (
+						<tbody className="table-group-divider">
+							{!account ? 
+							(
+								<tr>
+									<td colSpan="10">Select an Account</td>
+								</tr>
+							) :  transactions.length > 0 ? (
 								transactions.map((transaction, index) => (
-									<tr key={index}>
+									<tr key={index} className={transaction.status != "COMPLETED" ? "table-disabled" : transaction.debit  ? "table-danger" : "table-success"}>
 										<td>{transaction.id}</td>
 										<td>{transaction.accountNumber}</td>
 										<td>{transaction.cardNumber}</td>

@@ -5,8 +5,8 @@ import { useUser } from "../contexts/UserContext";
 
 export default function Account() {
 	const api = useAxiosAuth();
-    const navigate = useNavigate();
-    const { user } = useUser();
+	const navigate = useNavigate();
+	const { user } = useUser();
 
 	const [accountNumber, setAccountNumber] = useState("");
 	const [accounts, setAccounts] = useState([]);
@@ -15,9 +15,9 @@ export default function Account() {
 	const [beneficaries, setBeneficaries] = useState([]);
 	const [cards, setCards] = useState([]);
 
-    useEffect(() => {
-        if (user == null) navigate("/login");
-    },[user]);
+	useEffect(() => {
+		if (user == null) navigate("/login");
+	}, [user]);
 
 	useEffect(() => {
 		api.get("/account/list").then((response) => {
@@ -87,15 +87,15 @@ export default function Account() {
 										<h3 className="d-flex flex-row align-items-center gap-2 text-black">
 											Your accounts
 											<NavLink className="btn" to="/AccountRegister">
-                                                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                                    <g id="SVGRepo_iconCarrier">
-                                                        {" "}
-                                                        <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path> <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path>{" "}
-                                                    </g>
-                                                </svg>
-                                            </NavLink>
+												<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+													<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+													<g id="SVGRepo_iconCarrier">
+														{" "}
+														<path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path> <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path>{" "}
+													</g>
+												</svg>
+											</NavLink>
 										</h3>
 									</caption>
 									<thead>
@@ -119,20 +119,20 @@ export default function Account() {
 															if (branch.id === account.branchId) {
 																return branch.ifsc;
 															}
-														} )}
+														})}
 													</td>
 													<td>{accountTypes[account.typeId - 1]?.name}</td>
 													<td>₹ {account.balance}</td>
-													<td>{account.verified ? 
-                                                    <span className="badge rounded-pill text-bg-success">Verified</span>
-                                                    : 
-                                                    <span className="badge rounded-pill text-bg-warning">Unverified</span>
-                                                    }</td>
-													<td>{account.locked ? 
-                                                    <span className="badge rounded-pill text-bg-danger">Locked</span>
-                                                    : 
-                                                    <span className="badge rounded-pill text-bg-primary">Unlocked</span>
-                                                    }</td>
+													<td>{account.verified ?
+														<span className="badge rounded-pill text-bg-success">Verified</span>
+														:
+														<span className="badge rounded-pill text-bg-warning">Unverified</span>
+													}</td>
+													<td>{account.locked ?
+														<span className="badge rounded-pill text-bg-danger">Locked</span>
+														:
+														<span className="badge rounded-pill text-bg-primary">Unlocked</span>
+													}</td>
 													<td>
 														<NavLink to={"/accountDetails/" + account.accountNumber} className="text-decoration-none">
 															View
@@ -159,35 +159,35 @@ export default function Account() {
 								<table className="table caption-top">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center justify-content-between gap-2 text-black mx-2">
-                                            <div className="d-flex flex-row align-items-center gap-2 text-black">
-                                                Your Beneficiaries
-                                                <NavLink className="btn" to="/addBeneficiary">
-                                                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                                        <g id="SVGRepo_iconCarrier">
-                                                            {" "}
-                                                            <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path> <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path>{" "}
-                                                        </g>
-                                                    </svg>
-                                                </NavLink>
-                                            </div>
-                                            <select className="form-select w-50" name="accountNumber" id="accountNumber" onChange={handleChange} aria-label="accountNumber" aria-describedby="accountNumber">
-                                                <option value="" defaultValue>
-                                                    Select an Account
-                                                </option>
-                                                {accounts.length > 0 ? (
-                                                    accounts.map((account) => (
-                                                        <option key={account.id} value={account.accountNumber}>
-                                                            {account.accountNumber}
-                                                        </option>
-                                                    ))
-                                                ) : (
-                                                    <option value="" disabled>
-                                                        No Accounts Found
-                                                    </option>
-                                                )}
-                                            </select>
+											<div className="d-flex flex-row align-items-center gap-2 text-black">
+												Your Beneficiaries
+												<NavLink className="btn" to="/addBeneficiary">
+													<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+														<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+														<g id="SVGRepo_iconCarrier">
+															{" "}
+															<path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path> <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path>{" "}
+														</g>
+													</svg>
+												</NavLink>
+											</div>
+											<select className="form-select w-50" name="accountNumber" id="accountNumber" onChange={handleChange} aria-label="accountNumber" aria-describedby="accountNumber">
+												<option value="" defaultValue>
+													Select an Account
+												</option>
+												{accounts.length > 0 ? (
+													accounts.map((account) => (
+														<option key={account.id} value={account.accountNumber}>
+															{account.accountNumber}
+														</option>
+													))
+												) : (
+													<option value="" disabled>
+														No Accounts Found
+													</option>
+												)}
+											</select>
 										</h3>
 									</caption>
 									<thead>
@@ -199,20 +199,25 @@ export default function Account() {
 										</tr>
 									</thead>
 									<tbody>
-										{beneficaries.length > 0 ? (
-											beneficaries.map((beneficiary, index) => (
-												<tr key={index}>
-													<td>{index + 1}</td>
-													<td>{beneficiary.recieverNumber}</td>
-													<td> {beneficiary.ifsc} </td>
-													<td>{beneficiary.name}</td>
+										{!accountNumber ?
+											(
+												<tr>
+													<td colSpan="10">Select an Account</td>
 												</tr>
-											))
-										) : (
-											<tr>
-												<td colSpan="4">No Beneficiares found</td>
-											</tr>
-										)}
+											) : beneficaries.length > 0 ? (
+												beneficaries.map((beneficiary, index) => (
+													<tr key={index}>
+														<td>{index + 1}</td>
+														<td>{beneficiary.recieverNumber}</td>
+														<td> {beneficiary.ifsc} </td>
+														<td>{beneficiary.name}</td>
+													</tr>
+												))
+											) : (
+												<tr>
+													<td colSpan="4">No Beneficiares found</td>
+												</tr>
+											)}
 									</tbody>
 								</table>
 							</div>
@@ -226,35 +231,35 @@ export default function Account() {
 								<table className="table caption-top">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center justify-content-between gap-2 text-black mx-2">
-                                            <div className="d-flex flex-row align-items-center gap-2 text-black">
-                                                Your Cards
-                                                <NavLink className="btn" to="/addCard">
-                                                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                                                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                                                        <g id="SVGRepo_iconCarrier">
-                                                            {" "}
-                                                            <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path> <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path>{" "}
-                                                        </g>
-                                                    </svg>
-                                                </NavLink>
-                                            </div>
-                                            <select className="form-select w-50" name="accountNumber" id="accountNumber" onChange={handleChange} aria-label="accountNumber" aria-describedby="accountNumber">
-                                                <option value="" defaultValue>
-                                                    Select an Account
-                                                </option>
-                                                {accounts.length > 0 ? (
-                                                    accounts.map((account) => (
-                                                        <option key={account.id} value={account.accountNumber}>
-                                                            {account.accountNumber}
-                                                        </option>
-                                                    ))
-                                                ) : (
-                                                    <option value="" disabled>
-                                                        No Accounts Found
-                                                    </option>
-                                                )}
-                                            </select>
+											<div className="d-flex flex-row align-items-center gap-2 text-black">
+												Your Cards
+												<NavLink className="btn" to="/addCard">
+													<svg viewBox="0 0 24 24" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+														<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+														<g id="SVGRepo_iconCarrier">
+															{" "}
+															<path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path> <path d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round"></path>{" "}
+														</g>
+													</svg>
+												</NavLink>
+											</div>
+											<select className="form-select w-50" name="accountNumber" id="accountNumber" onChange={handleChange} aria-label="accountNumber" aria-describedby="accountNumber">
+												<option value="" defaultValue>
+													Select an Account
+												</option>
+												{accounts.length > 0 ? (
+													accounts.map((account) => (
+														<option key={account.id} value={account.accountNumber}>
+															{account.accountNumber}
+														</option>
+													))
+												) : (
+													<option value="" disabled>
+														No Accounts Found
+													</option>
+												)}
+											</select>
 										</h3>
 									</caption>
 									<thead>
@@ -268,33 +273,38 @@ export default function Account() {
 										</tr>
 									</thead>
 									<tbody>
-										{cards.length > 0 ? (
-											cards.map((card, index) => (
-												<tr key={index}>
-													<td>{index + 1}</td>
-													<td>{card.number}</td>
-													<td>{checkTypeCard(card.typeId)}</td>
-													<td>{new Date(Date.parse(card.expiryDate))?.toLocaleDateString()}</td>
-													<td>
-                                                        {   
-                                                        card.active ? 
-                                                        <span className="badge rounded-pill text-bg-success">Active</span>
-                                                        : 
-                                                        <span className="badge rounded-pill text-bg-secondary">Inactive</span>
-                                                        }    
-                                                    </td>
-													<td>
-														<NavLink to={"/cardDetails/" + card.number} className="text-decoration-none">
-															View
-														</NavLink>
-													</td>
+										{!accountNumber ?
+											(
+												<tr>
+													<td colSpan="10">Select an Account</td>
 												</tr>
-											))
-										) : (
-											<tr>
-												<td colSpan="6">No Cards found</td>
-											</tr>
-										)}
+											) : cards.length > 0 ? (
+												cards.map((card, index) => (
+													<tr key={index}>
+														<td>{index + 1}</td>
+														<td>{card.number}</td>
+														<td>{checkTypeCard(card.typeId)}</td>
+														<td>{new Date(Date.parse(card.expiryDate))?.toLocaleDateString()}</td>
+														<td>
+															{
+																card.active ?
+																	<span className="badge rounded-pill text-bg-success">Active</span>
+																	:
+																	<span className="badge rounded-pill text-bg-secondary">Inactive</span>
+															}
+														</td>
+														<td>
+															<NavLink to={"/cardDetails/" + card.number} className="text-decoration-none">
+																View
+															</NavLink>
+														</td>
+													</tr>
+												))
+											) : (
+												<tr>
+													<td colSpan="6">No Cards found</td>
+												</tr>
+											)}
 									</tbody>
 								</table>
 							</div>
