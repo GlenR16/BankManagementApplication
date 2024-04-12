@@ -49,7 +49,8 @@ export default function AdminAccounts() {
 								<th scope="col">IFSC</th>
 								<th scope="col">Type</th>
 								<th scope="col">Balance</th>
-								<th scope="col">Status</th>
+								<th scope="col">Account Status</th>
+								<th scope="col">Verified Status</th>
 								<th scope="col">Action</th>
 							</tr>
 						</thead>
@@ -83,6 +84,14 @@ export default function AdminAccounts() {
                                                 ""
                                             }
                                         </td>
+                                        <td>
+                                            {
+                                                account.verified ?
+                                                <span className="badge rounded-pill bg-success">Verified</span>
+                                                :
+                                                <span className="badge rounded-pill bg-danger">Not Verified</span>
+                                            }
+                                        </td>
 										<td>
 											{/* TO CHANGE THE LINK */}
 											<NavLink to={"/accountDetails/"+account.accountNumber} className="text-decoration-none">
@@ -93,7 +102,7 @@ export default function AdminAccounts() {
 								))
 							) : (
 								<tr>
-									<td colSpan="5">No accounts found</td>
+									<td colSpan="9">No accounts found</td>
 								</tr>
 							)}
 						</tbody>

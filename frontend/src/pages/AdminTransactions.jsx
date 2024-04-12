@@ -101,7 +101,7 @@ export default function AdminTransactions() {
 								))
 							) : (
 								<tr>
-									<td colSpan="5">No Transactions found</td>
+									<td colSpan="10">No Transactions found</td>
 								</tr>
 							)}
 						</tbody>

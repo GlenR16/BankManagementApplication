@@ -18,7 +18,7 @@ Using Docker:
 - Uses large amount of RAM and CPU resources.
 
 ## Tasks remaining
-- Add remaining pages to frontend.
+- Final Optimizations and improvements.
 ------------------------------------------------
 - Use at least 3 design patterns while implementing solution
 - Enabling SSL
@@ -26,6 +26,7 @@ Using Docker:
 
 ## Tasks Done
 - Asynchronous communication
+- ~~Complete frontend.~~
 - ~~Webclient should be used instead of RestTemplate.~~
 - ~~Role authentication must be added.~~
 - ~~Define and document clear db design~~
