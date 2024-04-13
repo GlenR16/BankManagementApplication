@@ -46,10 +46,10 @@ export default function Withdraw() {
 		api.post("/transaction/deposit", form)
 			.then((res) => {
 				setLoading(false);
-				navigate("/transaction/" + res.data.transaction.id);
+				navigate("/transaction/" + res.data.id);
 			})
 			.catch((err) => {
-				if (err.response) setError(err.response.data.error);
+				if (err.response) setError(err.response.data.message);
 				else setError("Something went wrong");
 				setLoading(false);
 			});
@@ -151,4 +151,3 @@ export default function Withdraw() {
 	);
 }
 
-//onClick={() => console.log(form)}

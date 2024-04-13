@@ -2,16 +2,14 @@ package com.wissen.bank.accountservice.controllers;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.accountservice.exceptions.NotFoundException;
-import com.wissen.bank.accountservice.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.Branch;
 import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.repositories.BranchRepository;
@@ -31,8 +29,6 @@ public class BranchController {
     @Autowired
     private BranchRepository branchRepo;
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
     @GetMapping("")
     public List<Branch> getAllBranches(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         return branchRepo.findAll();
@@ -48,35 +44,31 @@ public class BranchController {
                 .address(branch.getAddress())
                 .ifsc(branch.getIfsc())
                 .build();
-            if (_branch == null) {
-                throw new NotFoundException("Branch Object Null");
-            }
-            LOGGER.info("Admin {} created new branch", customerId);
             return branchRepo.save(_branch);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PutMapping("/{id}")
     public Branch updateBranch(@PathVariable long id, @RequestBody Branch branch,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            Branch _branch = branchRepo.findById(id).orElseThrow(() -> new NotFoundException("Branch not found"));
+            Branch _branch = branchRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Branch not found"));
             if (!branch.getAddress().isBlank()) _branch.setAddress(branch.getAddress());
             if (!branch.getIfsc().isBlank()) _branch.setIfsc(branch.getIfsc());
             if (!branch.getName().isBlank()) _branch.setName(branch.getName());
             return branchRepo.save(_branch);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @DeleteMapping("/{id}")
-    public String deleteBranch(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public Branch deleteBranch(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            Branch branch = branchRepo.findById(id).orElseThrow(() -> new NotFoundException("Branch not found"));
+            Branch branch = branchRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Branch not found"));
             branchRepo.delete(branch);
-            LOGGER.info("Branch {} deleted by admin {}",id,customerId);
+            return branch;
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PostConstruct

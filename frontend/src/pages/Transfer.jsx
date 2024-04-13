@@ -50,12 +50,12 @@ export default function () {
 		api.post("/transaction/transfer", transaction)
 			.then((res) => {
 				console.log(res.data);
-				navigate("/transaction/" + res.data.transaction.id);
+				navigate("/transaction/" + res.data.id);
 				setLoading(false);
 				setError("");
 			})
 			.catch((err) => {
-				if (err.response) setError(err.response.data.error);
+				if (err.response) setError(err.response.data.message);
 				else setError("Something went wrong");
 				setLoading(false);
 			});

@@ -2,21 +2,19 @@ package com.wissen.bank.cardservice.controllers;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.cardservice.exceptions.UnauthorizedException;
 import com.wissen.bank.cardservice.models.CardType;
 import com.wissen.bank.cardservice.models.Role;
 import com.wissen.bank.cardservice.repositories.CardTypeRepository;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.ws.rs.NotFoundException;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,8 +29,6 @@ public class CardTypeController {
     @Autowired
     private CardTypeRepository cardTypeRepo;
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
     @GetMapping("")
     public List<CardType> getAllCardTypes(@RequestHeader("Customer") String customer,
             @RequestHeader("Role") Role role) {
@@ -42,7 +38,7 @@ public class CardTypeController {
     @GetMapping("/{id}")
     public CardType getCardTypeById(@PathVariable long id, @RequestHeader("Customer") String customer,
             @RequestHeader("Role") Role role) {
-        return cardTypeRepo.findById(id).orElseThrow(() -> new NotFoundException("CardType not found"));
+        return cardTypeRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card type not found."));
     }
 
     @PostMapping("")
@@ -54,14 +50,10 @@ public class CardTypeController {
                     .name(cardType.getName())
                     .interest(cardType.getInterest())
                     .build();
-            if (_cardType == null) {
-                throw new NotFoundException("Card type object null");
-            }
-            LOGGER.info("Admin {} created new card type", customer);
             return cardTypeRepo.save(_cardType);
         }
 
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PutMapping("/{id}")
@@ -69,30 +61,28 @@ public class CardTypeController {
             @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             CardType _cardType = cardTypeRepo.findById(id)
-                    .orElseThrow(() -> new NotFoundException("CardType not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card type not found"));
             if (cardType.getName() != null) {
                 _cardType.setName(cardType.getName());
             }
             if (cardType.getInterest() != 0) {
                 _cardType.setInterest(cardType.getInterest());
             }
-            LOGGER.info("Admin {} updated card type with id: {}", customer, id);
             return cardTypeRepo.save(_cardType);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @DeleteMapping("/{id}")
-    public String deleteCardType(@PathVariable long id, @RequestHeader("Customer") String customer,
+    public CardType deleteCardType(@PathVariable long id, @RequestHeader("Customer") String customer,
             @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
             CardType cardType = cardTypeRepo.findById(id)
-                    .orElseThrow(() -> new NotFoundException("CardType not found"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card type not found"));
             cardTypeRepo.delete(cardType);
-            LOGGER.info("Admin {} deleted card type with id : {} ", customer, id);
-            return "CardType Deleted";
+            return cardType;
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PostConstruct

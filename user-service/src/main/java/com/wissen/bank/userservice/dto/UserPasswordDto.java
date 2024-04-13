@@ -1,4 +1,4 @@
-package com.wissen.bank.userservice.dao;
+package com.wissen.bank.userservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserPasswordDao {
+public class UserPasswordDto {
     private String oldPassword;
     private String newPassword1;
     private String newPassword2;

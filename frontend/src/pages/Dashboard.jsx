@@ -12,9 +12,9 @@ export default function Dashboard() {
 
 
 	return (
-		<div className="container-fluid col-sm-12 col-md-8 my-4">
+		<div className="container-fluid col-sm-12 col-md-8 my-2">
 			<div className="row flex-lg-row-reverse align-items-center justify-content-center text-center">
-				<div className="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4 mt-0">
+				<div className="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-3 mt-0">
 					<div className="col">
 						<div className="card">
 							<div className="card-body">

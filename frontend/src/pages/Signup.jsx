@@ -56,7 +56,7 @@ export default function Signup() {
                 detailsModal.show();
 			})
 			.catch((err) => {
-				if (err.response) setError(err.response.data.error);
+				if (err.response) setError(err.response.data.message);
 				else setError("Something went wrong");
 				setLoading(false);
 			});

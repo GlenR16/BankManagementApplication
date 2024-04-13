@@ -7,12 +7,11 @@ import java.util.Random;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.cardservice.exceptions.InvalidDataException;
-import com.wissen.bank.cardservice.exceptions.NotFoundException;
-import com.wissen.bank.cardservice.exceptions.UnauthorizedException;
 import com.wissen.bank.cardservice.models.Card;
 import com.wissen.bank.cardservice.models.CreditCardDetail;
 import com.wissen.bank.cardservice.repositories.CardRepository;
@@ -36,7 +35,7 @@ public class CardService {
     }
 
     public Card getCardByNumber(long number){
-        return cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
+        return cardRepository.findByNumber(number).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
     }
 
     public List<Card> getCardsByAccountNumber(long accountNumber){
@@ -71,7 +70,7 @@ public class CardService {
     @Transactional
     public Card createCard(Card card) {
         if (card == null || !validateCard(card)){
-            throw new InvalidDataException("Invalid card");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Card details incomplete.");
         }
         Card _card = Card
             .builder()
@@ -81,14 +80,11 @@ public class CardService {
             .pin(makePin())
             .expiryDate(makeExpiry())
             .typeId(card.getTypeId())
-            .isVerified(true)
+            .isVerified(false)
             .isActive(true)
             .isLocked(false)
             .isDeleted(false)
             .build();
-        if (_card == null){
-            throw new NotFoundException("Card not found");
-        }
         _card = cardRepository.save(_card);
         if (_card.getTypeId() == 2){
             CreditCardDetail ccd = CreditCardDetail
@@ -104,17 +100,17 @@ public class CardService {
 
     @Transactional
     public Card updateCardPin(int oldPin, int newPin , long number) {
-        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
         if (card.getPin() == oldPin && newPin != oldPin && newPin < 9999 && newPin > 1000){
             card.setPin(newPin);
             return cardRepository.save(card);
         }
-        throw new UnauthorizedException("Invalid pin");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid pin");
     }
 
     @Transactional
     public Card lockSwitchCardByNumber(long number) {
-        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
         if (card.isLocked() && card.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
             card.setLocked(false);
         }
@@ -123,10 +119,17 @@ public class CardService {
         }
         return cardRepository.save(card);
     }
+
+    @Transactional
+    public Card verifyCardByNumber(long number) {
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
+        card.setVerified(true);
+        return cardRepository.save(card);
+    }
     
     @Transactional
     public Card deleteCardByNumber(long number) {
-        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new NotFoundException("Card not found"));
+        Card card = cardRepository.findByNumber(number).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Card not found"));
         card.setDeleted(true);
         return cardRepository.save(card);
     }

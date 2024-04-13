@@ -69,11 +69,11 @@ export default function () {
 		e.preventDefault();
 		api.post("/transaction/cardTransfer", transaction)
 			.then((res) => {
-				navigate("/transaction/" + res.data.transaction.id);
+				navigate("/transaction/" + res.data.id);
 				setLoading(false);
 			})
 			.catch((err) => {
-				if (err.response) setError(err.response.data.error);
+				if (err.response) setError(err.response.data.message);
 				else setError("Something went wrong");
 				setLoading(false);
 			});

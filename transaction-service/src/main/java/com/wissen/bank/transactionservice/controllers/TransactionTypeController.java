@@ -2,19 +2,18 @@ package com.wissen.bank.transactionservice.controllers;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.transactionservice.exceptions.UnauthorizedException;
 import com.wissen.bank.transactionservice.models.Role;
 import com.wissen.bank.transactionservice.models.TransactionType;
 import com.wissen.bank.transactionservice.repositories.TransactionTypeRepository;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.ws.rs.NotFoundException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,67 +30,44 @@ public class TransactionTypeController {
     @Autowired
     private TransactionTypeRepository transactionTypeRepository;
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
     @GetMapping("")
     public List<TransactionType> getAllTransactionType(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        LOGGER.info("Admin {} Fetched all Transaction Type" ,customerId);
         return transactionTypeRepository.findAll();
     }
 
     @PostMapping("")
-    public TransactionType putTransactionType(@RequestBody TransactionType tr, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-
+    public TransactionType putTransactionType(@RequestBody TransactionType transactionType, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
             TransactionType _transactionType = TransactionType
-                    .builder()
-                    .type(tr.getType())
-                    .build();
-
-                    if (_transactionType == null){
-                        throw new NotFoundException("Transaction Type Object Null");
-                    }
-
-            LOGGER.info("Admin {} Created a transaction type record",customerId);
+            .builder()
+            .type(transactionType.getType())
+            .build();
             return transactionTypeRepository.save(_transactionType);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PutMapping("{id}")
     public TransactionType updateTransactionType(@PathVariable long id, @RequestBody TransactionType transactionType, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
-            if (transactionTypeRepository.existsById(id)) {
-                TransactionType _transactionType = transactionTypeRepository.findById(id).orElseThrow();
-
-                _transactionType.setType(transactionType.getType());
-
-                LOGGER.info("Admin {} Update TransactionType success",customerId);
-                return transactionTypeRepository.save(_transactionType);
-            } else
-                LOGGER.info("Admin {} TransactionType with id :{} not found with CUSTOMER : ",id,customerId);
-            return null;
+            TransactionType _transactionType = transactionTypeRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "TransactionType not found"));
+            _transactionType.setType(transactionType.getType());
+            return transactionTypeRepository.save(_transactionType);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @DeleteMapping("{id}")
-    public String deleteTransactionType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-
+    public ResponseEntity<TransactionType> deleteTransactionType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if(role == Role.ADMIN || role == Role.EMPLOYEE)
         {
-            if (transactionTypeRepository.existsById(id)) {
-                LOGGER.info("Admin {} Delete TransactionType success",customerId);
-                transactionTypeRepository.deleteById(id);
-                return "DELETED SUCCESSFULLY";
-            } else
-                LOGGER.info("Admin {} TransactionType with id : {} not found",id,customerId);
-                return "Unsuccessfull";
+            TransactionType _transactionType = transactionTypeRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction type not found."));
+            transactionTypeRepository.delete(_transactionType);
+            return ResponseEntity.ok().body(_transactionType);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot delete this record.");
     }
 
 

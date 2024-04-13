@@ -8,7 +8,6 @@ import com.wissen.bank.transactionservice.models.Card;
 import com.wissen.bank.transactionservice.models.CardType;
 import com.wissen.bank.transactionservice.models.CreditCardDetail;
 import com.wissen.bank.transactionservice.models.Role;
-import com.wissen.bank.transactionservice.responses.Response;
 
 import reactor.core.publisher.Mono;
 
@@ -55,16 +54,16 @@ public class CardClientService {
             .onErrorResume(e -> Mono.empty());
     }
 
-    public Mono<Response> verifyCard(Card card, String customerId) {
+    public Mono<String> verifyCard(Card card, String customerId) {
         return webClientConfig.cardWebClient().put()
-            .uri("/card/verify")
+            .uri("/card/validate")
             .headers((headers) -> {
                 headers.set("Customer", customerId);
                 headers.set("Role", Role.EMPLOYEE.toString());
             })
             .body(Mono.just(card), Card.class)
             .retrieve()
-            .bodyToMono(Response.class)
+            .bodyToMono(String.class)
             .onErrorResume(e -> Mono.empty());
     }
 

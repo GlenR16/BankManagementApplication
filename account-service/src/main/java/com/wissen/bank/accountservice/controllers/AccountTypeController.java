@@ -1,12 +1,9 @@
 package com.wissen.bank.accountservice.controllers;
 
-import java.util.Date;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.accountservice.exceptions.NotFoundException;
-import com.wissen.bank.accountservice.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.AccountType;
 import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.repositories.AccountTypeRepository;
-import com.wissen.bank.accountservice.responses.Response;
 
 import jakarta.annotation.PostConstruct;
 
@@ -33,7 +28,6 @@ public class AccountTypeController {
     @Autowired
     private AccountTypeRepository accountTypeRepository;
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("")
     public List<AccountType> getAllAccountTypes() {
@@ -48,34 +42,29 @@ public class AccountTypeController {
                 .id(accountType.getId())
                 .name(accountType.getName())
                 .build();
-            if (_accountType == null) {
-                throw new NotFoundException("Account not found");
-            }
-            LOGGER.info("Admin {} created new account type", customerId);
             return accountTypeRepository.save(_accountType);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PutMapping("/{id}")
     public AccountType updateAccountType(@PathVariable long id, @RequestBody AccountType accountType,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            AccountType _accountType = accountTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Account type not found"));
+            AccountType _accountType = accountTypeRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account type not found"));
             if (!accountType.getName().isBlank()) _accountType.setName(accountType.getName());
-            accountTypeRepository.save(_accountType);
+            return accountTypeRepository.save(_accountType);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Response> deleteAccountType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public AccountType deleteAccountType(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            AccountType accountType = accountTypeRepository.findById(id).orElseThrow(() -> new NotFoundException("Account type not found"));
+            AccountType accountType = accountTypeRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account type not found"));
             accountTypeRepository.delete(accountType);
-            LOGGER.info("Admin {} deleted account type {}", customerId , id);
-            return ResponseEntity.ok().body(new Response(new Date(),200,"Account type deleted successfully","/account/type/"+id));
+            return accountType;
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot delete this record.");
     }
 
     @PostConstruct

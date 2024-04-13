@@ -26,8 +26,7 @@ const useAxiosAuth = () => {
 		const responseInterceptor = api.interceptors.response.use(
 			(response) => response,
 			(error) => {
-                console.log("internal => ",error.request.status);
-                if (error.request.status == 401) {
+                if (error.request.status == 403) {
                     sessionStorage.removeItem("token");
                     deleteUser();
                     navigate("/login");

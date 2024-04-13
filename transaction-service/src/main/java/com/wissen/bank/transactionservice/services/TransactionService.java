@@ -3,10 +3,11 @@ package com.wissen.bank.transactionservice.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.transactionservice.exceptions.InvalidDataException;
 import com.wissen.bank.transactionservice.models.Status;
 import com.wissen.bank.transactionservice.models.Transaction;
 import com.wissen.bank.transactionservice.repositories.TransactionRepository;
@@ -24,7 +25,7 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByAccountNumber(long accountNumber) {
-        return transactionRepository.findByAccountNumber(accountNumber);
+        return transactionRepository.findByAccountNumberOrderByCreatedAtDesc(accountNumber);
     }
 
     public List<Transaction> getAllTransactions() {
@@ -33,9 +34,7 @@ public class TransactionService {
 
     @Transactional
     public Transaction createTransaction(Transaction transaction, Status status ){
-        if (transaction == null || !validateTransaction(transaction)) {
-            throw new InvalidDataException("Invalid Transaction");
-        }
+        if (transaction == null || !validateTransaction(transaction)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid transaction details provided.");
         Transaction _transaction ;
         if (transaction.getTypeId() == 1) {
             _transaction = Transaction
@@ -72,7 +71,7 @@ public class TransactionService {
                 .build();
         }
         else{
-            throw new InvalidDataException("Invalid Transaction");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid transaction type provided.");
         }
         return transactionRepository.save(_transaction);
     }

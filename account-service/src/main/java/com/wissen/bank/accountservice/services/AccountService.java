@@ -5,11 +5,11 @@ import java.util.Random;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.accountservice.exceptions.InvalidDataException;
-import com.wissen.bank.accountservice.exceptions.NotFoundException;
 import com.wissen.bank.accountservice.models.Account;
 import com.wissen.bank.accountservice.repositories.AccountRepository;
 
@@ -31,13 +31,13 @@ public class AccountService {
     }
 
     public Account getAccountByAccountNumber(long accountNumber){
-        return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new NotFoundException("Account not found"));
+    return accountRepository.findByAccountNumber(accountNumber).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
     }
 
     @Transactional
     public Account createAccount(Account account){
         if (account == null || !validateAccount(account)){
-            throw new InvalidDataException("Invalid account");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Account details incomplete.");
         }
         Account _account = Account
         .builder()
@@ -57,7 +57,7 @@ public class AccountService {
 
     @Transactional
     public Account updateAccountByAccountNumber(Account newAccount, long accountNumber){
-        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
         if (newAccount.getBranchId() > 0){
             account.setBranchId(newAccount.getBranchId());
         }
@@ -75,19 +75,22 @@ public class AccountService {
 
     @Transactional
     public Account verifyAccountByAccountNumber(long accountNumber){
-        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
         account.setVerified(true);
         return accountRepository.save(account);
     }
 
     @Transactional
     public Account switchAccountLockByAccountNumber(long accountNumber){
-        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
         if (account.isLocked() && account.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
             account.setLocked(false);
         }
-        else{
+        else if (!account.isLocked()){
             account.setLocked(true);
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account cannot be unlocked before 2 days have passed.");
         }
         return accountRepository.save(account);
     }
@@ -101,7 +104,7 @@ public class AccountService {
 
     @Transactional
     public Account deleteAccountByAccountNumber(long accountNumber){
-        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new NotFoundException("Account not found"));
+        Account account = accountRepository.findByAccountNumber(accountNumber).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
         account.setDeleted(true);
         return accountRepository.save(account);
     }

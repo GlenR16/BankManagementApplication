@@ -1,16 +1,12 @@
 package com.wissen.bank.userservice.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.userservice.dao.UserDao;
-import com.wissen.bank.userservice.dao.UserPasswordDao;
-import com.wissen.bank.userservice.exceptions.DatabaseIntegrityException;
-import com.wissen.bank.userservice.exceptions.InvalidCredentialsException;
-import com.wissen.bank.userservice.exceptions.TokenInvalidException;
-import com.wissen.bank.userservice.exceptions.UnauthorizedException;
+import com.wissen.bank.userservice.dto.UserDto;
+import com.wissen.bank.userservice.dto.UserPasswordDto;
 import com.wissen.bank.userservice.models.Role;
 import com.wissen.bank.userservice.models.User;
-import com.wissen.bank.userservice.responses.Response;
 import com.wissen.bank.userservice.services.JWTService;
 import com.wissen.bank.userservice.services.UserService;
 
@@ -24,11 +20,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -40,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.PutMapping;
 
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -49,101 +46,97 @@ public class UserController {
 
     @Autowired
     private JWTService jwtService;
-
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    
 
     @GetMapping("")
-    public List<UserDao> getAllUsers(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+    public List<UserDto> getAllUsers(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE){
-            LOGGER.info("Admin {} Getting all users",customerId);
             return userService.getAllUsers();
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }
 
     @GetMapping("/{customerId}")
-    public UserDao getUserByCustomerId(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+    public UserDto getUserByCustomerId(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE || customer.equals(customerId)){
-            LOGGER.info("Admin Getting user id: {}",customerId);
             User user = userService.getUserByCustomerId(customerId);
-            return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).gender(user.getGender()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+            return UserDto.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).gender(user.getGender()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }
 
     @GetMapping("/details")
-    public UserDao getUserDetails(@RequestHeader("Customer") String customerId) {
+    public UserDto getUserDetails(@RequestHeader("Customer") String customerId) {
         User user =  userService.getUserByCustomerId(customerId);
-        return UserDao.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).gender(user.getGender()).updatedAt(user.getUpdatedAt()).build();
+        return UserDto.builder().customerId(user.getCustomerId()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).gender(user.getGender()).updatedAt(user.getUpdatedAt()).build();
     }
 
     @PostMapping("/signup")
-    public UserDao createUser(@RequestBody User user){
+    public UserDto createUser(@RequestBody User user){
         User _user = userService.createUser(user);
-        LOGGER.info("Creating user with customer id: {}",_user.getCustomerId());
-        return UserDao.builder().customerId(_user.getCustomerId()).name(_user.getName()).email(_user.getEmail()).gender(_user.getGender()).role(_user.getRole()).phone(_user.getPhone()).aadhaar(_user.getAadhaar()).pan(_user.getPan()).state(_user.getState()).city(_user.getCity()).address(_user.getAddress()).pincode(_user.getPincode()).dateOfBirth(_user.getDateOfBirth()).isLocked(_user.isLocked()).isDeleted(_user.isDeleted()).createdAt(_user.getCreatedAt()).updatedAt(_user.getUpdatedAt()).build();
+        return UserDto.builder().customerId(_user.getCustomerId()).name(_user.getName()).email(_user.getEmail()).gender(_user.getGender()).role(_user.getRole()).phone(_user.getPhone()).aadhaar(_user.getAadhaar()).pan(_user.getPan()).state(_user.getState()).city(_user.getCity()).address(_user.getAddress()).pincode(_user.getPincode()).dateOfBirth(_user.getDateOfBirth()).isLocked(_user.isLocked()).isDeleted(_user.isDeleted()).createdAt(_user.getCreatedAt()).updatedAt(_user.getUpdatedAt()).build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Response> loginUser(@RequestBody User user){
+    public ResponseEntity<String> loginUser(@RequestBody User user){
         User _user = userService.getUserByCustomerId(user.getCustomerId());
-        if(!_user.isDeleted() && !_user.isLocked() && _user.verifyPassword(user.getPassword()) ){
-            LOGGER.info("Logging in user id: {}",_user.getId());
+        if (_user.isDeleted() || _user.isLocked()) throw new ResponseStatusException(HttpStatus.LOCKED, "Account is locked or deleted.");
+        if( _user.verifyPassword(user.getPassword()) ){
             String token = jwtService.generateToken(_user);
-            return ResponseEntity.ok().body(new Response(new Date(),200,token,"/user/login"));
+            return ResponseEntity.ok().body(token);
         }
-        LOGGER.error("Invalid credentials for user: {}",user.getCustomerId());
-        throw new InvalidCredentialsException("Invalid Credentials");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials.");
     }
 
     @PostMapping("/verify")
-    public UserDao verifyUser(@RequestBody Map<String,String> body){
+    public UserDto verifyUser(@RequestBody Map<String,String> body){
         String customerId = jwtService.extractId(body.get("token"));
         User user = userService.getUserByCustomerId(customerId);
-        return UserDao.builder().customerId(user.getCustomerId()).gender(user.getGender()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
+        return UserDto.builder().customerId(user.getCustomerId()).gender(user.getGender()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
 
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<Response> deleteUser(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
-        LOGGER.info("Deleting user id: {}",customerId);
+    public UserDto deleteUser(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE){
+            User user = userService.getUserByCustomerId(customerId);
             userService.deleteUserByCustomerId(customerId);
-            return ResponseEntity.ok().body(new Response(new Date(),200,"User deleted successfully","/user/"+customerId));
+            return UserDto.builder().customerId(user.getCustomerId()).gender(user.getGender()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
         }
-        else{
-            throw new UnauthorizedException("Unauthorized");
-        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot delete this account.");
     }
 
     @PostMapping("/lock/{customerId}")
-    public UserDao postLock(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+    public UserDto postLock(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         User user = userService.getUserByCustomerId(customerId);
         if (role == Role.ADMIN || role == Role.EMPLOYEE || user.getCustomerId().equals(customer)){
-            LOGGER.info("Locking user id: {}",customerId);
             if (user.isLocked()){
                 return userService.unlockUser(customerId);
             }
-            else{
+            else if (!user.isLocked() && user.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
                 return userService.lockUser(customerId);
             }
+            else{
+                throw new ResponseStatusException(HttpStatus.LOCKED,"Account cannot be unlocked before 2 days have passed.");
+            }
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
     
 
     @PutMapping("/{customerId}")
-    public ResponseEntity<Response> updateUser(@PathVariable String customerId, @RequestBody User user,@RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
+    public UserDto updateUser(@PathVariable String customerId, @RequestBody User user,@RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         if (role == Role.ADMIN || role == Role.EMPLOYEE || customer.equals(customerId)){
-            LOGGER.info("Updating user id: {}",customerId);
-            userService.updateUser(user, customerId);
-            return ResponseEntity.ok().body(new Response(new Date(),200,"User updated successfully","/user/"+customerId));
+            return userService.updateUser(user, customerId);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PutMapping("password")
-    public UserDao putPassword(@RequestBody UserPasswordDao user ,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        return userService.changePassword(customerId, user.getOldPassword(), user.getNewPassword1(), user.getNewPassword2());
+    public UserDto putPassword(@RequestBody UserPasswordDto user ,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+        if (role == Role.USER){
+            return userService.changePassword(customerId, user.getOldPassword(), user.getNewPassword1(), user.getNewPassword2());
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin cannot edit these details.");
     }
 
     @PostConstruct
@@ -187,20 +180,17 @@ public class UserController {
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class })
-    public ResponseEntity<Response> handleSQLException(Exception e){
-        LOGGER.error("Error: {}",e.getMessage());
-        throw new DatabaseIntegrityException("Database Integrity Violation");
+    public void handleSQLException(Exception e){
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some fields are already used.");
     }
 
     @ExceptionHandler({ SignatureException.class, ExpiredJwtException.class, MalformedJwtException.class })
-    public ResponseEntity<Response> handleSignatureException(Exception e){
-        LOGGER.error("Error: {}",e.getMessage());
-        throw new TokenInvalidException("Token Invalid");
+    public void handleSignatureException(Exception e){
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token is invalid or has expired.");
     }
 
     @ExceptionHandler({ NullPointerException.class })
-    public ResponseEntity<Response> handleNullPointerException(Exception e){
-        LOGGER.error("Error: {}",e.getMessage());
-        throw new DatabaseIntegrityException("Some fields are empty");
+    public void handleNullPointerException(Exception e){
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found.");
     }
 }

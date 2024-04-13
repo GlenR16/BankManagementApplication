@@ -44,11 +44,12 @@ export default function Withdraw() {
 		api.post("/transaction/withdraw", form)
 			.then((res) => {
 				setLoading(false);
-				navigate("/transaction/" + res.data.transaction.id);
+				navigate("/transaction/" + res.data.id);
 			})
 			.catch((err) => {
+                if (err.response) setError(err.response.data.message);
+				else setError("Something went wrong");
 				setLoading(false);
-				navigate("/transaction/" + err.response.data.transaction.id);
 			});
 	}
 

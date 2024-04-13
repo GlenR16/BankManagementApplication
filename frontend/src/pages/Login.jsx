@@ -28,11 +28,11 @@ export default function Login() {
         }
 		api.post("/user/login", form)
         .then((res) => {
-            sessionStorage.setItem("token", res.data.message);
+            sessionStorage.setItem("token", res.data);
             setLoading(false);
         })
         .catch((err) => {
-            if (err.response) setError(err.response.data.error);
+            if (err.response) setError(err.response.data.message);
             else setError("Something went wrong");
             setLoading(false);
         });

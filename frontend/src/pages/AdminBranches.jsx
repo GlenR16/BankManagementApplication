@@ -16,10 +16,9 @@ export default function AdminBranches() {
 	}, [user]);
 
 	useEffect(() => {
-		api.get("/account/branch")
-			.then((response) => {
-				setBranches(response.data);
-			});
+		api.get("/account/branch").then((response) => {
+			setBranches(response.data);
+		});
 	}, []);
 
 	return (
@@ -48,7 +47,7 @@ export default function AdminBranches() {
 								<th scope="col">Name</th>
 								<th scope="col">Address</th>
 								<th scope="col">IFSC</th>
-								<th scope="col">EDIT</th>
+								<th scope="col">Action</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -61,9 +60,13 @@ export default function AdminBranches() {
 										<td>{branch.ifsc}</td>
 										<td>
 											<NavLink to={`/addBranch/${branch.id}`}>
-												<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-													<path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-													<path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+												<svg viewBox="0 0 24 24" height="24" width="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<g id="SVGRepo_bgCarrier" strokeWidth={0} />
+													<g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
+													<g id="SVGRepo_iconCarrier">
+														{" "}
+														<path d="M2 12C2 16.714 2 19.0711 3.46447 20.5355C4.92893 22 7.28595 22 12 22C16.714 22 19.0711 22 20.5355 20.5355C22 19.0711 22 16.714 22 12V10.5M13.5 2H12C7.28595 2 4.92893 2 3.46447 3.46447C2.49073 4.43821 2.16444 5.80655 2.0551 8" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" /> <path d="M16.652 3.45506L17.3009 2.80624C18.3759 1.73125 20.1188 1.73125 21.1938 2.80624C22.2687 3.88124 22.2687 5.62415 21.1938 6.69914L20.5449 7.34795M16.652 3.45506C16.652 3.45506 16.7331 4.83379 17.9497 6.05032C19.1662 7.26685 20.5449 7.34795 20.5449 7.34795M16.652 3.45506L10.6872 9.41993C10.2832 9.82394 10.0812 10.0259 9.90743 10.2487C9.70249 10.5114 9.52679 10.7957 9.38344 11.0965C9.26191 11.3515 9.17157 11.6225 8.99089 12.1646L8.41242 13.9M20.5449 7.34795L17.5625 10.3304M14.5801 13.3128C14.1761 13.7168 13.9741 13.9188 13.7513 14.0926C13.4886 14.2975 13.2043 14.4732 12.9035 14.6166C12.6485 14.7381 12.3775 14.8284 11.8354 15.0091L10.1 15.5876M10.1 15.5876L8.97709 15.9619C8.71035 16.0508 8.41626 15.9814 8.21744 15.7826C8.01862 15.5837 7.9492 15.2897 8.03811 15.0229L8.41242 13.9M10.1 15.5876L8.41242 13.9" stroke="#000000" strokeWidth="1.5" strokeLinecap="round" />{" "}
+													</g>
 												</svg>
 											</NavLink>
 										</td>

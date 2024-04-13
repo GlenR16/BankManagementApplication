@@ -53,7 +53,7 @@ export default function AddingBranch() {
                 navigate("/AdminBranches");
             })
             .catch((err) => {
-                if (err.response) setError(err.response.data.error);
+                if (err.response) setError(err.response.data.message);
                 else setError("Something went wrong");
                 setLoading(false);
             });
@@ -66,7 +66,7 @@ export default function AddingBranch() {
                     navigate("/AdminBranches");
                 })
                 .catch((err) => {
-                    if (err.response) setError(err.response.data.error);
+                    if (err.response) setError(err.response.data.message);
                     else setError("Something went wrong");
                     setLoading(false);
                 });

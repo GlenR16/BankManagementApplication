@@ -4,8 +4,8 @@ import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import com.wissen.bank.userservice.exceptions.InvalidCredentialsException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,7 +61,7 @@ public class User{
 
     public void changePassword(String oldPassword, String newPassword1, String newPassword2){
         if ( !verifyPassword(oldPassword) || !newPassword1.equals(newPassword2)){
-            throw new InvalidCredentialsException("Invalid Credentials");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid credentials.");
         }
         this.setPassword(newPassword1);
     }

@@ -1,4 +1,4 @@
-package com.wissen.bank.userservice.dao;
+package com.wissen.bank.userservice.dto;
 
 import java.util.Date;
 
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDao {
+public class UserDto {
     
     private String customerId;
     private String name;

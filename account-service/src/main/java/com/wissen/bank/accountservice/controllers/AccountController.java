@@ -1,13 +1,11 @@
 package com.wissen.bank.accountservice.controllers;
 
-import java.util.Date;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +16,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.wissen.bank.accountservice.models.Role;
-import com.wissen.bank.accountservice.exceptions.DatabaseIntegrityException;
-import com.wissen.bank.accountservice.exceptions.UnauthorizedException;
 import com.wissen.bank.accountservice.models.Account;
 import com.wissen.bank.accountservice.services.AccountService;
 
 import jakarta.annotation.PostConstruct;
-
-import com.wissen.bank.accountservice.responses.Response;
 
 @RestController
 @RequestMapping("/account")
@@ -35,15 +31,12 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    private Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
     @GetMapping("")
     public List<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Admin {} getting all accounts", customerId);
             return accountService.getAllAccounts();
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }
 
     @GetMapping("/list")
@@ -55,59 +48,50 @@ public class AccountController {
     public Account getAccountByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         Account account = accountService.getAccountByAccountNumber(accountNumber);
         if (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customer)) {
-            LOGGER.info("User {} getting account number: {}",customer, accountNumber);
             return  accountService.getAccountByAccountNumber(accountNumber);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }
 
     @PostMapping("")
     public Account createAccount(@RequestBody Account account,@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         account.setCustomerId(customerId);
         Account _account = accountService.createAccount(account);
-        LOGGER.info("Creating account number: {}", _account.getAccountNumber());
         return _account;
     }
 
     @PostMapping("/verify/{accountNumber}")
     public Account postVerifyAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Admin {} verifying account number: {}",customer, accountNumber);
             return accountService.verifyAccountByAccountNumber(accountNumber);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @PostMapping("/lock/{accountNumber}")
     public Account postLockAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE || accountService.getAccountByAccountNumber(accountNumber).getCustomerId().equals(customer)) {
-            LOGGER.info("Admin {} locking account number: {}",customer, accountNumber);
             return accountService.switchAccountLockByAccountNumber(accountNumber);
         }
-        throw new UnauthorizedException("Unauthorized");
-       
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
-    
     
 
     @PutMapping("/{accountNumber}")
     public Account updateAccount(@PathVariable long accountNumber, @RequestBody Account account, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         Account _account = accountService.getAccountByAccountNumber(accountNumber);
         if ( role == Role.ADMIN || role == Role.EMPLOYEE || _account.getCustomerId().equals(customer)) {
-            LOGGER.info("User {} updating account number: {}",customer, accountNumber);
             return accountService.updateAccountByAccountNumber(account, accountNumber);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot edit these details.");
     }
 
     @DeleteMapping("/{accountNumber}")
-    public ResponseEntity<Response> deleteAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
+    public Account deleteAccount(@PathVariable long accountNumber, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            LOGGER.info("Deleting account number: {}", accountNumber);
-            accountService.deleteAccountByAccountNumber(accountNumber);
-            return ResponseEntity.ok().body(new Response(new Date(), 200,"Deleted account successfully", "/account/" + accountNumber));
+            return accountService.deleteAccountByAccountNumber(accountNumber);
         }
-        throw new UnauthorizedException("Unauthorized");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot delete this record.");
     }
 
     @PostConstruct
@@ -138,10 +122,9 @@ public class AccountController {
         accountService.createAccount(acc3);
     }
 
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class })
-    public ResponseEntity<Response> handleSQLException(Exception e) {
-        LOGGER.error("Error: {}", e.getMessage());
-        throw new DatabaseIntegrityException("Database Integrity Violation");
+    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class })
+    public void handleSQLException(Exception e) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some fields are already used.");
     }
 
 }
