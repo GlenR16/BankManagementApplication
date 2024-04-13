@@ -84,44 +84,59 @@ export default function AdminCustomers() {
 							</tr>
 						</thead>
 						<tbody className="table-group-divider">
-							{!account ? 
-							(
+							{!account ? (
 								<tr>
-									<td colSpan="10">Select an Account</td>
+								<td colSpan="10">Select an Account</td>
 								</tr>
-							) :  transactions.length > 0 ? (
-								transactions.map((transaction, index) => (
-									<tr key={index} className={transaction.status != "COMPLETED" ? "table-disabled" : transaction.debit  ? "table-danger" : "table-success"}>
-										<td>{transaction.id}</td>
-										<td>{transaction.accountNumber}</td>
-										<td>{transaction.cardNumber}</td>
-										<td>{beneficaries.find((x) => x.id == transaction.beneficiaryId)?.recieverNumber ?? "-"}</td>
-										<td>{transaction.debit != 0 ? 
-                                        <div className="text-danger" >- {transaction.debit}</div>
-                                        : 
-                                        <div className="text-success" >+ {transaction.credit}</div>
-                                        }</td>
-                                        <td>
-                                            {transaction.balance}
-                                        </td>
-										<td>{checkType(transaction)}</td>
-										<td>{transaction.createdAt.substring(0, 10)}</td>
-										<td>{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}</td>
-										<td>
-                                            {
-                                                transaction.status == "COMPLETED" ?
-                                                <span className="badge rounded-pill text-bg-success">Success</span>
-                                                :
-                                                <span className="badge rounded-pill text-bg-danger">Failed</span>
-                                            }    
-                                        </td>
+							) : transactions.length > 0 ? (
+								transactions
+								.slice() // Create a copy of the array
+								.sort((a, b) => b.id - a.id) // Sort in descending order of transaction id
+								.map((transaction, index) => (
+									<tr
+									key={index}
+									className={
+										transaction.status !== "COMPLETED"
+										? "table-disabled"
+										: transaction.debit
+										? "table-danger"
+										: "table-success"
+									}
+									>
+									<td>{transaction.id}</td>
+									<td>{transaction.accountNumber}</td>
+									<td>{transaction.cardNumber}</td>
+									<td>
+										{beneficaries.find((x) => x.id === transaction.beneficiaryId)
+										?.recieverNumber ?? "-"}
+									</td>
+									<td>
+										{transaction.debit !== 0 ? (
+										<div className="text-danger">- {transaction.debit}</div>
+										) : (
+										<div className="text-success">+ {transaction.credit}</div>
+										)}
+									</td>
+									<td> {transaction.balance} </td>
+									<td>{checkType(transaction)}</td>
+									<td>{transaction.createdAt.substring(0, 10)}</td>
+									<td>
+										{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}
+									</td>
+									<td>
+										{transaction.status === "COMPLETED" ? (
+										<span className="badge rounded-pill text-bg-success">Success</span>
+										) : (
+										<span className="badge rounded-pill text-bg-danger">Failed</span>
+										)}
+									</td>
 									</tr>
 								))
-							) : (
-								<tr>
+								) : (
+									<tr>
 									<td colSpan="10">No Transactions found</td>
-								</tr>
-							)}
+									</tr>
+								)}
 						</tbody>
 					</table>
 				</div>
