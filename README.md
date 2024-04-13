@@ -14,18 +14,14 @@ This is a simple bank management system made as part of our training at Wissen T
 Using Docker: 
 1. Goto root folder with docker-compose file.
 2. Run "docker-compose up --build"
+If Build issue then do "mvn wrapper:wrapper" in each service folder
 - Logs will appear in the same terminal.
 - Uses large amount of RAM and CPU resources.
 
 ## Tasks remaining
-- Final Optimizations and improvements.
-------------------------------------------------
-- Use at least 3 design patterns while implementing solution
-- Enabling SSL
-- Real time updates to UI in case of multi user environment
+- ALL DONE
 
 ## Tasks Done
-- Asynchronous communication
 - ~~Complete frontend.~~
 - ~~Webclient should be used instead of RestTemplate.~~
 - ~~Role authentication must be added.~~
