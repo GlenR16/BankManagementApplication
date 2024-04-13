@@ -295,8 +295,10 @@ export default function Signup() {
 								<button id="signup" className="w-100 btn btn-primary" type="button" onClick={signup} disabled={loading} >
 									{loading ? (
 										<>
-											<span className="spinner-border spinner-border-sm" aria-hidden="true"></span> <span role="status">Loading...</span>
-										</>
+                                            <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                            {" "}
+                                            <span role="status">Loading...</span>
+                                        </>
 									) : (
 										"Signup"
 									)}

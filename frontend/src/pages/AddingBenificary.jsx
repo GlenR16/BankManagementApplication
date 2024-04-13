@@ -117,9 +117,11 @@ export default function AddingBenificary() {
                         <div>
                             <button className="w-100 btn btn-primary" type="button" onClick={AddBenificary} disabled={loading}>
                                 {loading ? (
-                                    <div className="spinner-border mx-2" role="status">
-                                        <span className="visually-hidden">Loading...</span>
-                                    </div>
+                                    <>
+                                        <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                        {" "}
+                                        <span role="status">Loading...</span>
+                                    </>
                                 ) : (
                                     "Add Benificiary"
                                 )}

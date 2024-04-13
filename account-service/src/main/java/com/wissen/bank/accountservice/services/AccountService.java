@@ -5,6 +5,8 @@ import java.util.Random;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +26,12 @@ public class AccountService {
         return rand.nextLong(100000000,999999999);
     }
 
+    public Page<Account> getAllAccounts(){
+        return accountRepository.findAll(PageRequest.of(0, 500));
+    }
 
-    public List<Account> getAllAccounts(){
-        return accountRepository.findAll();
+    public Page<Account> getAllAccounts(int page){
+        return accountRepository.findAll(PageRequest.of(page, 6));
     }
 
     public Account getAccountByAccountNumber(long accountNumber){

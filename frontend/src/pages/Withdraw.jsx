@@ -121,8 +121,10 @@ export default function Withdraw() {
 											<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={handleConfirm} disabled={loading}>
 												{loading ? (
 													<>
-														<span className="spinner-border spinner-border-sm" aria-hidden="true"></span> <span role="status">Loading...</span>
-													</>
+                                                        <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                                        {" "}
+                                                        <span role="status">Loading...</span>
+                                                    </>
 												) : (
 													"Confirm"
 												)}

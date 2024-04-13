@@ -175,9 +175,11 @@ export default function () {
 											</button>
 											<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={handleClick} disabled={loading}>
 												{loading ? (
-													<div className="spinner-border mx-2" role="status">
-														<span className="visually-hidden">Loading...</span>
-													</div>
+													<>
+                                                        <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                                        {" "}
+                                                        <span role="status">Loading...</span>
+                                                    </>
 												) : (
 													"Confirm"
 												)}

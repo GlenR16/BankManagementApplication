@@ -19,7 +19,7 @@ export default function AccountRegister() {
 	useEffect(() => {
 		api.get("/account/branch")
 			.then((response) => {
-				setBranch(response.data);
+				setBranch(response.data.content);
 			});
 		api.get("/account/type")
 			.then((response) => {

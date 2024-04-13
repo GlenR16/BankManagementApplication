@@ -43,7 +43,7 @@ export default function AdminTransactions() {
 		<div className="container-fluid col-sm-12 col-md-8 my-4">
 			<div className="card mt-4 border-0 shadow">
 				<div className="card-body table-responsive">
-					<table className="table caption-top">
+					<table className="table caption-top text-center">
 						<caption className="text-center border-bottom border-2 border-dark">
 							<h3 className="d-flex flex-row align-items-center gap-2 text-black fw-bold">All Transactions</h3>
 						</caption>

@@ -18,12 +18,8 @@ export default function Account() {
         refreshData()
 		api.get("/account/" + AccountNumber).then((response) => {
             setAccount(response.data);
-            api.get("account/branch").then((branchResponse) => {
-                branchResponse.data.forEach((x) => {
-                    if (x.id === response.data.branchId) {
-                        setBranch(x);
-                    }
-                });
+            api.get("account/branch/"+response.data.branchId).then((branchResponse) => {
+                setBranch(branchResponse.data);
             });
             api.get("/account/type").then((typeResponse) => {
                 setAccountTypes(typeResponse.data);
@@ -113,7 +109,7 @@ export default function Account() {
                                 </div>
                                 <div className="row my-2">
                                     <div className="col-6 fw-bold">Account Type </div>
-                                    <div className=" col"> {accountTypes[account.typeId - 1]?.name} </div>
+                                    <div className=" col"> {accountTypes.find(x => x.id == account.typeId)?.name} </div>
                                 </div>
                             </div>
                             <div className="col-sm-12 col-md-6">

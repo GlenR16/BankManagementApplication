@@ -21,7 +21,7 @@ export default function AddingBranch() {
         if(!id) return;
         api.get("/account/branch")
             .then((response) => {
-                response.data.map((branch) => {
+                response.data.content.map((branch) => {
                     if(branch.id == id) {
                         setForm(branch);
                     }
@@ -127,9 +127,11 @@ export default function AddingBranch() {
                         <div>
                             <button className="w-100 btn btn-primary" type="button" onClick={addBranch} disabled={loading} >
                                 {loading ? (
-                                    <div className="spinner-border mx-2" role="status">
-                                        <span className="visually-hidden">Loading...</span>
-                                    </div>
+                                    <>
+                                        <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                        {" "}
+                                        <span role="status">Loading...</span>
+                                    </>
                                 ) : !id ? "Add Branch" : "Update Branch"}
                             </button>
                         </div>

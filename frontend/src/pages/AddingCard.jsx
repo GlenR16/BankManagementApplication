@@ -109,9 +109,11 @@ export default function addCard() {
                         <div>
                             <button className="w-100 btn btn-primary" type="button" onClick={AddCard} disabled={loading} >
                                 {loading ? (
-                                    <div className="spinner-border mx-2" role="status">
-                                        <span className="visually-hidden">Loading...</span>
-                                    </div>
+                                    <>
+                                        <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                        {" "}
+                                        <span role="status">Loading...</span>
+                                    </>
                                 ) : (
                                     "Add Card"
                                 )}

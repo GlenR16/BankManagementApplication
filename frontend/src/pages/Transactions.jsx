@@ -54,7 +54,7 @@ export default function AdminCustomers() {
 		<div className="container-fluid col-sm-12 col-md-8 my-4">
 			<div className="card mt-1 border-0 shadow">
 				<div className="card-body table-responsive">
-					<table className="table caption-top">
+					<table className="table caption-top text-center">
 						<caption className="text-center border-bottom border-2 border-dark">
 							<h3 className="d-flex flex-row align-items-center justify-content-between gap-2 text-black mx-2">
 								<div className="d-flex flex-row align-items-center gap-2 text-black">Transactions</div>

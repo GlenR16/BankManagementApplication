@@ -3,6 +3,7 @@ package com.wissen.bank.accountservice.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -29,9 +31,9 @@ public class AccountController {
     private AccountService accountService;
 
     @GetMapping("")
-    public List<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public Page<Account> getAllAccounts(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role, @RequestParam(defaultValue = "0") int page) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            return accountService.getAllAccounts();
+            return accountService.getAllAccounts(page);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }

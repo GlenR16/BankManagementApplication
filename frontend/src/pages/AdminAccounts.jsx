@@ -10,6 +10,7 @@ export default function AdminAccounts() {
     const [accounts, setAccounts] = useState([]);
     const [accountTypes, setAccountTypes] = useState([]);
     const [branches, setBranches] = useState([]);
+    const [page, setPage] = useState(0);
 
     useEffect(() => {
         if (user == null) navigate("/login");
@@ -17,7 +18,7 @@ export default function AdminAccounts() {
     },[user]);
 
     useEffect(() => {
-        api.get("/account")
+        api.get("/account?page="+page)
         .then((response) => {
             setAccounts(response.data);
         });
@@ -27,7 +28,7 @@ export default function AdminAccounts() {
         });
         api.get("/account/branch")
         .then((response) => {
-            setBranches(response.data);
+            setBranches(response.data.content);
         });
     }, []);
 
@@ -35,7 +36,7 @@ export default function AdminAccounts() {
 		<div className="container-fluid col-sm-12 col-md-8 my-4">
 			<div className="card mt-4 border-0 shadow">
 				<div className="card-body table-responsive">
-					<table className="table caption-top">
+					<table className="table caption-top text-center">
 						<caption className="text-center border-bottom border-2 border-dark">
 							<h3 className="d-flex flex-row align-items-center gap-2 text-black fw-bold">
 								All Accounts
@@ -55,8 +56,8 @@ export default function AdminAccounts() {
 							</tr>
 						</thead>
 						<tbody>
-							{accounts.length > 0 ? (
-								accounts.map((account, index) => (
+							{accounts?.content?.length > 0 ? (
+								accounts?.content?.map((account, index) => (
 									<tr key={index}>
 										<td>{index+1}</td>
                                         <td>{account.customerId}</td>
@@ -107,6 +108,25 @@ export default function AdminAccounts() {
 							)}
 						</tbody>
 					</table>
+                    <nav aria-label="...">
+						<ul className="pagination justify-content-end">
+							<li className={`page-item ${accounts.first ? "disabled" : ""}`}>
+								<button className="page-link" disabled={accounts.first} onClick={() => setPage(page - 1)}>
+									Previous
+								</button>
+							</li>
+							{[...Array(accounts.totalPages).keys()].map((pageNo) => (
+								<li key={pageNo} className={`page-item ${pageNo == page ? "active" : ""}`}>
+									<button className="page-link" onClick={() => setPage(pageNo)}>
+										{pageNo + 1}
+									</button>
+								</li>
+							))}
+							<li className={`page-item ${accounts.last ? "disabled" : ""}`}>
+								<button className="page-link" disabled={accounts.last} onClick={() => setPage(page + 1)}>Next</button>
+							</li>
+						</ul>
+					</nav>
 				</div>
 			</div>
 		</div>

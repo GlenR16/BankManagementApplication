@@ -28,8 +28,7 @@ export default function Account() {
 			setAccountTypes(response.data);
 		});
 		api.get("account/branch").then((response) => {
-			console.log("Branches", response.data);
-			setBranches(response.data);
+			setBranches(response.data.content);
 		});
 	}, []);
 
@@ -82,7 +81,7 @@ export default function Account() {
 					<div id="account">
 						<div className="card rounded-top-0 mt-0 border-0 shadow">
 							<div className="card-body table-responsive">
-								<table className="table caption-top">
+								<table className="table caption-top text-center">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center gap-2 text-black">
 											Your accounts
@@ -156,7 +155,7 @@ export default function Account() {
 					<div id="beneficiaries">
 						<div className="card rounded-top-0 mt-0 border-0 shadow">
 							<div className="card-body table-responsive">
-								<table className="table caption-top">
+								<table className="table caption-top text-center">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center justify-content-between gap-2 text-black mx-2">
 											<div className="d-flex flex-row align-items-center gap-2 text-black">
@@ -228,7 +227,7 @@ export default function Account() {
 					<div id="cards">
 						<div className="card rounded-top-0 mt-0 border-0 shadow">
 							<div className="card-body table-responsive">
-								<table className="table caption-top">
+								<table className="table caption-top text-center">
 									<caption className="text-center border-bottom border-2 border-dark">
 										<h3 className="d-flex flex-row align-items-center justify-content-between gap-2 text-black mx-2">
 											<div className="d-flex flex-row align-items-center gap-2 text-black">

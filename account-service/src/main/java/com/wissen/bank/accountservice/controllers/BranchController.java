@@ -1,12 +1,18 @@
 package com.wissen.bank.accountservice.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,12 +22,6 @@ import com.wissen.bank.accountservice.repositories.BranchRepository;
 
 import jakarta.annotation.PostConstruct;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
 @RestController
 @RequestMapping("/account/branch")
 public class BranchController {
@@ -30,9 +30,15 @@ public class BranchController {
     private BranchRepository branchRepo;
 
     @GetMapping("")
-    public List<Branch> getAllBranches(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
-        return branchRepo.findAll();
+    public Page<Branch> getAllBranches(@RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "500") int size){
+        return branchRepo.findAll(PageRequest.of(page, size));
     }
+
+    @GetMapping("/{id}")
+    public Branch getBranchById(@PathVariable long id, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role){
+        return branchRepo.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Branch not found"));
+    }
+    
 
     @PostMapping("")
     public Branch postBranch(@RequestBody Branch branch, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
