@@ -21,8 +21,7 @@ public class AccountService {
 
     private long makeAccountNumeber(){
         Random rand = new Random();
-        long accountNo = rand.nextLong(100000000,999999999);
-        return accountNo;
+        return rand.nextLong(100000000,999999999);
     }
 
 
@@ -39,10 +38,14 @@ public class AccountService {
         if (account == null || !validateAccount(account)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Account details incomplete.");
         }
+        long accountNumber = makeAccountNumeber();
+        while (accountRepository.findByAccountNumber(accountNumber).isPresent()) {
+            accountNumber = makeAccountNumeber();
+        }
         Account _account = Account
         .builder()
         .customerId(account.getCustomerId())                                  
-        .accountNumber(makeAccountNumeber())
+        .accountNumber(accountNumber)
         .branchId(account.getBranchId())        
         .typeId(account.getTypeId())
         .balance(account.getBalance())

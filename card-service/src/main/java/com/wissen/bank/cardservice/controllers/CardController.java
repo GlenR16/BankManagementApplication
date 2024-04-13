@@ -1,15 +1,12 @@
 package com.wissen.bank.cardservice.controllers;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -134,11 +131,6 @@ public class CardController{
             return ResponseEntity.ok("Card validation successful.");
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card validation failed.");
-    }
-
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class})
-    public void handleSQLException(Exception e){
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Card already exists.");
     }
 
     @PostConstruct

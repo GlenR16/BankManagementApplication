@@ -3,11 +3,13 @@ import useAxiosAuth from "../contexts/Axios";
 import { NavLink } from "react-router-dom";
 
 export default function AdminCustomers() {
+	const api = useAxiosAuth();
+
 	const [transactions, setTransactions] = useState([]);
 	const [beneficaries, setBeneficaries] = useState([]);
 	const [accounts, setAccounts] = useState([]);
     const [account, setAccount] = useState("");
-	const api = useAxiosAuth();
+    const [page, setPage] = useState(0);
 
 	function handleChange(e) {
 		setAccount(e.target.value);
@@ -20,23 +22,31 @@ export default function AdminCustomers() {
 	}, []);
 
 	useEffect(() => {
-		api.get("/transaction/account/" + account).then((response) => {
-			setTransactions(response.data);
-		});
+		getTransactions();
 		api.get("/account/beneficiary/list").then((response) => {
 			setBeneficaries(response.data);
 		});
 	}, [account]);
 
+    useEffect(() => {
+        getTransactions();
+    }, [page]);
+
+    function getTransactions(){
+        api.get("/transaction/account/" + account+"?page="+page).then((response) => {
+			setTransactions(response.data);
+		});
+    }
+
 	function checkType(transaction) {
 		if (transaction.typeId == 1) {
-			return "Account Transfer";
+			return "Transfer";
 		} else if (transaction.typeId == 2) {
 			return "Withdraw";
 		} else if (transaction.typeId == 3) {
 			return "Deposit";
 		} else if (transaction.typeId == 4) {
-			return "Card Transfer";
+			return "Card Payment";
 		}
 	}
 
@@ -51,7 +61,7 @@ export default function AdminCustomers() {
 								<div className="w-25">
 									<select className="form-select" id="accountNumber" name="accountNumber" onChange={handleChange}>
 										<option value="">Select an Account</option>
-										{accounts.length > 0 ? (
+										{accounts.length > 0 && (
 											accounts.map((account) => {
 												return (
 													<option key={account.accountNumber} value={account.accountNumber}>
@@ -59,8 +69,6 @@ export default function AdminCustomers() {
 													</option>
 												);
 											})
-										) : (
-											<option>No Accounts</option>
 										)}
 									</select>
 									<div className="form-text fs-6">
@@ -79,7 +87,6 @@ export default function AdminCustomers() {
 								<th scope="col">Balance</th>
 								<th scope="col">Type</th>
 								<th scope="col">Date</th>
-								<th scope="col">Time</th>
 								<th scope="col">Status</th>
 							</tr>
 						</thead>
@@ -88,11 +95,8 @@ export default function AdminCustomers() {
 								<tr>
 								<td colSpan="10">Select an Account</td>
 								</tr>
-							) : transactions.length > 0 ? (
-								transactions
-								.slice() // Create a copy of the array
-								.sort((a, b) => b.id - a.id) // Sort in descending order of transaction id
-								.map((transaction, index) => (
+							) : transactions?.content?.length > 0 ? (
+								transactions?.content?.map((transaction, index) => (
 									<tr
 									key={index}
 									className={
@@ -110,19 +114,11 @@ export default function AdminCustomers() {
 										{beneficaries.find((x) => x.id === transaction.beneficiaryId)
 										?.recieverNumber ?? "-"}
 									</td>
-									<td>
-										{transaction.debit !== 0 ? (
-										<div className="text-danger">- {transaction.debit}</div>
-										) : (
-										<div className="text-success">+ {transaction.credit}</div>
-										)}
-									</td>
+                                    <td>{transaction.debit !== 0 ? <div className="text-danger">- {Number.parseFloat(transaction.debit).toFixed(2)}</div> : <div className="text-success">+ {Number.parseFloat(transaction.credit).toFixed(2)}</div>}</td>
+
 									<td> {transaction.balance} </td>
 									<td>{checkType(transaction)}</td>
-									<td>{transaction.createdAt.substring(0, 10)}</td>
-									<td>
-										{new Date(Date.parse(transaction.createdAt))?.toLocaleTimeString()}
-									</td>
+									<td>{(new Date(transaction.createdAt)).toLocaleString()}</td>
 									<td>
 										{transaction.status === "COMPLETED" ? (
 										<span className="badge rounded-pill text-bg-success">Success</span>
@@ -139,6 +135,25 @@ export default function AdminCustomers() {
 								)}
 						</tbody>
 					</table>
+                    <nav aria-label="...">
+						<ul className="pagination justify-content-end">
+							<li className={`page-item ${transactions.first ? "disabled" : ""}`}>
+								<button className="page-link" disabled={transactions.first} onClick={() => setPage(page - 1)}>
+									Previous
+								</button>
+							</li>
+							{[...Array(transactions.totalPages).keys()].map((pageNo) => (
+								<li key={pageNo} className={`page-item ${pageNo == page ? "active" : ""}`}>
+									<button className="page-link" onClick={() => setPage(pageNo)}>
+										{pageNo + 1}
+									</button>
+								</li>
+							))}
+							<li className={`page-item ${transactions.last ? "disabled" : ""}`}>
+								<button className="page-link" disabled={transactions.last} onClick={() => setPage(page + 1)}>Next</button>
+							</li>
+						</ul>
+					</nav>
 				</div>
 			</div>
 		</div>

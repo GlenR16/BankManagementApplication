@@ -1,22 +1,20 @@
 package com.wissen.bank.transactionservice.controllers;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -51,18 +49,18 @@ public class TransactionController {
     private CardClientService cardClientService;
 
     @GetMapping("")
-    public List<Transaction> getAllTransactions(@RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role) {
+    public Page<Transaction> getAllTransactions(@RequestHeader("Customer") String customerId,@RequestHeader("Role") Role role, @RequestParam(defaultValue = "0") int page) {
         if (role == Role.ADMIN || role == Role.EMPLOYEE) {
-            return transactionservice.getAllTransactions();
+            return transactionservice.getAllTransactions(page);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }
 
     @GetMapping("/account/{accountNumber}")
-    public List<Transaction> getTransactionsByAccountNumber(@PathVariable long accountNumber, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
+    public Page<Transaction> getTransactionsByAccountNumber(@PathVariable long accountNumber,@RequestParam(defaultValue = "0") int page, @RequestHeader("Customer") String customerId, @RequestHeader("Role") Role role) {
         Account account = accountClientService.getAccountByAccountNumber(accountNumber, customerId).blockOptional().orElse(null);
         if (account != null && (role == Role.ADMIN || role == Role.EMPLOYEE || account.getCustomerId().equals(customerId))) {
-            return transactionservice.getTransactionsByAccountNumber(accountNumber);
+            return transactionservice.getTransactionsByAccountNumber(accountNumber, page);
         }
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User cannot access these details.");
     }
@@ -213,10 +211,10 @@ public class TransactionController {
         if (ccd == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Credit card details not found.");
         CardType cardType = cardClientService.getCardTypeById(card.getTypeId(), customer).blockOptional().orElse(null);
         if (cardType == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Card type not found.");
-        List<Transaction> transactions = transactionservice.getTransactionsByAccountNumber(card.getAccountNumber());
+        Page<Transaction> transactions = transactionservice.getTransactionsByAccountNumber(card.getAccountNumber());
         double total = ccd.creditUsed() * (1 + cardType.interest());
-        transactions  = transactions.stream().filter(t -> t.getTypeId() == 2).limit(ccd.creditTransactions()).collect(Collectors.toList());
-        return ResponseEntity.ok().body(new BillResponse(new Date(),200,transactions,total,cardType.interest()));
+        List<Transaction> transactionList  = transactions.stream().filter(t -> t.getTypeId() == 2).limit(ccd.creditTransactions()).collect(Collectors.toList());
+        return ResponseEntity.ok().body(new BillResponse(new Date(),200,transactionList,total,cardType.interest()));
     }
 
     @PostMapping("/pay/{number}")
@@ -256,12 +254,5 @@ public class TransactionController {
             .build();
         transactionservice.createTransaction(txn,Status.COMPLETED);
     }
-
-
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class})
-    public void handleSQLException(Exception e) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some fields are already used.");
-    }
-
 }
  

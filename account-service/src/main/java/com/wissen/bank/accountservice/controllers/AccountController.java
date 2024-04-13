@@ -1,13 +1,10 @@
 package com.wissen.bank.accountservice.controllers;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.models.Account;
+import com.wissen.bank.accountservice.models.Role;
 import com.wissen.bank.accountservice.services.AccountService;
 
 import jakarta.annotation.PostConstruct;
@@ -120,11 +117,6 @@ public class AccountController {
                 .withdrawalLimit(20000)
                 .build();
         accountService.createAccount(acc3);
-    }
-
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class })
-    public void handleSQLException(Exception e) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some fields are already used.");
     }
 
 }

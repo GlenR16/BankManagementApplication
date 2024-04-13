@@ -26,6 +26,18 @@ public class UserService {
         if (user == null || !validateUser(user)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User details incomplete.");
         }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User with this email already exists.");
+        }
+        if (userRepository.findByPhone(user.getPhone()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User with this phone number already exists.");
+        }
+        if (userRepository.findByPan(user.getPan()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User with this PAN already exists.");
+        }
+        if (userRepository.findByAadhaar(user.getAadhaar()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User with this Aadhaar already exists.");
+        }
         String customerId = UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(0, 10);
         User _user = User
         .builder()

@@ -72,10 +72,14 @@ public class CardService {
         if (card == null || !validateCard(card)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Card details incomplete.");
         }
+        long cardNumber = makecardNo();
+        while (cardRepository.findByNumber(cardNumber).isPresent()){
+            cardNumber = makecardNo();
+        }
         Card _card = Card
             .builder()
             .accountNumber(card.getAccountNumber())
-            .number(makecardNo())
+            .number(cardNumber)
             .cvv(makeCvv())
             .pin(makePin())
             .expiryDate(makeExpiry())

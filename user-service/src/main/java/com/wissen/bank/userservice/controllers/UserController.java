@@ -1,5 +1,21 @@
 package com.wissen.bank.userservice.controllers;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -10,31 +26,7 @@ import com.wissen.bank.userservice.models.User;
 import com.wissen.bank.userservice.services.JWTService;
 import com.wissen.bank.userservice.services.UserService;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
-
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.time.DateUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
@@ -91,6 +83,7 @@ public class UserController {
     @PostMapping("/verify")
     public UserDto verifyUser(@RequestBody Map<String,String> body){
         String customerId = jwtService.extractId(body.get("token"));
+        if (customerId == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid token provided.");
         User user = userService.getUserByCustomerId(customerId);
         return UserDto.builder().customerId(user.getCustomerId()).gender(user.getGender()).name(user.getName()).email(user.getEmail()).role(user.getRole()).phone(user.getPhone()).aadhaar(user.getAadhaar()).pan(user.getPan()).state(user.getState()).city(user.getCity()).address(user.getAddress()).pincode(user.getPincode()).dateOfBirth(user.getDateOfBirth()).isLocked(user.isLocked()).isDeleted(user.isDeleted()).createdAt(user.getCreatedAt()).updatedAt(user.getUpdatedAt()).build();
     }
@@ -109,10 +102,10 @@ public class UserController {
     public UserDto postLock(@PathVariable String customerId, @RequestHeader("Customer") String customer, @RequestHeader("Role") Role role){
         User user = userService.getUserByCustomerId(customerId);
         if (role == Role.ADMIN || role == Role.EMPLOYEE || user.getCustomerId().equals(customer)){
-            if (user.isLocked()){
+            if (user.isLocked() && user.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
                 return userService.unlockUser(customerId);
             }
-            else if (!user.isLocked() && user.getUpdatedAt().before(DateUtils.addDays(new Date(), -2))){
+            else if (!user.isLocked()){
                 return userService.lockUser(customerId);
             }
             else{
@@ -179,18 +172,4 @@ public class UserController {
         userService.createUser(user2);
     }
 
-    @ExceptionHandler({ DataIntegrityViolationException.class, EmptyResultDataAccessException.class, SQLIntegrityConstraintViolationException.class })
-    public void handleSQLException(Exception e){
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Some fields are already used.");
-    }
-
-    @ExceptionHandler({ SignatureException.class, ExpiredJwtException.class, MalformedJwtException.class })
-    public void handleSignatureException(Exception e){
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Token is invalid or has expired.");
-    }
-
-    @ExceptionHandler({ NullPointerException.class })
-    public void handleNullPointerException(Exception e){
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Resource not found.");
-    }
 }

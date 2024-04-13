@@ -19,7 +19,11 @@ public class JWTService {
     private final String SECRET_KEY = "1C8D6C99DF27B5875DC3E7BFD4E046920BCB70721AFE5442FA9D4FF2FE000753";
 
     public String extractId(String token) {
-        return extractClaim(token, Claims::getSubject);
+        try {
+            return extractClaim(token, Claims::getSubject);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> resolver) {

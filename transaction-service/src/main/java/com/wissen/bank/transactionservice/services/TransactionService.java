@@ -1,8 +1,8 @@
 package com.wissen.bank.transactionservice.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +24,16 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(() -> new NotFoundException("Transaction not found"));
     }
 
-    public List<Transaction> getTransactionsByAccountNumber(long accountNumber) {
-        return transactionRepository.findByAccountNumberOrderByCreatedAtDesc(accountNumber);
+    public Page<Transaction> getTransactionsByAccountNumber(long accountNumber) {
+        return transactionRepository.findByAccountNumberOrderByCreatedAtDesc(accountNumber, PageRequest.of(0, 100));
     }
 
-    public List<Transaction> getAllTransactions() {
-        return transactionRepository.findAll();
+    public Page<Transaction> getTransactionsByAccountNumber(long accountNumber, int page) {
+        return transactionRepository.findByAccountNumberOrderByCreatedAtDesc(accountNumber, PageRequest.of(page, 6));
+    }
+
+    public Page<Transaction> getAllTransactions(int page) {
+        return transactionRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(page, 6));
     }
 
     @Transactional

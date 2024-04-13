@@ -19,7 +19,7 @@ public class LoggingAspect {
 
     @AfterThrowing(pointcut = "controllerPointcut()", throwing = "exception")
     public void logException(ResponseStatusException exception) {
-        LOGGER.error("Exception occurred: ", exception.getReason());
+        LOGGER.error("Exception occurred: ", exception.getMessage());
     }
 
 }
