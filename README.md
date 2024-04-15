@@ -1,6 +1,6 @@
 # Bank Management System
 This is a simple bank management system made as part of our training at Wissen Technology. It follows standard coding practices and uses a microservices architecture. 
-- Status: In progress
+- Status: Completed
 
 ## Instructions to run
 1. Run docker containers PostgresDB and OpenZipkin.
@@ -9,17 +9,18 @@ This is a simple bank management system made as part of our training at Wissen T
  - service-registry
  - api-gateway
  - user-service
- - other services according to requirements.  
+ - account-service
+ - card-service
+ - transaction-service
+ - frontend
 ------------------------------------------------
 Using Docker: 
 1. Goto root folder with docker-compose file.
 2. Run "docker-compose up --build"
-If Build issue then do "mvn wrapper:wrapper" in each service folder
-- Logs will appear in the same terminal.
-- Uses large amount of RAM and CPU resources.
+- If Build issue then run "mvn wrapper:wrapper" in each service folder.
 
 ## Tasks remaining
-- ALL DONE
+- None
 
 ## Tasks Done
 - ~~Complete frontend.~~

@@ -10,7 +10,7 @@ Frontend application uses Vite as a build tool due to its developer friendly fea
 - The Suspense is the loading between pages.
 
 ### Instructions to run
-- Run backend until user-service.
+- Run backend.
 - cd frontend
 - npm install 
 - npm run dev
